@@ -1,14 +1,15 @@
 package net.logicaltrust;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Optional;
 
 import burp.IExtensionHelpers;
 import burp.IHttpListener;
 import burp.IHttpRequestResponse;
 import burp.IHttpService;
 import burp.IRequestInfo;
+import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockHolder;
 
 public class MyHttpListener implements IHttpListener {
@@ -25,20 +26,28 @@ public class MyHttpListener implements IHttpListener {
 
 	@Override
 	public void processHttpMessage(int toolFlag, boolean isReq, IHttpRequestResponse messageInfo) {
-		if (isReq && mockHolder.hasAnyMock()) {
-			byte[] request = messageInfo.getRequest();
-			IHttpService httpService = messageInfo.getHttpService();
-			IRequestInfo analyzedReq = helpers.analyzeRequest(httpService, request);
+		if (mockHolder.hasAnyMock()) {
+			
+			IRequestInfo analyzedReq = helpers.analyzeRequest(messageInfo.getHttpService(), messageInfo.getRequest());
 			URL url = analyzedReq.getUrl();
-			logger.debug(url + "");
-			String match = mockHolder.findMatch(url);
-			if (match != null) {
-				IHttpService service = helpers.buildHttpService("localhost", 8765, false);
-				List<String> headers = new ArrayList<>();
-				headers.add("GET /" + match  + " HTTP/1.0");
-				byte[] buildHttpMessage = helpers.buildHttpMessage(headers, null);
-				logger.debug("Msg: " + new String(buildHttpMessage));
-				messageInfo.setHttpService(service);
+			
+			if (isReq) {
+				Optional<Long> match = mockHolder.findMatch(url);
+				if (match.isPresent()) {
+					logger.debug("Successful URL match: " + url);
+					IHttpService service = helpers.buildHttpService("localhost", 8765, false);
+					byte[] localReq = helpers.buildHttpMessage(Arrays.asList("GET /?" + match.get() + " HTTP/1.0"), null);
+					messageInfo.setRequest(localReq);
+					messageInfo.setHttpService(service);
+				}
+			} else if (url.getHost().equals("localhost") && url.getPort() == 8765) {
+				String id = url.getQuery();
+				MockEntry entry = mockHolder.getEntry(id);
+				if (entry != null) {
+					messageInfo.setResponse(entry.getResponse());
+				} else {
+					logger.debugForce("Missing response for id " + id);
+				}
 			}
 		}
 	}

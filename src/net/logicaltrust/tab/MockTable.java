@@ -25,7 +25,6 @@ import net.logicaltrust.mock.MockRule;
 public class MockTable extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-//	private final MockTableModel model;
 	private MockTableModel model;
 
 	public MockTable(String title, String tooltip, MockHolder mockHolder, 
