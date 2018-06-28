@@ -18,7 +18,9 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import net.logicaltrust.SimpleLogger;
+import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockHolder;
+import net.logicaltrust.mock.MockRule;
 
 public class MockTable extends JPanel {
 
@@ -77,7 +79,9 @@ public class MockTable extends JPanel {
 			Object[] msg = new Object[] { "Proto", proto, "Host", host, "Port", port, "File", file };
 			int result = JOptionPane.showConfirmDialog(null, msg, "Add mock", JOptionPane.OK_CANCEL_OPTION);
 			if (result == JOptionPane.OK_OPTION) {
-				model.addRow(new Object[] { true, proto.getText(), host.getText(), port.getText(), file.getText() });
+				MockRule rule = new MockRule(proto.getText(), host.getText(), port.getText(), file.getText());
+				MockEntry entry = new MockEntry(rule, new byte[0]);
+				model.addMock(entry);
 			}
 		});
 		
@@ -99,6 +103,10 @@ public class MockTable extends JPanel {
 		btnConstraints.gridx = 0;
 		btnConstraints.gridy = index;
 		return btnConstraints;
+	}
+
+	public void addMock(MockEntry entry) {
+		model.addMock(entry);
 	}
 
 }

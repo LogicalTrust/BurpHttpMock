@@ -44,17 +44,19 @@ public class BurpExtender implements IBurpExtender {
 		
 		MockHolder mockHolder = new MockHolder(entries, settingSaver);
 
+		MockTabPanel tab = new MockTabPanel(logger, callbacks, mockHolder);
+		callbacks.addSuiteTab(tab);
+
 		MyHttpListener httpListener = new MyHttpListener(callbacks.getHelpers(), logger, mockHolder);
 		callbacks.registerHttpListener(httpListener);
-		callbacks.registerContextMenuFactory(new MyContextMenuFactory(logger, callbacks.getHelpers(), mockHolder));
+		
+		callbacks.registerContextMenuFactory(new MyContextMenuFactory(logger, callbacks.getHelpers(), tab));
+		
 		MyMockServer myMockServer = new MyMockServer(logger);
 		callbacks.registerExtensionStateListener(myMockServer);
 		new Thread(() -> {
 			myMockServer.run();
-		}).start();
-		
-		MockTabPanel tab = new MockTabPanel(logger, callbacks, mockHolder);
-		callbacks.addSuiteTab(tab);
+		}).start();		
 	}
 	
 }

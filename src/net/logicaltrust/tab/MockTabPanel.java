@@ -12,8 +12,6 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -23,15 +21,19 @@ import javax.swing.border.EmptyBorder;
 import burp.IBurpExtenderCallbacks;
 import burp.ITab;
 import net.logicaltrust.SimpleLogger;
+import net.logicaltrust.mock.MockAdder;
+import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockHolder;
 
-public class MockTabPanel extends JPanel implements ITab {
+public class MockTabPanel extends JPanel implements ITab, MockAdder {
 
 	private static final long serialVersionUID = 1L;
 
 	private SimpleLogger logger;
 	private IBurpExtenderCallbacks callbacks;
 	private MockHolder mockHolder;
+
+	private MockTable mockTable;
 
 	public MockTabPanel(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockHolder mockHolder) {
 		this.logger = logger;
@@ -42,7 +44,6 @@ public class MockTabPanel extends JPanel implements ITab {
 	
 	private void prepareGui() {
 		setLayout(new BorderLayout(0, 0));
-		
 		JPanel githubPanel = new JPanel();
 		githubPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		add(githubPanel, BorderLayout.SOUTH);
@@ -67,9 +68,8 @@ public class MockTabPanel extends JPanel implements ITab {
 		add(tablesPanel, BorderLayout.CENTER);
 		tablesPanel.setLayout(new GridLayout(0, 2, 0, 0));
 		
-		MockTable mockTable = new MockTable("Mock rules", "rules", mockHolder, null, logger);
+		mockTable = new MockTable("Mock rules", "rules", mockHolder, null, logger);
 		tablesPanel.add(mockTable);
-		
 	}
 	
 	private JLabel createLabelURL(String url) {
@@ -97,6 +97,11 @@ public class MockTabPanel extends JPanel implements ITab {
 	@Override
 	public Component getUiComponent() {
 		return this;
+	}
+
+	@Override
+	public void addMock(MockEntry entry) {
+		mockTable.addMock(entry);
 	}
 
 }

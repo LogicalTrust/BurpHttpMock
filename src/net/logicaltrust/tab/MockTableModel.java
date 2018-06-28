@@ -13,14 +13,16 @@ public class MockTableModel extends DefaultTableModel {
 	private static final long serialVersionUID = 1L;
 	@SuppressWarnings("unused")
 	private SimpleLogger logger;
+	private MockHolder mockHolder;
 
 	public MockTableModel(MockHolder mockHolder, SimpleLogger logger) {
 		super(mockHolder.getEntries().stream().map(v -> v.getRule()).map(v -> new Object[] { true, v.getProtocol(), v.getHost(), v.getPort(), v.getPath() }).toArray(Object[][]::new), MockTableColumns.getDisplayNames());
+		this.mockHolder = mockHolder;
 		this.logger = logger;
 		this.addTableModelListener(e -> {
 			int row = e.getFirstRow();
 			if (e.getType() == TableModelEvent.INSERT) {
-				handleInsertAction(mockHolder, logger, e, row);
+				//ignore
 			} else if (e.getType() == TableModelEvent.DELETE) {
 				handleDeleteAction(mockHolder, row);
 			} else if (e.getType() == TableModelEvent.UPDATE) {
@@ -56,18 +58,11 @@ public class MockTableModel extends DefaultTableModel {
 		mockHolder.delete(row);
 	}
 
-	private void handleInsertAction(MockHolder mockHolder, SimpleLogger logger, TableModelEvent e, int row) {
-		logger.debug(row + " " + e.getColumn());
-		MockRule rule = new MockRule(this.getValue(row, MockTableColumns.PROTOCOL),
-				this.getValue(row, MockTableColumns.HOST),
-				this.getValue(row, MockTableColumns.PORT),
-				this.getValue(row, MockTableColumns.PATH));
-		MockEntry entry = new MockEntry(rule, new byte[0]);
+	public void addMock(MockEntry entry) {
+		MockRule rule = entry.getRule();
+		Object[] row = new Object[] { true, rule.getProtocol(), rule.getHost(), rule.getPort(), rule.getPath() };
+		this.addRow(row);
 		mockHolder.add(entry);
-	}
-	
-	private String getValue(int row, MockTableColumns column) {
-		return (String) this.getValueAt(row, column.ordinal());
 	}
 
 	@Override

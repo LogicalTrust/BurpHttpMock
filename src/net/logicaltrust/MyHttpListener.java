@@ -25,7 +25,7 @@ public class MyHttpListener implements IHttpListener {
 
 	@Override
 	public void processHttpMessage(int toolFlag, boolean isReq, IHttpRequestResponse messageInfo) {
-		if (isReq) {
+		if (isReq && mockHolder.hasAnyMock()) {
 			byte[] request = messageInfo.getRequest();
 			IHttpService httpService = messageInfo.getHttpService();
 			IRequestInfo analyzedReq = helpers.analyzeRequest(httpService, request);

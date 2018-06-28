@@ -9,8 +9,8 @@ import java.util.List;
 import javax.swing.JMenuItem;
 
 import net.logicaltrust.SimpleLogger;
+import net.logicaltrust.mock.MockAdder;
 import net.logicaltrust.mock.MockEntry;
-import net.logicaltrust.mock.MockHolder;
 import net.logicaltrust.mock.MockRule;
 
 public class MyContextMenuFactory implements IContextMenuFactory, ActionListener {
@@ -18,12 +18,12 @@ public class MyContextMenuFactory implements IContextMenuFactory, ActionListener
 	private SimpleLogger logger;
 	private IContextMenuInvocation invocation;
 	private IExtensionHelpers helpers;
-	private MockHolder mockHolder;
+	private MockAdder mockAdder;
 	
-	public MyContextMenuFactory(SimpleLogger logger, IExtensionHelpers helpers, MockHolder mockHolder) {
+	public MyContextMenuFactory(SimpleLogger logger, IExtensionHelpers helpers, MockAdder mockAdder) {
 		this.logger = logger;
 		this.helpers = helpers;
-		this.mockHolder = mockHolder;
+		this.mockAdder = mockAdder;
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class MyContextMenuFactory implements IContextMenuFactory, ActionListener
 				byte[] response = msg.getResponse();
 				if (response == null) response = new byte[0];
 				MockEntry mockEntry = new MockEntry(mockRule, response);
-				mockHolder.add(mockEntry);
+				mockAdder.addMock(mockEntry);
 				logger.debug("Mock added for " + mockRule);
 			}
 		} catch (Exception ex) {
