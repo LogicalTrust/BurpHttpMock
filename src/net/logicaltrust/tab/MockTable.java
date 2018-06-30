@@ -8,7 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.function.Consumer;
 
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -66,12 +68,15 @@ public class MockTable extends JPanel {
 		this.add(table, BorderLayout.CENTER);
 		table.setModel(model);
 		table.getColumnModel().getColumn(0).setMaxWidth(55);
-		table.getColumnModel().getColumn(1).setMaxWidth(70);
-		table.getColumnModel().getColumn(1).setPreferredWidth(60);
+		table.getColumnModel().getColumn(1).setMaxWidth(75);
+		table.getColumnModel().getColumn(1).setPreferredWidth(70);
 		table.getColumnModel().getColumn(2).setPreferredWidth(150);
 		table.getColumnModel().getColumn(3).setMaxWidth(50);
 		table.getColumnModel().getColumn(3).setPreferredWidth(40);
 		table.getColumnModel().getColumn(4).setPreferredWidth(300);
+		
+		JComboBox<MockProtocolEnum> protoCombo = new JComboBox<>(MockProtocolEnum.values());
+		table.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(protoCombo));
 		
 		JScrollPane scroll = new JScrollPane(table);
 		scroll.setVisible(true);
@@ -85,14 +90,14 @@ public class MockTable extends JPanel {
 		});
 		
 		addButton.addActionListener(e -> {
-			JTextField proto = new JTextField();
+			JComboBox<MockProtocolEnum> proto = new JComboBox<>(MockProtocolEnum.values());
 			JTextField host = new JTextField();
 			JTextField port = new JTextField();
 			JTextField file = new JTextField();
-			Object[] msg = new Object[] { "Proto", proto, "Host", host, "Port", port, "File", file };
+			Object[] msg = new Object[] { "Protocol", proto, "Host", host, "Port", port, "File", file };
 			int result = JOptionPane.showConfirmDialog(null, msg, "Add mock", JOptionPane.OK_CANCEL_OPTION);
 			if (result == JOptionPane.OK_OPTION) {
-				MockRule rule = new MockRule(proto.getText(), host.getText(), port.getText(), file.getText());
+				MockRule rule = new MockRule((MockProtocolEnum) proto.getSelectedItem(), host.getText(), port.getText(), file.getText());
 				MockEntry entry = new MockEntry(true, rule, DEFAULT_RESPONSE);
 				model.addMock(entry);
 			}
@@ -123,7 +128,7 @@ public class MockTable extends JPanel {
 				if (!cancel) {
 					previousRow = row;
 					MockEntry entry = mockHolder.getEntry(row);
-					logger.debug("Selected row: " + row +", entry: " + entry.getId() + ", " + entry.getRule());
+					logger.debug("Selected row: " + row + ", entry: " + entry.getId() + ", " + entry.getRule());
 					responseTextEditor.loadResponse(entry);
 				}
 			}

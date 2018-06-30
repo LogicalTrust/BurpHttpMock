@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import burp.IBurpExtenderCallbacks;
 import net.logicaltrust.SimpleLogger;
+import net.logicaltrust.tab.MockProtocolEnum;
 
 public class MockSettingsSaver {
 	
@@ -86,7 +87,7 @@ public class MockSettingsSaver {
 		}
 		
 		byte[] response = decode(split[5]);
-		MockRule rule = new MockRule(decodeToString(split[1]), 
+		MockRule rule = new MockRule(MockProtocolEnum.valueOf(decodeToString(split[1])), 
 				decodeToString(split[2]), 
 				decodeToString(split[3]), 
 				decodeToString(split[4]));
@@ -99,7 +100,7 @@ public class MockSettingsSaver {
 		MockRule rule = entry.getRule();
 		StringBuilder result = new StringBuilder();
 		result.append(entry.isEnabled()).append(DELIM)
-		.append(encode(rule.getProtocol())).append(DELIM)
+		.append(rule.getProtocol().name()).append(DELIM)
 		.append(encode(rule.getHost())).append(DELIM)
 		.append(encode(rule.getPort()+"")).append(DELIM)
 		.append(encode(rule.getPath())).append(DELIM)

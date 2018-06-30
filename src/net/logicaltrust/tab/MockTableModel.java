@@ -16,7 +16,7 @@ public class MockTableModel extends DefaultTableModel {
 	private MockHolder mockHolder;
 
 	public MockTableModel(MockHolder mockHolder, SimpleLogger logger) {
-		super(mockHolder.getEntries().stream().map(v -> v.getRule()).map(v -> new Object[] { true, v.getProtocol(), v.getHost(), v.getPort(), v.getPath() }).toArray(Object[][]::new), MockTableColumns.getDisplayNames());
+		super(mockHolder.getEntries().stream().map(v -> v.getRule()).map(v -> new Object[] { true, MockProtocolEnum.ANY, v.getHost(), v.getPort(), v.getPath() }).toArray(Object[][]::new), MockTableColumns.getDisplayNames());
 		this.mockHolder = mockHolder;
 		this.logger = logger;
 		this.addTableModelListener(e -> {
@@ -49,7 +49,7 @@ public class MockTableModel extends DefaultTableModel {
 			mockHolder.update(row, e -> e.getRule().setPort((String) value));
 			break;
 		case PROTOCOL:
-			mockHolder.update(row, e -> e.getRule().setProtocol((String) value));
+			mockHolder.update(row, e -> e.getRule().setProtocol((MockProtocolEnum) value));
 			break;
 		default:
 			break;

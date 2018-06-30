@@ -3,9 +3,11 @@ package net.logicaltrust.mock;
 import java.net.URL;
 import java.util.regex.Pattern;
 
+import net.logicaltrust.tab.MockProtocolEnum;
+
 public class MockRule {
 
-	private String protocol;
+	private MockProtocolEnum protocol;
 	private String host;
 	private String port;
 	private String path;
@@ -14,7 +16,7 @@ public class MockRule {
 	private Pattern portRegex;
 	private Pattern hostRegex;
 
-	public MockRule(String protocol, String host, String port, String path) {
+	public MockRule(MockProtocolEnum protocol, String host, String port, String path) {
 		this.setHost(host);
 		this.setPath(path);
 		this.setPort(port);
@@ -22,7 +24,7 @@ public class MockRule {
 	}
 	
 	public boolean matches(URL url) {
-		return protocol.equalsIgnoreCase(url.getProtocol()) 
+		return protocol.matches(url.getProtocol()) 
 				&& hostRegex.matcher(url.getHost()).matches()
 				&& portRegex.matcher(url.getPort()+"").matches()
 				&& pathRegex.matcher(url.getFile()).matches();
@@ -40,7 +42,7 @@ public class MockRule {
 		return path;
 	}
 
-	public String getProtocol() {
+	public MockProtocolEnum getProtocol() {
 		return protocol;
 	}
 
@@ -59,7 +61,7 @@ public class MockRule {
 		this.pathRegex = Pattern.compile(path);
 	}
 
-	public void setProtocol(String protocol) {
+	public void setProtocol(MockProtocolEnum protocol) {
 		this.protocol = protocol;
 	}
 
