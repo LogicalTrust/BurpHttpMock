@@ -32,11 +32,12 @@ public class MyHttpListener implements IHttpListener {
 			URL url = analyzedReq.getUrl();
 			
 			if (isReq) {
-				Optional<Long> match = mockHolder.findMatch(url);
+				Optional<MockEntry> match = mockHolder.findMatch(url);
 				if (match.isPresent()) {
-					logger.debug("Successful URL match: " + url);
+					MockEntry matchEntry = match.get();
+					logger.debug("Successful URL match: " + url + " with " + matchEntry);
 					IHttpService service = helpers.buildHttpService("localhost", 8765, false);
-					byte[] localReq = helpers.buildHttpMessage(Arrays.asList("GET /?" + match.get() + " HTTP/1.0"), null);
+					byte[] localReq = helpers.buildHttpMessage(Arrays.asList("GET /?" + matchEntry.getId() + " HTTP/1.0"), null);
 					messageInfo.setRequest(localReq);
 					messageInfo.setHttpService(service);
 				}

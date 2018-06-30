@@ -20,6 +20,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
@@ -56,12 +57,17 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 		setLayout(new BorderLayout(0, 0));
 		prepareGitHubFooter();
 		prepareCheckBoxTopPanel();
-		JPanel tablesPanel = prepareMainContentPanel();
+//		JSplitPane tablesPanel = prepareMainContentPanel();
+
 		
 		mockTable = new MockTable("Mock rules", "rules", mockHolder, null, logger, responseEditor);
-		tablesPanel.add(mockTable);
+		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mockTable, responseEditor.getComponent());
+		add(pane, BorderLayout.CENTER);
+		pane.setResizeWeight(0.3f);
+//		pane.setDividerLocation(0.5f);
+//		tablesPanel.add(mockTable);
 		
-		tablesPanel.add(responseEditor.getComponent());
+//		tablesPanel.add(responseEditor.getComponent());
 	}
 
 	private void prepareGitHubFooter() {
@@ -84,12 +90,15 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 		checkboxPanel.add(chckbxDebug);
 	}
 
-	private JPanel prepareMainContentPanel() {
-		JPanel tablesPanel = new JPanel();
-		add(tablesPanel, BorderLayout.CENTER);
-		tablesPanel.setLayout(new GridLayout(0, 2, 0, 0));
-		return tablesPanel;
-	}
+//	private JSplitPane prepareMainContentPanel() {
+//		JPanel tablesPanel = new JPanel();
+////		add(tablesPanel, BorderLayout.CENTER);
+////		tablesPanel.setLayout(new GridLayout(0, 2, 0, 0));
+//		JSplitPane pane = new JSplitPane();
+////		return tablesPanel;
+////		add(pane);
+//		return pane;
+//	}
 
 	private JLabel createLabelURL(String url) {
 		JLabel lblUrl = new JLabel(url);

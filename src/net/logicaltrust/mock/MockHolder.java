@@ -33,11 +33,10 @@ public class MockHolder {
 		}
 	}
 
-	public Optional<Long> findMatch(URL url) {
+	public Optional<MockEntry> findMatch(URL url) {
 		return entries.values().stream()
 				.filter(e -> e.isEnabled())
 				.filter(e -> e.getRule().matches(url))
-				.map(e -> e.getId())
 				.findAny();
 	}
 

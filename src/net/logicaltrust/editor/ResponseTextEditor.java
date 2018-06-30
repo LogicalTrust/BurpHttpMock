@@ -1,12 +1,16 @@
 package net.logicaltrust.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 
 import burp.IExtensionHelpers;
 import burp.ITextEditor;
@@ -35,6 +39,8 @@ public class ResponseTextEditor {
 		this.settingSaver = settingSaver;
 		this.textEditor.setEditable(false);
 		mainPanel = new JPanel();
+		
+		mainPanel.setBorder(new TitledBorder(new EmptyBorder(0, 0, 0, 0), "Response editor", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		mainPanel.setLayout(new BorderLayout());
 		JPanel textButtonPanel = new JPanel();
 		textButtonPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
@@ -47,7 +53,11 @@ public class ResponseTextEditor {
 		textButtonPanel.add(discardTextButton);
 		textButtonPanel.add(recalcBox);
 		
-		mainPanel.add(textEditor.getComponent());
+		JPanel textEditorPanel = new JPanel();
+		textEditorPanel.setLayout(new BorderLayout());
+		textEditorPanel.setBorder(new EmptyBorder(5, 0, 0, 0));
+		textEditorPanel.add(textEditor.getComponent());
+		mainPanel.add(textEditorPanel);
 		mainPanel.add(textButtonPanel, BorderLayout.SOUTH);
 		
 		saveTextButton.addActionListener(e -> saveChanges());
