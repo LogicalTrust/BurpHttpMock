@@ -34,7 +34,7 @@ public class MyMockServer implements IExtensionStateListener {
 					logger.debug("Connection " + accept + " accepted");
 					BufferedReader br = new BufferedReader(new InputStreamReader(accept.getInputStream()));				    
 					BufferedOutputStream bos = new BufferedOutputStream(accept.getOutputStream());
-					bos.write("HTTP/1.0 200 File not found\nServer: SimpleHTTP/0.6 Python/2.7.15\nDate: Sun, 03 Jun 2018 11:28:24 GMT\nConnection: close\nContent-Type: text/html\n\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>EOKOK OKOK 200.\n<p>Message: File not found.\n<p>AAAAA code explanation: 200 = Nothing matches the given URI.\n</body>".getBytes());
+					bos.write("HTTP/1.0 418 I'm a teapot\r\nConnection: close\r\n\r\ntest".getBytes());
 					bos.close();
 					br.close();
 					accept.close();
