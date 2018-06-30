@@ -65,6 +65,13 @@ public class MockTable extends JPanel {
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.add(table, BorderLayout.CENTER);
 		table.setModel(model);
+		table.getColumnModel().getColumn(0).setMaxWidth(55);
+		table.getColumnModel().getColumn(1).setMaxWidth(70);
+		table.getColumnModel().getColumn(1).setPreferredWidth(60);
+		table.getColumnModel().getColumn(2).setPreferredWidth(150);
+		table.getColumnModel().getColumn(3).setMaxWidth(50);
+		table.getColumnModel().getColumn(3).setPreferredWidth(40);
+		table.getColumnModel().getColumn(4).setPreferredWidth(300);
 		
 		JScrollPane scroll = new JScrollPane(table);
 		scroll.setVisible(true);
