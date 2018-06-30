@@ -17,11 +17,13 @@ public class MyHttpListener implements IHttpListener {
 	private IExtensionHelpers helpers;
 	private SimpleLogger logger;
 	private MockHolder mockHolder;
+	private final int port;
 
-	public MyHttpListener(IExtensionHelpers helpers, SimpleLogger logger, MockHolder mockHolder) {
+	public MyHttpListener(IExtensionHelpers helpers, SimpleLogger logger, MockHolder mockHolder, int port) {
 		this.helpers = helpers;
 		this.logger = logger;
 		this.mockHolder = mockHolder;
+		this.port = port;
 	}
 
 	@Override
@@ -36,12 +38,12 @@ public class MyHttpListener implements IHttpListener {
 				if (match.isPresent()) {
 					MockEntry matchEntry = match.get();
 					logger.debug("Successful URL match: " + url + " with " + matchEntry);
-					IHttpService service = helpers.buildHttpService("localhost", 8765, false);
+					IHttpService service = helpers.buildHttpService("localhost", port, false);
 					byte[] localReq = helpers.buildHttpMessage(Arrays.asList("GET /?" + matchEntry.getId() + " HTTP/1.0"), null);
 					messageInfo.setRequest(localReq);
 					messageInfo.setHttpService(service);
 				}
-			} else if (url.getHost().equals("localhost") && url.getPort() == 8765) {
+			} else if (url.getHost().equals("localhost") && url.getPort() == port) {
 				String id = url.getQuery();
 				MockEntry entry = mockHolder.getEntry(id);
 				if (entry != null) {

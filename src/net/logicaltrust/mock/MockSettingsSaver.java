@@ -17,10 +17,13 @@ public class MockSettingsSaver {
 	private static final String ID_LIST = "ID_LIST";
 	private static final String RECALCULATE_CONTENT_LENGTH = "RECALCULATE_CONTENT_LENGTH";
 	private static final String DEBUG_OUTPUT = "DEBUG_OUTPUT";
+	private static final String SERVER_PORT = "SERVER_PORT";
 	private IBurpExtenderCallbacks callbacks;
 	private static final String DELIM = "|";
 	private static final String DELIM_REGEX = "\\|";
 	private SimpleLogger logger;
+	
+	private static final int DEFAULT_PORT = 7654;
 	
 	private static final int ENTRY_PARAMS = 6;
 	
@@ -96,6 +99,22 @@ public class MockSettingsSaver {
 	
 	public boolean isDebugOn() {
 		return Boolean.parseBoolean(callbacks.loadExtensionSetting(DEBUG_OUTPUT));
+	}
+	
+	public void savePort(int port) {
+		callbacks.saveExtensionSetting(SERVER_PORT, port + "");
+	}
+	
+	public int loadPort() {
+		String port = callbacks.loadExtensionSetting(SERVER_PORT);
+		if (port != null) {
+			try {
+				return Integer.parseInt(port);
+			} catch (NumberFormatException e) {
+				logger.debugForce("Invalid port " + port);
+			}
+		}
+		return DEFAULT_PORT;
 	}
 	
 	private MockEntry entryFromString(String str, String id) {

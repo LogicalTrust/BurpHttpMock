@@ -16,14 +16,16 @@ public class MyMockServer implements IExtensionStateListener {
 	private SimpleLogger logger;
 	private boolean stopped = false;
 	private ServerSocket ss;
+	private final int port;
 	
-	public MyMockServer(SimpleLogger logger) {
+	public MyMockServer(SimpleLogger logger, int port) {
 		this.logger = logger;
+		this.port = port;
 	}
 	
 	public void run() {
 		try {
-			ss = new ServerSocket(8765, 50, InetAddress.getLoopbackAddress());
+			ss = new ServerSocket(port, 50, InetAddress.getLoopbackAddress());
 			logger.debugForce("Server has started " + ss);
 			while (!isStopped()) {
 				try {
@@ -46,6 +48,7 @@ public class MyMockServer implements IExtensionStateListener {
 			}
 		} catch (IOException e) {
 			e.printStackTrace(logger.getStderr());
+			logger.debugForce("Cannot create server. Try with another port.");
 		}
 	}
 	

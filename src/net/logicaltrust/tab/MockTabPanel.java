@@ -18,10 +18,12 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import burp.IBurpExtenderCallbacks;
@@ -87,6 +89,28 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 		chckbxDebug.setSelected(settingSaver.isDebugOn());
 		chckbxDebug.addActionListener(e -> { settingSaver.saveDebugOutput(chckbxDebug.isSelected()); });
 		checkboxPanel.add(chckbxDebug);
+		
+		JButton changePort = new JButton("Local port");
+		changePort.addActionListener(e -> {
+			int initValue = settingSaver.loadPort();
+			String input = JOptionPane.showInputDialog("Set port number for local server", initValue + "");
+			if (input != null) {
+				try {
+					int port = Integer.parseInt(input);
+					if (port < 1 || port > 65535) {
+						JOptionPane.showMessageDialog(this, "Invalid value. Port must be between 1 and 65535", "Invalid value", JOptionPane.ERROR_MESSAGE);
+					} else {
+						if (port != initValue) {
+							settingSaver.savePort(port);
+							JOptionPane.showMessageDialog(this, "The change will take effect after restart", "Success", JOptionPane.INFORMATION_MESSAGE);
+						}
+					} 
+				} catch (NumberFormatException e1) {
+					JOptionPane.showMessageDialog(this, "Invalid value. Port must be between 1 and 65535", "Invalid value", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		checkboxPanel.add(changePort);
 	}
 
 	private JLabel createLabelURL(String url) {

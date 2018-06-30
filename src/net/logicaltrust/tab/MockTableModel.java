@@ -11,7 +11,6 @@ import net.logicaltrust.mock.MockRule;
 public class MockTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
-	@SuppressWarnings("unused")
 	private SimpleLogger logger;
 	private MockHolder mockHolder;
 
