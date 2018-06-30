@@ -12,7 +12,6 @@ import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.mock.MockAdder;
 import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockRule;
-import net.logicaltrust.tab.MockProtocolEnum;
 
 public class MyContextMenuFactory implements IContextMenuFactory, ActionListener {
 
@@ -50,13 +49,8 @@ public class MyContextMenuFactory implements IContextMenuFactory, ActionListener
 			for (IHttpRequestResponse msg : selectedMessages) {
 				IRequestInfo analyzedReq = helpers.analyzeRequest(msg.getHttpService(), msg.getRequest());
 				URL analyzedURL = analyzedReq.getUrl();
-				MockRule mockRule = new MockRule(MockProtocolEnum.fromURL(analyzedURL), 
-						decorateFull(analyzedURL.getHost()), 
-						decorateFull(analyzedURL.getPort()+""), 
-						decorateFromStart(analyzedURL.getPath()));
-				byte[] response = msg.getResponse();
-				if (response == null) response = new byte[0];
-				MockEntry mockEntry = new MockEntry(true, mockRule, response);
+				MockRule mockRule = new MockRule(analyzedURL);
+				MockEntry mockEntry = new MockEntry(true, mockRule, msg.getResponse());
 				mockAdder.addMock(mockEntry);
 				logger.debug("Mock added for " + mockRule);
 			}
@@ -64,18 +58,6 @@ public class MyContextMenuFactory implements IContextMenuFactory, ActionListener
 			logger.getStderr().println("Cannot mock messages");
 			ex.printStackTrace(logger.getStderr());
 		}
-	}
-	
-	private String decorateFull(String value) {
-		return "^" + quote(value) + "$";
-	}
-	
-	private String decorateFromStart(String value) {
-		return "^" + quote(value) + ".*";
-	}
-	
-	private String quote(String value) {
-		return value.replaceAll("\\.", "\\\\.");
 	}
 
 }

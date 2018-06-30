@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import net.logicaltrust.tab.MockProtocolEnum;
 
 public class MockRule {
-
+	
 	private MockProtocolEnum protocol;
 	private String host;
 	private String port;
@@ -21,6 +21,13 @@ public class MockRule {
 		this.setPath(path);
 		this.setPort(port);
 		this.protocol = protocol;
+	}
+	
+	public MockRule(URL url) {
+		this(MockProtocolEnum.fromURL(url), 
+				decorateFull(url.getHost()), 
+				decorateFull((url.getPort() != -1 ? url.getPort() : url.getDefaultPort()) + ""), 
+				decorateFromStart(url.getPath()));
 	}
 	
 	public boolean matches(URL url) {
@@ -63,6 +70,18 @@ public class MockRule {
 
 	public void setProtocol(MockProtocolEnum protocol) {
 		this.protocol = protocol;
+	}
+	
+	private static String decorateFull(String value) {
+		return "^" + quote(value) + "$";
+	}
+	
+	private static String decorateFromStart(String value) {
+		return "^" + quote(value) + ".*";
+	}
+	
+	private static String quote(String value) {
+		return value.replaceAll("\\.", "\\\\.");
 	}
 
 	@Override

@@ -4,6 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -33,8 +40,6 @@ public class MockTable extends JPanel {
 	private ResponseTextEditor responseTextEditor;
 	int previousRow = -1;
 
-	private static final byte[] DEFAULT_RESPONSE = "HTTP/1.1 200 OK\r\nConnection: close\r\n".getBytes(StandardCharsets.UTF_8);
-	
 	public MockTable(String title, String tooltip, MockHolder mockHolder, 
 			Consumer<Collection<String>> updateValues, SimpleLogger logger, ResponseTextEditor responseTextEditor) {
 		
@@ -62,6 +67,21 @@ public class MockTable extends JPanel {
 		
 		JButton pasteUrlButton = new JButton("Paste URL");
 		buttonPanel.add(pasteUrlButton, createTableButtonConstraints(2));
+		pasteUrlButton.addActionListener(e -> {
+			try {
+				String clipboard = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+				try {
+					URL url = new URL(clipboard);
+					MockRule rule = new MockRule(url);
+					addRule(rule);
+				} catch (MalformedURLException e2) {
+					logger.debug("Cannot parse URL " + clipboard);
+				}
+			} catch (HeadlessException | UnsupportedFlavorException | IOException e1) {
+				logger.debug("Cannot read clipboard");
+				e1.printStackTrace(logger.getStderr());
+			}
+		});
 		
 		JTable table = new JTable();
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -71,8 +91,8 @@ public class MockTable extends JPanel {
 		table.getColumnModel().getColumn(1).setMaxWidth(75);
 		table.getColumnModel().getColumn(1).setPreferredWidth(70);
 		table.getColumnModel().getColumn(2).setPreferredWidth(150);
-		table.getColumnModel().getColumn(3).setMaxWidth(50);
-		table.getColumnModel().getColumn(3).setPreferredWidth(40);
+		table.getColumnModel().getColumn(3).setMaxWidth(70);
+		table.getColumnModel().getColumn(3).setPreferredWidth(65);
 		table.getColumnModel().getColumn(4).setPreferredWidth(300);
 		
 		JComboBox<MockProtocolEnum> protoCombo = new JComboBox<>(MockProtocolEnum.values());
@@ -98,8 +118,7 @@ public class MockTable extends JPanel {
 			int result = JOptionPane.showConfirmDialog(null, msg, "Add mock", JOptionPane.OK_CANCEL_OPTION);
 			if (result == JOptionPane.OK_OPTION) {
 				MockRule rule = new MockRule((MockProtocolEnum) proto.getSelectedItem(), host.getText(), port.getText(), file.getText());
-				MockEntry entry = new MockEntry(true, rule, DEFAULT_RESPONSE);
-				model.addMock(entry);
+				addRule(rule);
 			}
 		});
 		
@@ -133,6 +152,11 @@ public class MockTable extends JPanel {
 				}
 			}
 		});
+	}
+	
+	private void addRule(MockRule rule) {
+		MockEntry entry = new MockEntry(true, rule, null);
+		model.addMock(entry);
 	}
 
 	private GridBagConstraints createTableButtonConstraints(int index) {

@@ -119,7 +119,7 @@ public class MockSettingsSaver {
 		MockRule rule = entry.getRule();
 		StringBuilder result = new StringBuilder();
 		result.append(entry.isEnabled()).append(DELIM)
-		.append(rule.getProtocol().name()).append(DELIM)
+		.append(encode(rule.getProtocol().name())).append(DELIM)
 		.append(encode(rule.getHost())).append(DELIM)
 		.append(encode(rule.getPort()+"")).append(DELIM)
 		.append(encode(rule.getPath())).append(DELIM)

@@ -25,7 +25,7 @@ public class BurpExtender implements IBurpExtender {
 		MockSettingsSaver settingSaver = new MockSettingsSaver(callbacks, logger);
 		
 		//TEST
-		settingSaver.clear();
+//		settingSaver.clear();
 		List<MockEntry> entries = settingSaver.loadEntries();
 		if (entries.isEmpty()) {
 			logger.debug("No entries loaded");

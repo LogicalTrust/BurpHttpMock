@@ -12,7 +12,7 @@ public enum MockTableColumns {
 	
 	PORT("Port"),
 	
-	PATH("Path");
+	PATH("File");
 	
 	private String displayName;
 	

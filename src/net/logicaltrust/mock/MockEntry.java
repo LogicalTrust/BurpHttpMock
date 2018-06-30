@@ -1,7 +1,11 @@
 package net.logicaltrust.mock;
 
+import java.nio.charset.StandardCharsets;
+
 public class MockEntry {
 
+	private static final byte[] DEFAULT_RESPONSE = "HTTP/1.1 200 OK\r\nConnection: close\r\n".getBytes(StandardCharsets.UTF_8);
+	
 	private long id;
 	private boolean enabled;
 	private MockRule rule;
@@ -9,7 +13,7 @@ public class MockEntry {
 	
 	public MockEntry(boolean enabled, MockRule rule, byte[] response) {
 		this.rule = rule;
-		this.response = response;
+		this.response = response == null ? DEFAULT_RESPONSE : response;
 		this.enabled = enabled;
 	}
 	
