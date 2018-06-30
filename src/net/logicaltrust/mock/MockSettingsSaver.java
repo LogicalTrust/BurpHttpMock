@@ -20,6 +20,8 @@ public class MockSettingsSaver {
 	private static final String DELIM_REGEX = "\\|";
 	private SimpleLogger logger;
 	
+	private static final int ENTRY_PARAMS = 6;
+	
 	public MockSettingsSaver(IBurpExtenderCallbacks callbacks, SimpleLogger logger) {
 		this.callbacks = callbacks;
 		this.logger = logger;
@@ -44,7 +46,10 @@ public class MockSettingsSaver {
 	}
 	
 	public void saveIdList(Collection<MockEntry> entries) {
-		String ids = entries.stream().map(e -> e.getId()).map(e -> e.toString()).collect(Collectors.joining(DELIM, "", ""));
+		String ids = entries.stream()
+				.map(e -> e.getId())
+				.map(e -> e.toString())
+				.collect(Collectors.joining(DELIM, "", ""));
 		logger.debug("Saving entry list " + ids);
 		callbacks.saveExtensionSetting(ID_LIST, ids);
 	}
@@ -69,23 +74,23 @@ public class MockSettingsSaver {
 	}
 	
 	public boolean loadRecalculateContentLength() {
-		return Boolean.parseBoolean(callbacks.loadExtensionSetting(RECALCULATE_CONTENT_LENGTH));
+		String value = callbacks.loadExtensionSetting(RECALCULATE_CONTENT_LENGTH);
+		return value == null ? true : Boolean.parseBoolean(value);
 	}
 	
 	private MockEntry entryFromString(String str, String id) {
 		String[] split = str.split(DELIM_REGEX);
 		
-		if (split.length != 5 && split.length != 4) {
-			//error
+		if (split.length != ENTRY_PARAMS) {
+			logger.debugForce("Invalid entry, id: " + id +", value: " + Arrays.toString(split));
 		}
 		
-		byte[] response = split.length == 5 ? decode(split[4]) : new byte[0];
-		
-		MockRule rule = new MockRule(decodeToString(split[0]), 
-				decodeToString(split[1]), 
+		byte[] response = decode(split[5]);
+		MockRule rule = new MockRule(decodeToString(split[1]), 
 				decodeToString(split[2]), 
-				decodeToString(split[3]));
-		MockEntry entry = new MockEntry(rule, response);
+				decodeToString(split[3]), 
+				decodeToString(split[4]));
+		MockEntry entry = new MockEntry(Boolean.parseBoolean(split[0]), rule, response);
 		entry.setId(Long.parseLong(id));
 		return entry;
 	}
@@ -93,7 +98,8 @@ public class MockSettingsSaver {
 	private String entryToString(MockEntry entry) {
 		MockRule rule = entry.getRule();
 		StringBuilder result = new StringBuilder();
-		result.append(encode(rule.getProtocol())).append(DELIM)
+		result.append(entry.isEnabled()).append(DELIM)
+		.append(encode(rule.getProtocol())).append(DELIM)
 		.append(encode(rule.getHost())).append(DELIM)
 		.append(encode(rule.getPort()+"")).append(DELIM)
 		.append(encode(rule.getPath())).append(DELIM)

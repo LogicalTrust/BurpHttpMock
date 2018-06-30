@@ -3,12 +3,14 @@ package net.logicaltrust.mock;
 public class MockEntry {
 
 	private long id;
+	private boolean enabled;
 	private MockRule rule;
 	private byte[] response;
 	
-	public MockEntry(MockRule rule, byte[] response) {
+	public MockEntry(boolean enabled, MockRule rule, byte[] response) {
 		this.rule = rule;
 		this.response = response;
+		this.enabled = enabled;
 	}
 	
 	public void setId(long id) {
@@ -35,10 +37,17 @@ public class MockEntry {
 		this.rule = rule;
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
 	@Override
 	public String toString() {
-		return "MockEntry [id=" + id + ", rule=" + rule + "]";
+		return "MockEntry [id=" + id + ", enabled=" + enabled + ", rule=" + rule + "]";
 	}
-	
 
 }

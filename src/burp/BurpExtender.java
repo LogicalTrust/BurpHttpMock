@@ -22,7 +22,7 @@ public class BurpExtender implements IBurpExtender {
 		SimpleLogger logger = new SimpleLogger(new PrintWriter(callbacks.getStdout(), true), stderr);
 
 		MockSettingsSaver settingSaver = new MockSettingsSaver(callbacks, logger);
-		//settingSaver.clear();
+		settingSaver.clear();
 		List<MockEntry> entries = settingSaver.loadEntries();
 		
 		//TEST
@@ -30,12 +30,12 @@ public class BurpExtender implements IBurpExtender {
 			logger.debug("No entries loaded");
 			String resp = "HTTP/1.0 200 File not found\nServer: SimpleHTTP/9.9 Python/2.7.15\nDate: Sun, 03 Jun 2018 11:28:24 GMT\nConnection: close\nContent-Type: text/html\n\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>EOKOK OKOK 200.\n<p>Message: File not found.\n<p>AAAAA code explanation: 200 = Nothing matches the given URI.\n</body>";
 			MockRule r = new MockRule("http", "^localhost$", "8000", "^/abc.*");
-			MockEntry e = new MockEntry(r, resp.getBytes());
+			MockEntry e = new MockEntry(true, r, resp.getBytes());
 			e.setId(1);
 			entries.add(e);
 			resp = "HTTP/1.0 200 File not found\nServer: SimpleHTTP/9.9 Python/2.7.15\nDate: Sun, 03 Jun 2018 11:28:24 GMT\nConnection: close\nContent-Type: text/html\n\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>EOKOK OKOK 200.\n<p>Message: File not found.\n<p>AAAAA code explanation: 200 = Nothing matches the given URI.\n</body>";
 			r = new MockRule("http", "^localhost$", "8000", "^/test.*");
-			e = new MockEntry(r, resp.getBytes());
+			e = new MockEntry(true, r, resp.getBytes());
 			e.setId(2);
 			entries.add(e);
 			settingSaver.saveIdList(entries);

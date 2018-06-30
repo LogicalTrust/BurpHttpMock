@@ -5,17 +5,16 @@ import java.util.regex.Pattern;
 
 public class MockRule {
 
+	private String protocol;
 	private String host;
 	private String port;
 	private String path;
-	private String protocol;
 	
 	private Pattern pathRegex;
 	private Pattern portRegex;
 	private Pattern hostRegex;
 
 	public MockRule(String protocol, String host, String port, String path) {
-		super();
 		this.setHost(host);
 		this.setPath(path);
 		this.setPort(port);
@@ -66,7 +65,7 @@ public class MockRule {
 
 	@Override
 	public String toString() {
-		return "MockRule [host=" + host + ", port=" + port + ", path=" + path + ", protocol=" + protocol + "]";
+		return "MockRule [protocol=" + protocol + ", host=" + host + ", port=" + port + ", path=" + path + "]";
 	}
 	
 }

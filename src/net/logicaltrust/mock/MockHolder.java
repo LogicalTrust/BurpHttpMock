@@ -34,7 +34,11 @@ public class MockHolder {
 	}
 
 	public Optional<Long> findMatch(URL url) {
-		return entries.values().stream().filter(e -> e.getRule().matches(url)).map(e -> e.getId()).findAny();
+		return entries.values().stream()
+				.filter(e -> e.isEnabled())
+				.filter(e -> e.getRule().matches(url))
+				.map(e -> e.getId())
+				.findAny();
 	}
 
 	public synchronized void add(MockEntry entry) {
@@ -58,12 +62,12 @@ public class MockHolder {
 		return getEntries().get(row);
 	}
 
-	public synchronized void update(int row, Consumer<MockRule> updater) {
+	public synchronized void update(int row, Consumer<MockEntry> updater) {
 		MockEntry toEdit = getEntries().get(row);
-		updater.accept(toEdit.getRule());
+		updater.accept(toEdit);
 		settingSaver.saveEntry(toEdit);
 	}
-
+	
 	public synchronized void delete(int row) {
 		MockEntry entry = getEntry(row);
 		entries.remove(entry.getId() + "");;

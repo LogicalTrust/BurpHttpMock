@@ -56,7 +56,7 @@ public class MyContextMenuFactory implements IContextMenuFactory, ActionListener
 						decorateFromStart(analyzedURL.getPath()));
 				byte[] response = msg.getResponse();
 				if (response == null) response = new byte[0];
-				MockEntry mockEntry = new MockEntry(mockRule, response);
+				MockEntry mockEntry = new MockEntry(true, mockRule, response);
 				mockAdder.addMock(mockEntry);
 				logger.debug("Mock added for " + mockRule);
 			}

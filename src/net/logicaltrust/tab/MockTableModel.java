@@ -31,23 +31,25 @@ public class MockTableModel extends DefaultTableModel {
 		});
 	}
 
-	private void handleUpdateAction(MockHolder mockHolder, TableModelEvent e, int row) {
-		MockTableColumns column = MockTableColumns.getByIndex(e.getColumn());
+	private void handleUpdateAction(MockHolder mockHolder, TableModelEvent event, int row) {
+		MockTableColumns column = MockTableColumns.getByIndex(event.getColumn());
 		Object value = this.getValueAt(row, column.ordinal());
+		logger.debug("Update: " + value);
 		switch (column) {
 		case ENABLED:
+			mockHolder.update(row, e -> e.setEnabled((boolean) value));
 			break;	 
 		case HOST:
-			mockHolder.update(row, r -> r.setHost((String)value));
+			mockHolder.update(row, e -> e.getRule().setHost((String) value));
 			break;
 		case PATH:
-			mockHolder.update(row, r -> r.setPath((String)value));
+			mockHolder.update(row, e -> e.getRule().setPath((String) value));
 			break;
 		case PORT:
-			mockHolder.update(row, r -> r.setPort((String)value));
+			mockHolder.update(row, e -> e.getRule().setPort((String) value));
 			break;
 		case PROTOCOL:
-			mockHolder.update(row, r -> r.setProtocol((String)value));
+			mockHolder.update(row, e -> e.getRule().setProtocol((String) value));
 			break;
 		default:
 			break;

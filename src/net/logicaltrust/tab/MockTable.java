@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.function.Consumer;
 
@@ -30,6 +31,8 @@ public class MockTable extends JPanel {
 	private ResponseTextEditor responseTextEditor;
 	int previousRow = -1;
 
+	private static final byte[] DEFAULT_RESPONSE = "HTTP/1.1 200 OK\r\nConnection: close\r\n".getBytes(StandardCharsets.UTF_8);
+	
 	public MockTable(String title, String tooltip, MockHolder mockHolder, 
 			Consumer<Collection<String>> updateValues, SimpleLogger logger, ResponseTextEditor responseTextEditor) {
 		
@@ -83,7 +86,7 @@ public class MockTable extends JPanel {
 			int result = JOptionPane.showConfirmDialog(null, msg, "Add mock", JOptionPane.OK_CANCEL_OPTION);
 			if (result == JOptionPane.OK_OPTION) {
 				MockRule rule = new MockRule(proto.getText(), host.getText(), port.getText(), file.getText());
-				MockEntry entry = new MockEntry(rule, new byte[0]);
+				MockEntry entry = new MockEntry(true, rule, DEFAULT_RESPONSE);
 				model.addMock(entry);
 			}
 		});
@@ -92,7 +95,7 @@ public class MockTable extends JPanel {
 		selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		selectionModel.addListSelectionListener(e -> {
 			int row = table.getSelectedRow();
-			logger.debug("Selection changed, from: " + previousRow + " to :" + row);
+			logger.debug("Selection changed, from: " + previousRow + " to: " + row);
 			if (row != previousRow) {
 				boolean cancel = false;
 				if (responseTextEditor.hasUnsavedChanges()) {
