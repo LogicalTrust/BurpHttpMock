@@ -16,6 +16,7 @@ public class MockSettingsSaver {
 	
 	private static final String ID_LIST = "ID_LIST";
 	private static final String RECALCULATE_CONTENT_LENGTH = "RECALCULATE_CONTENT_LENGTH";
+	private static final String DEBUG_OUTPUT = "DEBUG_OUTPUT";
 	private IBurpExtenderCallbacks callbacks;
 	private static final String DELIM = "|";
 	private static final String DELIM_REGEX = "\\|";
@@ -26,6 +27,11 @@ public class MockSettingsSaver {
 	public MockSettingsSaver(IBurpExtenderCallbacks callbacks, SimpleLogger logger) {
 		this.callbacks = callbacks;
 		this.logger = logger;
+		if (isDebugOn()) {
+			logger.enableDebug();
+		} else {
+			logger.disableDebug();
+		}
 	}
 	
 	public void clear() {
@@ -77,6 +83,19 @@ public class MockSettingsSaver {
 	public boolean loadRecalculateContentLength() {
 		String value = callbacks.loadExtensionSetting(RECALCULATE_CONTENT_LENGTH);
 		return value == null ? true : Boolean.parseBoolean(value);
+	}
+	
+	public void saveDebugOutput(boolean debug) {
+		callbacks.saveExtensionSetting(DEBUG_OUTPUT, Boolean.toString(debug));
+		if (debug) {
+			logger.enableDebug();
+		} else {
+			logger.disableDebug();
+		}
+	}
+	
+	public boolean isDebugOn() {
+		return Boolean.parseBoolean(callbacks.loadExtensionSetting(DEBUG_OUTPUT));
 	}
 	
 	private MockEntry entryFromString(String str, String id) {

@@ -32,6 +32,7 @@ import net.logicaltrust.editor.ResponseTextEditor;
 import net.logicaltrust.mock.MockAdder;
 import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockHolder;
+import net.logicaltrust.mock.MockSettingsSaver;
 
 public class MockTabPanel extends JPanel implements ITab, MockAdder {
 
@@ -45,11 +46,14 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 
 	private ResponseTextEditor responseEditor;
 
-	public MockTabPanel(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockHolder mockHolder, ResponseTextEditor responseEditor) {
+	private MockSettingsSaver settingSaver;
+
+	public MockTabPanel(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockHolder mockHolder, ResponseTextEditor responseEditor, MockSettingsSaver settingSaver) {
 		this.logger = logger;
 		this.callbacks = callbacks;
 		this.mockHolder = mockHolder;
 		this.responseEditor = responseEditor;
+		this.settingSaver = settingSaver;
 		prepareGui(responseEditor);
 	}
 	
@@ -57,17 +61,11 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 		setLayout(new BorderLayout(0, 0));
 		prepareGitHubFooter();
 		prepareCheckBoxTopPanel();
-//		JSplitPane tablesPanel = prepareMainContentPanel();
-
 		
 		mockTable = new MockTable("Mock rules", "rules", mockHolder, null, logger, responseEditor);
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mockTable, responseEditor.getComponent());
 		add(pane, BorderLayout.CENTER);
 		pane.setResizeWeight(0.3f);
-//		pane.setDividerLocation(0.5f);
-//		tablesPanel.add(mockTable);
-		
-//		tablesPanel.add(responseEditor.getComponent());
 	}
 
 	private void prepareGitHubFooter() {
@@ -86,19 +84,10 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 		checkboxPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		
 		JCheckBox chckbxDebug = new JCheckBox("Debug output");
-		chckbxDebug.addActionListener(e -> { logger.debug(e + ""); });
+		chckbxDebug.setSelected(settingSaver.isDebugOn());
+		chckbxDebug.addActionListener(e -> { settingSaver.saveDebugOutput(chckbxDebug.isSelected()); });
 		checkboxPanel.add(chckbxDebug);
 	}
-
-//	private JSplitPane prepareMainContentPanel() {
-//		JPanel tablesPanel = new JPanel();
-////		add(tablesPanel, BorderLayout.CENTER);
-////		tablesPanel.setLayout(new GridLayout(0, 2, 0, 0));
-//		JSplitPane pane = new JSplitPane();
-////		return tablesPanel;
-////		add(pane);
-//		return pane;
-//	}
 
 	private JLabel createLabelURL(String url) {
 		JLabel lblUrl = new JLabel(url);
