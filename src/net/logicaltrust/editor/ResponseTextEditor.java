@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -13,6 +16,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import burp.IExtensionHelpers;
+import burp.IResponseInfo;
 import burp.ITextEditor;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.mock.MockEntry;
@@ -31,11 +35,15 @@ public class ResponseTextEditor {
 	private SimpleLogger logger;
 	private MockHolder mockHolder;
 	private MockSettingsSaver settingSaver;
+	private IExtensionHelpers helpers;
+	
+	private static final Pattern CONTENT_LENGTH_PATTERN = Pattern.compile("^Content-Length: .*$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
 	public ResponseTextEditor(SimpleLogger logger, ITextEditor textEditor, MockHolder mockHolder, IExtensionHelpers helpers, MockSettingsSaver settingSaver) {
 		this.logger = logger;
 		this.textEditor = textEditor;
 		this.mockHolder = mockHolder;
+		this.helpers = helpers;
 		this.settingSaver = settingSaver;
 		this.textEditor.setEditable(false);
 		mainPanel = new JPanel();
@@ -75,19 +83,23 @@ public class ResponseTextEditor {
 	}
 	
 	public void saveChanges() {
-		if (textEditor.isTextModified()) {
-			byte[] text = textEditor.getText();
-			if (recalcBox.isSelected()) {
-				logger.debug("Recalculating content length");
-				text = recalculateContentLength(text);
-			}
-			mockHolder.updateResponse(currentEntry.getId()+"", text);
-			loadResponse(currentEntry);
+		byte[] text = textEditor.getText();
+		if (recalcBox.isSelected()) {
+			logger.debug("Recalculating content length");
+			text = recalculateContentLength(text);
 		}
+		mockHolder.updateResponse(currentEntry.getId()+"", text);
+		loadResponse(currentEntry);
 	}
 
 	private byte[] recalculateContentLength(byte[] text) {
-		return text;
+		IResponseInfo response = helpers.analyzeResponse(text);
+		int offset = response.getBodyOffset();
+		int contentLength = text.length - offset;
+		String str = new String(text, StandardCharsets.UTF_8);
+		Matcher matcher = CONTENT_LENGTH_PATTERN.matcher(str);
+		String replaced = matcher.replaceFirst("Content-Length: " + contentLength);
+		return replaced.getBytes(StandardCharsets.UTF_8);
 	}
 
 	public void loadResponse(MockEntry entry) {
