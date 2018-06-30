@@ -14,6 +14,7 @@ import net.logicaltrust.SimpleLogger;
 public class MockSettingsSaver {
 	
 	private static final String ID_LIST = "ID_LIST";
+	private static final String RECALCULATE_CONTENT_LENGTH = "RECALCULATE_CONTENT_LENGTH";
 	private IBurpExtenderCallbacks callbacks;
 	private static final String DELIM = "|";
 	private static final String DELIM_REGEX = "\\|";
@@ -61,6 +62,14 @@ public class MockSettingsSaver {
 		}).collect(Collectors.toList());
 		logger.debug(entries.isEmpty() ? "No entries loaded" : "Loaded " + entries.size() + " entries");
 		return entries;
+	}
+	
+	public void saveRecalculateContentLength(boolean recalc) {
+		callbacks.saveExtensionSetting(RECALCULATE_CONTENT_LENGTH, Boolean.toString(recalc));
+	}
+	
+	public boolean loadRecalculateContentLength() {
+		return Boolean.parseBoolean(callbacks.loadExtensionSetting(RECALCULATE_CONTENT_LENGTH));
 	}
 	
 	private MockEntry entryFromString(String str, String id) {

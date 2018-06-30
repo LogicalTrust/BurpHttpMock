@@ -13,6 +13,7 @@ import burp.ITextEditor;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockHolder;
+import net.logicaltrust.mock.MockSettingsSaver;
 
 public class ResponseTextEditor {
 
@@ -25,11 +26,13 @@ public class ResponseTextEditor {
 	private MockEntry currentEntry;
 	private SimpleLogger logger;
 	private MockHolder mockHolder;
+	private MockSettingsSaver settingSaver;
 
-	public ResponseTextEditor(SimpleLogger logger, ITextEditor textEditor, MockHolder mockHolder, IExtensionHelpers helpers) {
+	public ResponseTextEditor(SimpleLogger logger, ITextEditor textEditor, MockHolder mockHolder, IExtensionHelpers helpers, MockSettingsSaver settingSaver) {
 		this.logger = logger;
 		this.textEditor = textEditor;
 		this.mockHolder = mockHolder;
+		this.settingSaver = settingSaver;
 		this.textEditor.setEditable(false);
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
@@ -38,6 +41,8 @@ public class ResponseTextEditor {
 		saveTextButton = new JButton("Save");
 		discardTextButton = new JButton("Discard");
 		recalcBox = new JCheckBox("Recalculate Content-Length");
+		recalcBox.setSelected(settingSaver.loadRecalculateContentLength());
+		
 		textButtonPanel.add(saveTextButton);
 		textButtonPanel.add(discardTextButton);
 		textButtonPanel.add(recalcBox);
@@ -52,6 +57,10 @@ public class ResponseTextEditor {
 			if (textEditor.isTextModified()) {
 				textEditor.setText(currentEntry.getResponse());
 			}
+		});
+		
+		recalcBox.addActionListener(e -> {
+			settingSaver.saveRecalculateContentLength(recalcBox.isSelected());
 		});
 	}
 	
