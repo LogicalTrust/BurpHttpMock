@@ -87,11 +87,12 @@ public class MockTable extends JPanel {
 			}
 		});
 		
-		table.getSelectionModel().addListSelectionListener(e -> {
-			int row = e.getFirstIndex();
-			logger.debug("Selected row: " +  row);
+		ListSelectionModel selectionModel = table.getSelectionModel();
+		selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		selectionModel.addListSelectionListener(e -> {
+			int row = table.getSelectedRow();
 			MockEntry entry = mockHolder.getEntry(row);
-			logger.debug("Selected entry: " + entry.getId() + ", " + entry.getRule());
+			logger.debug("Selected row: " + row +", entry: " + entry.getId() + ", " + entry.getRule());
 			responseTextEditor.loadResponse(entry);
 		});
 	}

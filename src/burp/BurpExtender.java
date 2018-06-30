@@ -47,7 +47,7 @@ public class BurpExtender implements IBurpExtender {
 		
 		MockHolder mockHolder = new MockHolder(logger, entries, settingSaver);
 		
-		ResponseTextEditor responseTextEditor = new ResponseTextEditor(callbacks.createTextEditor(), mockHolder);
+		ResponseTextEditor responseTextEditor = new ResponseTextEditor(logger, callbacks.createTextEditor(), mockHolder);
 
 		MockTabPanel tab = new MockTabPanel(logger, callbacks, mockHolder, responseTextEditor);
 		callbacks.addSuiteTab(tab);

@@ -10,6 +10,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import burp.ITextEditor;
+import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockHolder;
 
@@ -23,7 +24,7 @@ public class ResponseTextEditor {
 	
 	private MockEntry currentEntry;
 
-	public ResponseTextEditor(ITextEditor textEditor, MockHolder mockHolder) {
+	public ResponseTextEditor(SimpleLogger logger, ITextEditor textEditor, MockHolder mockHolder) {
 		this.textEditor = textEditor;
 		this.textEditor.setEditable(false);
 		mainPanel = new JPanel();
@@ -41,6 +42,7 @@ public class ResponseTextEditor {
 		mainPanel.add(textButtonPanel, BorderLayout.SOUTH);
 		
 		saveTextButton.addActionListener(e -> {
+			logger.debug("Message modified: " + textEditor.isTextModified());
 			if (textEditor.isTextModified()) {
 				mockHolder.updateResponse(currentEntry.getId()+"", textEditor.getText());
 			}
@@ -48,6 +50,7 @@ public class ResponseTextEditor {
 	}
 
 	public void loadResponse(MockEntry entry) {
+		this.currentEntry = entry;
 		this.textEditor.setEditable(true);
 		this.textEditor.setText(entry.getResponse());
 	}

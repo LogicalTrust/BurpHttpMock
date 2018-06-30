@@ -15,8 +15,10 @@ public class MockHolder {
 	private Map<String, MockEntry> entries = new LinkedHashMap<>();
 	private long counter = 0L;
 	private MockSettingsSaver settingSaver;
+	private SimpleLogger logger;
 	
 	public MockHolder(SimpleLogger logger, List<MockEntry> loadedEntries, MockSettingsSaver settingSaver) {
+		this.logger = logger;
 		this.settingSaver = settingSaver;
 		for (MockEntry e : loadedEntries) {
 			entries.put(e.getId() + "", e);
@@ -27,6 +29,7 @@ public class MockHolder {
 		int i = 0;
 		for (MockEntry e : getEntries()) {
 			logger.debug("Index: " + i + ", ID: " + e.getId() + ", URL: " + e.getRule());
+			i++;
 		}
 	}
 
@@ -75,6 +78,7 @@ public class MockHolder {
 	public void updateResponse(String id, byte[] response) {
 		MockEntry entry = entries.get(id);
 		entry.setResponse(response);
+		logger.debug("Updating " + entry + ", " + id);
 		settingSaver.saveEntry(entry);
 	}
 
