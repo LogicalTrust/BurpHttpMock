@@ -28,6 +28,7 @@ public class MockTable extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private MockTableModel model;
 	private ResponseTextEditor responseTextEditor;
+	int previousRow = -1;
 
 	public MockTable(String title, String tooltip, MockHolder mockHolder, 
 			Consumer<Collection<String>> updateValues, SimpleLogger logger, ResponseTextEditor responseTextEditor) {
@@ -91,9 +92,31 @@ public class MockTable extends JPanel {
 		selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		selectionModel.addListSelectionListener(e -> {
 			int row = table.getSelectedRow();
-			MockEntry entry = mockHolder.getEntry(row);
-			logger.debug("Selected row: " + row +", entry: " + entry.getId() + ", " + entry.getRule());
-			responseTextEditor.loadResponse(entry);
+			logger.debug("Selection changed, from: " + previousRow + " to :" + row);
+			if (row != previousRow) {
+				boolean cancel = false;
+				if (responseTextEditor.hasUnsavedChanges()) {
+					int result = JOptionPane.showConfirmDialog(null, "Do you want to save before leave?", "Changes not saved", JOptionPane.YES_NO_CANCEL_OPTION);
+					if (result == JOptionPane.YES_OPTION) {
+						responseTextEditor.saveChanges();
+						previousRow = row;
+					} else if (result == JOptionPane.NO_OPTION) {
+						//discard
+						previousRow = row;
+					} else {
+						//go back
+						table.setRowSelectionInterval(previousRow, previousRow);
+						cancel = true;
+					}
+				}
+				
+				if (!cancel) {
+					previousRow = row;
+					MockEntry entry = mockHolder.getEntry(row);
+					logger.debug("Selected row: " + row +", entry: " + entry.getId() + ", " + entry.getRule());
+					responseTextEditor.loadResponse(entry);
+				}
+			}
 		});
 	}
 

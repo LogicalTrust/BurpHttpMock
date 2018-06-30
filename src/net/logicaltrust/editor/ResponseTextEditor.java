@@ -3,12 +3,12 @@ package net.logicaltrust.editor;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.util.Optional;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
+import burp.IExtensionHelpers;
 import burp.ITextEditor;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.mock.MockEntry;
@@ -23,9 +23,13 @@ public class ResponseTextEditor {
 	private JCheckBox recalcBox;
 	
 	private MockEntry currentEntry;
+	private SimpleLogger logger;
+	private MockHolder mockHolder;
 
-	public ResponseTextEditor(SimpleLogger logger, ITextEditor textEditor, MockHolder mockHolder) {
+	public ResponseTextEditor(SimpleLogger logger, ITextEditor textEditor, MockHolder mockHolder, IExtensionHelpers helpers) {
+		this.logger = logger;
 		this.textEditor = textEditor;
+		this.mockHolder = mockHolder;
 		this.textEditor.setEditable(false);
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
@@ -41,12 +45,30 @@ public class ResponseTextEditor {
 		mainPanel.add(textEditor.getComponent());
 		mainPanel.add(textButtonPanel, BorderLayout.SOUTH);
 		
-		saveTextButton.addActionListener(e -> {
-			logger.debug("Message modified: " + textEditor.isTextModified());
+		saveTextButton.addActionListener(e -> saveChanges());
+		
+		discardTextButton.addActionListener(e -> {
+			logger.debug("Message discarded");
 			if (textEditor.isTextModified()) {
-				mockHolder.updateResponse(currentEntry.getId()+"", textEditor.getText());
+				textEditor.setText(currentEntry.getResponse());
 			}
 		});
+	}
+	
+	public void saveChanges() {
+		if (textEditor.isTextModified()) {
+			byte[] text = textEditor.getText();
+			if (recalcBox.isSelected()) {
+				logger.debug("Recalculating content length");
+				text = recalculateContentLength(text);
+			}
+			mockHolder.updateResponse(currentEntry.getId()+"", text);
+			loadResponse(currentEntry);
+		}
+	}
+
+	private byte[] recalculateContentLength(byte[] text) {
+		return text;
 	}
 
 	public void loadResponse(MockEntry entry) {
@@ -55,12 +77,12 @@ public class ResponseTextEditor {
 		this.textEditor.setText(entry.getResponse());
 	}
 	
+	public boolean hasUnsavedChanges() {
+		return currentEntry != null && textEditor.isTextModified();
+	}
+	
 	public Component getComponent() {
 		return mainPanel;
 	}
-	
-	
-	
-	
 	
 }

@@ -34,7 +34,11 @@ public class MockEntry {
 	public void setRule(MockRule rule) {
 		this.rule = rule;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "MockEntry [id=" + id + ", rule=" + rule + "]";
+	}
 	
 
 }
