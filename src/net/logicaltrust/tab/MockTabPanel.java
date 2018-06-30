@@ -76,7 +76,7 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 		add(githubPanel, BorderLayout.SOUTH);
 		githubPanel.setLayout(new BorderLayout(0, 0));
 		
-		JLabel githubLabel = createLabelURL("https://github.com/LogicalTrust/???");
+		JLabel githubLabel = createLabelURL("https://github.com/LogicalTrust/BurpHttpMock");
 		githubPanel.add(githubLabel);
 	}
 
