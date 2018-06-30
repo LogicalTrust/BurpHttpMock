@@ -22,6 +22,10 @@ public class MockEntry {
 	public byte[] getResponse() {
 		return response;
 	}
+	
+	public void setResponse(byte[] response) {
+		this.response = response;
+	}
 
 	public MockRule getRule() {
 		return rule;
@@ -30,5 +34,7 @@ public class MockEntry {
 	public void setRule(MockRule rule) {
 		this.rule = rule;
 	}
+	
+	
 
 }

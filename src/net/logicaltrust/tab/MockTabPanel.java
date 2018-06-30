@@ -25,7 +25,9 @@ import javax.swing.border.EmptyBorder;
 
 import burp.IBurpExtenderCallbacks;
 import burp.ITab;
+import burp.ITextEditor;
 import net.logicaltrust.SimpleLogger;
+import net.logicaltrust.editor.ResponseTextEditor;
 import net.logicaltrust.mock.MockAdder;
 import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockHolder;
@@ -40,25 +42,26 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 
 	private MockTable mockTable;
 
-	public MockTabPanel(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockHolder mockHolder) {
+	private ResponseTextEditor responseEditor;
+
+	public MockTabPanel(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockHolder mockHolder, ResponseTextEditor responseEditor) {
 		this.logger = logger;
 		this.callbacks = callbacks;
 		this.mockHolder = mockHolder;
-		prepareGui();
+		this.responseEditor = responseEditor;
+		prepareGui(responseEditor);
 	}
 	
-	private void prepareGui() {
+	private void prepareGui(ResponseTextEditor responseEditor) {
 		setLayout(new BorderLayout(0, 0));
 		prepareGitHubFooter();
 		prepareCheckBoxTopPanel();
-	
 		JPanel tablesPanel = prepareMainContentPanel();
 		
-		mockTable = new MockTable("Mock rules", "rules", mockHolder, null, logger);
+		mockTable = new MockTable("Mock rules", "rules", mockHolder, null, logger, responseEditor);
 		tablesPanel.add(mockTable);
 		
-		JPanel textPanel = prepareTextEditor();
-		tablesPanel.add(textPanel);
+		tablesPanel.add(responseEditor.getComponent());
 	}
 
 	private void prepareGitHubFooter() {
@@ -86,26 +89,6 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 		add(tablesPanel, BorderLayout.CENTER);
 		tablesPanel.setLayout(new GridLayout(0, 2, 0, 0));
 		return tablesPanel;
-	}
-
-	private JPanel prepareTextEditor() {
-		JPanel textPanel = new JPanel();
-		textPanel.setLayout(new BorderLayout());
-		JPanel textButtonPanel = new JPanel();
-		textButtonPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-		JButton saveText = new JButton("Save");
-		JButton discardText = new JButton("Discard");
-		JCheckBox recalc = new JCheckBox("Recalculate Content-Length");
-		textButtonPanel.add(saveText);
-		textButtonPanel.add(discardText);
-		textButtonPanel.add(recalc);
-		
-		JTextArea textArea = new JTextArea();
-		JScrollPane scrollPane = new JScrollPane(textArea);
-		
-		textPanel.add(scrollPane);
-		textPanel.add(textButtonPanel, BorderLayout.SOUTH);
-		return textPanel;
 	}
 
 	private JLabel createLabelURL(String url) {

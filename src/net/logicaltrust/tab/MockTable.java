@@ -18,6 +18,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import net.logicaltrust.SimpleLogger;
+import net.logicaltrust.editor.ResponseTextEditor;
 import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockHolder;
 import net.logicaltrust.mock.MockRule;
@@ -26,10 +27,12 @@ public class MockTable extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	private MockTableModel model;
+	private ResponseTextEditor responseTextEditor;
 
 	public MockTable(String title, String tooltip, MockHolder mockHolder, 
-			Consumer<Collection<String>> updateValues, SimpleLogger logger) {
+			Consumer<Collection<String>> updateValues, SimpleLogger logger, ResponseTextEditor responseTextEditor) {
 		
+		this.responseTextEditor = responseTextEditor;
 		this.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), title, TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		this.setToolTipText(tooltip);
 		this.setLayout(new BorderLayout(0, 0));
@@ -84,17 +87,15 @@ public class MockTable extends JPanel {
 			}
 		});
 		
+		table.getSelectionModel().addListSelectionListener(e -> {
+			int row = e.getFirstIndex();
+			logger.debug("Selected row: " +  row);
+			MockEntry entry = mockHolder.getEntry(row);
+			logger.debug("Selected entry: " + entry.getId() + ", " + entry.getRule());
+			responseTextEditor.loadResponse(entry);
+		});
 	}
 
-//	private Set<String> getModelValues() {
-//		int c = model.getRowCount();
-//		Set<String> modelValues = new LinkedHashSet<>(c);
-//		for (int i = 0; i < c; i++) {
-//			modelValues.add((String) model.getValueAt(i, 0)); 
-//		}
-//		return modelValues;
-//	}
-	
 	private GridBagConstraints createTableButtonConstraints(int index) {
 		GridBagConstraints btnConstraints = new GridBagConstraints();
 		btnConstraints.fill = GridBagConstraints.HORIZONTAL;

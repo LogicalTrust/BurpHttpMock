@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.logicaltrust.MyHttpListener;
 import net.logicaltrust.SimpleLogger;
+import net.logicaltrust.editor.ResponseTextEditor;
 import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockHolder;
 import net.logicaltrust.mock.MockRule;
@@ -24,6 +25,7 @@ public class BurpExtender implements IBurpExtender {
 		//settingSaver.clear();
 		List<MockEntry> entries = settingSaver.loadEntries();
 		
+		//TEST
 		if (entries.isEmpty()) {
 			logger.debug("No entries loaded");
 			String resp = "HTTP/1.0 200 File not found\nServer: SimpleHTTP/9.9 Python/2.7.15\nDate: Sun, 03 Jun 2018 11:28:24 GMT\nConnection: close\nContent-Type: text/html\n\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>EOKOK OKOK 200.\n<p>Message: File not found.\n<p>AAAAA code explanation: 200 = Nothing matches the given URI.\n</body>";
@@ -41,10 +43,13 @@ public class BurpExtender implements IBurpExtender {
 				settingSaver.saveEntry(ee);
 			}
 		}
+		//TEST
 		
-		MockHolder mockHolder = new MockHolder(entries, settingSaver);
+		MockHolder mockHolder = new MockHolder(logger, entries, settingSaver);
+		
+		ResponseTextEditor responseTextEditor = new ResponseTextEditor(callbacks.createTextEditor(), mockHolder);
 
-		MockTabPanel tab = new MockTabPanel(logger, callbacks, mockHolder);
+		MockTabPanel tab = new MockTabPanel(logger, callbacks, mockHolder, responseTextEditor);
 		callbacks.addSuiteTab(tab);
 
 		MyHttpListener httpListener = new MyHttpListener(callbacks.getHelpers(), logger, mockHolder);
