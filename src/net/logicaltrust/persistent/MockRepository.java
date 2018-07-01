@@ -22,17 +22,14 @@ public class MockRepository {
 		this.logger = logger;
 		this.settingSaver = settingSaver;
 		List<MockEntry> loadedEntries = settingSaver.loadEntries();
+		int i = 0;
 		for (MockEntry e : loadedEntries) {
 			entries.put(e.getId() + "", e);
+			logger.debug("Index: " + i + ", ID: " + e.getId() + ", URL: " + e.getRule());
 		}
 		long maxId = loadedEntries.get(loadedEntries.size() - 1).getId();
 		logger.debug("Calculated max id: " + maxId);
 		counter = maxId + 1;
-		int i = 0;
-		for (MockEntry e : getEntries()) {
-			logger.debug("Index: " + i + ", ID: " + e.getId() + ", URL: " + e.getRule());
-			i++;
-		}
 	}
 
 	public Optional<MockEntry> findMatch(URL url) {
@@ -43,9 +40,8 @@ public class MockRepository {
 	}
 
 	public synchronized void add(MockEntry entry) {
-		long id = counter;
+		long id = counter++;
 		entry.setId(id);
-		counter++;
 		entries.put(id + "", entry);
 		settingSaver.saveEntry(entry);
 		settingSaver.saveIdList(getEntries());

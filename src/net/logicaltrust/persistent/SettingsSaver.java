@@ -20,14 +20,13 @@ public class SettingsSaver {
 	private static final String RECALCULATE_CONTENT_LENGTH = "RECALCULATE_CONTENT_LENGTH";
 	private static final String DEBUG_OUTPUT = "DEBUG_OUTPUT";
 	private static final String SERVER_PORT = "SERVER_PORT";
-	private IBurpExtenderCallbacks callbacks;
 	private static final String DELIM = "|";
 	private static final String DELIM_REGEX = "\\|";
-	private SimpleLogger logger;
-	
 	private static final int DEFAULT_PORT = 7654;
-	
 	private static final int ENTRY_PARAMS = 6;
+	
+	private IBurpExtenderCallbacks callbacks;
+	private SimpleLogger logger;
 	
 	public SettingsSaver(IBurpExtenderCallbacks callbacks, SimpleLogger logger) {
 		this.callbacks = callbacks;
@@ -45,6 +44,9 @@ public class SettingsSaver {
 			callbacks.saveExtensionSetting("ENTRY_" + id, null);
 		});
 		callbacks.saveExtensionSetting(ID_LIST, null);
+		callbacks.saveExtensionSetting(RECALCULATE_CONTENT_LENGTH, null);
+		callbacks.saveExtensionSetting(DEBUG_OUTPUT, null);
+		callbacks.saveExtensionSetting(SERVER_PORT, null);
 	}
 	
 	public void saveEntry(MockEntry entry) {
@@ -133,6 +135,7 @@ public class SettingsSaver {
 				decodeToString(split[4]));
 		MockEntry entry = new MockEntry(Boolean.parseBoolean(split[0]), rule, response);
 		entry.setId(Long.parseLong(id));
+		
 		return entry;
 	}
 	
