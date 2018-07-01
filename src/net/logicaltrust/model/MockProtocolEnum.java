@@ -1,4 +1,4 @@
-package net.logicaltrust.tab;
+package net.logicaltrust.model;
 
 import java.net.URL;
 

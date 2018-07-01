@@ -7,9 +7,9 @@ import net.logicaltrust.HttpListener;
 import net.logicaltrust.MockContextMenuFactory;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.editor.ResponseTextEditor;
-import net.logicaltrust.mock.MockEntry;
-import net.logicaltrust.mock.MockHolder;
-import net.logicaltrust.mock.MockSettingsSaver;
+import net.logicaltrust.model.MockEntry;
+import net.logicaltrust.persistent.MockRepository;
+import net.logicaltrust.persistent.SettingsSaver;
 import net.logicaltrust.server.MockLocalServer;
 import net.logicaltrust.tab.MockTabPanel;
 
@@ -20,17 +20,19 @@ public class BurpExtender implements IBurpExtender {
 		
 		PrintWriter stderr = new PrintWriter(callbacks.getStderr(), true);
 		SimpleLogger logger = new SimpleLogger(new PrintWriter(callbacks.getStdout(), true), stderr);
+		SettingsSaver settingSaver = new SettingsSaver(callbacks, logger);
+		MockRepository mockRepository = new MockRepository(logger, settingSaver);
 
-		MockSettingsSaver settingSaver = new MockSettingsSaver(callbacks, logger);
-		List<MockEntry> entries = settingSaver.loadEntries();
-		
-		MockHolder mockHolder = new MockHolder(logger, entries, settingSaver);
-		ResponseTextEditor responseTextEditor = new ResponseTextEditor(logger, callbacks.createTextEditor(), mockHolder, callbacks.getHelpers(), settingSaver);
+		ResponseTextEditor responseTextEditor = new ResponseTextEditor(logger, 
+				callbacks.createTextEditor(), 
+				mockRepository, 
+				callbacks.getHelpers(), 
+				settingSaver);
 
-		MockTabPanel tab = new MockTabPanel(logger, callbacks, mockHolder, responseTextEditor, settingSaver);
+		MockTabPanel tab = new MockTabPanel(logger, callbacks, mockRepository, responseTextEditor, settingSaver);
 		callbacks.addSuiteTab(tab);
 
-		HttpListener httpListener = new HttpListener(callbacks.getHelpers(), logger, mockHolder, settingSaver.loadPort());
+		HttpListener httpListener = new HttpListener(callbacks.getHelpers(), logger, mockRepository, settingSaver.loadPort());
 		callbacks.registerHttpListener(httpListener);
 		
 		callbacks.registerContextMenuFactory(new MockContextMenuFactory(logger, callbacks.getHelpers(), tab));

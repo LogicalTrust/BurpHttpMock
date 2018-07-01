@@ -1,4 +1,4 @@
-package net.logicaltrust.mock;
+package net.logicaltrust.model;
 
 import java.nio.charset.StandardCharsets;
 

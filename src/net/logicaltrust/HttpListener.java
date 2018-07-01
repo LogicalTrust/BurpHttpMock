@@ -9,17 +9,17 @@ import burp.IHttpListener;
 import burp.IHttpRequestResponse;
 import burp.IHttpService;
 import burp.IRequestInfo;
-import net.logicaltrust.mock.MockEntry;
-import net.logicaltrust.mock.MockHolder;
+import net.logicaltrust.model.MockEntry;
+import net.logicaltrust.persistent.MockRepository;
 
 public class HttpListener implements IHttpListener {
 
 	private IExtensionHelpers helpers;
 	private SimpleLogger logger;
-	private MockHolder mockHolder;
+	private MockRepository mockHolder;
 	private final int port;
 
-	public HttpListener(IExtensionHelpers helpers, SimpleLogger logger, MockHolder mockHolder, int port) {
+	public HttpListener(IExtensionHelpers helpers, SimpleLogger logger, MockRepository mockHolder, int port) {
 		this.helpers = helpers;
 		this.logger = logger;
 		this.mockHolder = mockHolder;

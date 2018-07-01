@@ -19,9 +19,9 @@ import burp.IExtensionHelpers;
 import burp.IResponseInfo;
 import burp.ITextEditor;
 import net.logicaltrust.SimpleLogger;
-import net.logicaltrust.mock.MockEntry;
-import net.logicaltrust.mock.MockHolder;
-import net.logicaltrust.mock.MockSettingsSaver;
+import net.logicaltrust.model.MockEntry;
+import net.logicaltrust.persistent.MockRepository;
+import net.logicaltrust.persistent.SettingsSaver;
 
 public class ResponseTextEditor {
 
@@ -33,13 +33,13 @@ public class ResponseTextEditor {
 	
 	private MockEntry currentEntry;
 	private SimpleLogger logger;
-	private MockHolder mockHolder;
-	private MockSettingsSaver settingSaver;
+	private MockRepository mockHolder;
+	private SettingsSaver settingSaver;
 	private IExtensionHelpers helpers;
 	
 	private static final Pattern CONTENT_LENGTH_PATTERN = Pattern.compile("^Content-Length: .*$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
-	public ResponseTextEditor(SimpleLogger logger, ITextEditor textEditor, MockHolder mockHolder, IExtensionHelpers helpers, MockSettingsSaver settingSaver) {
+	public ResponseTextEditor(SimpleLogger logger, ITextEditor textEditor, MockRepository mockHolder, IExtensionHelpers helpers, SettingsSaver settingSaver) {
 		this.logger = logger;
 		this.textEditor = textEditor;
 		this.mockHolder = mockHolder;

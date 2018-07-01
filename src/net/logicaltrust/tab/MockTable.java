@@ -29,9 +29,10 @@ import javax.swing.border.TitledBorder;
 
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.editor.ResponseTextEditor;
-import net.logicaltrust.mock.MockEntry;
-import net.logicaltrust.mock.MockHolder;
-import net.logicaltrust.mock.MockRule;
+import net.logicaltrust.model.MockEntry;
+import net.logicaltrust.model.MockProtocolEnum;
+import net.logicaltrust.model.MockRule;
+import net.logicaltrust.persistent.MockRepository;
 
 public class MockTable extends JPanel {
 
@@ -40,7 +41,7 @@ public class MockTable extends JPanel {
 	private ResponseTextEditor responseTextEditor;
 	int previousRow = -1;
 
-	public MockTable(String title, String tooltip, MockHolder mockHolder, 
+	public MockTable(String title, String tooltip, MockRepository mockHolder, 
 			Consumer<Collection<String>> updateValues, SimpleLogger logger, ResponseTextEditor responseTextEditor) {
 		
 		this.responseTextEditor = responseTextEditor;

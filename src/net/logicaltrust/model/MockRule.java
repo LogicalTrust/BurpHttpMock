@@ -1,9 +1,7 @@
-package net.logicaltrust.mock;
+package net.logicaltrust.model;
 
 import java.net.URL;
 import java.util.regex.Pattern;
-
-import net.logicaltrust.tab.MockProtocolEnum;
 
 public class MockRule {
 	

@@ -13,9 +13,9 @@ import burp.IContextMenuInvocation;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
-import net.logicaltrust.mock.MockAdder;
-import net.logicaltrust.mock.MockEntry;
-import net.logicaltrust.mock.MockRule;
+import net.logicaltrust.model.MockEntry;
+import net.logicaltrust.model.MockRule;
+import net.logicaltrust.persistent.MockAdder;
 
 public class MockContextMenuFactory implements IContextMenuFactory, ActionListener {
 

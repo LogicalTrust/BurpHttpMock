@@ -1,4 +1,4 @@
-package net.logicaltrust.mock;
+package net.logicaltrust.persistent;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -9,17 +9,19 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import net.logicaltrust.SimpleLogger;
+import net.logicaltrust.model.MockEntry;
 
-public class MockHolder {
+public class MockRepository {
 
 	private Map<String, MockEntry> entries = new LinkedHashMap<>();
 	private long counter = 0L;
-	private MockSettingsSaver settingSaver;
+	private SettingsSaver settingSaver;
 	private SimpleLogger logger;
 	
-	public MockHolder(SimpleLogger logger, List<MockEntry> loadedEntries, MockSettingsSaver settingSaver) {
+	public MockRepository(SimpleLogger logger, SettingsSaver settingSaver) {
 		this.logger = logger;
 		this.settingSaver = settingSaver;
+		List<MockEntry> loadedEntries = settingSaver.loadEntries();
 		for (MockEntry e : loadedEntries) {
 			entries.put(e.getId() + "", e);
 		}

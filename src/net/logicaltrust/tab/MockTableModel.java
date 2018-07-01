@@ -4,17 +4,18 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 
 import net.logicaltrust.SimpleLogger;
-import net.logicaltrust.mock.MockEntry;
-import net.logicaltrust.mock.MockHolder;
-import net.logicaltrust.mock.MockRule;
+import net.logicaltrust.model.MockEntry;
+import net.logicaltrust.model.MockProtocolEnum;
+import net.logicaltrust.model.MockRule;
+import net.logicaltrust.persistent.MockRepository;
 
 public class MockTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
 	private SimpleLogger logger;
-	private MockHolder mockHolder;
+	private MockRepository mockHolder;
 
-	public MockTableModel(MockHolder mockHolder, SimpleLogger logger) {
+	public MockTableModel(MockRepository mockHolder, SimpleLogger logger) {
 		super(mockHolder.getEntries().stream().map(v -> v.getRule()).map(v -> new Object[] { true, v.getProtocol(), v.getHost(), v.getPort(), v.getPath() }).toArray(Object[][]::new), MockRuleColumnsEnum.getDisplayNames());
 		this.mockHolder = mockHolder;
 		this.logger = logger;
@@ -30,7 +31,7 @@ public class MockTableModel extends DefaultTableModel {
 		});
 	}
 
-	private void handleUpdateAction(MockHolder mockHolder, TableModelEvent event, int row) {
+	private void handleUpdateAction(MockRepository mockHolder, TableModelEvent event, int row) {
 		MockRuleColumnsEnum column = MockRuleColumnsEnum.getByIndex(event.getColumn());
 		Object value = this.getValueAt(row, column.ordinal());
 		logger.debug("Update: " + value);
@@ -55,7 +56,7 @@ public class MockTableModel extends DefaultTableModel {
 		}
 	}
 
-	private void handleDeleteAction(MockHolder mockHolder, int row) {
+	private void handleDeleteAction(MockRepository mockHolder, int row) {
 		mockHolder.delete(row);
 	}
 

@@ -2,6 +2,8 @@ package net.logicaltrust.tab;
 
 import java.util.Arrays;
 
+import net.logicaltrust.model.MockProtocolEnum;
+
 public enum MockRuleColumnsEnum {
 	
 	ENABLED("Enabled"),

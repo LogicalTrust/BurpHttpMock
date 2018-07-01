@@ -31,10 +31,10 @@ import burp.ITab;
 import burp.ITextEditor;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.editor.ResponseTextEditor;
-import net.logicaltrust.mock.MockAdder;
-import net.logicaltrust.mock.MockEntry;
-import net.logicaltrust.mock.MockHolder;
-import net.logicaltrust.mock.MockSettingsSaver;
+import net.logicaltrust.model.MockEntry;
+import net.logicaltrust.persistent.MockAdder;
+import net.logicaltrust.persistent.MockRepository;
+import net.logicaltrust.persistent.SettingsSaver;
 
 public class MockTabPanel extends JPanel implements ITab, MockAdder {
 
@@ -42,15 +42,15 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 
 	private SimpleLogger logger;
 	private IBurpExtenderCallbacks callbacks;
-	private MockHolder mockHolder;
+	private MockRepository mockHolder;
 
 	private MockTable mockTable;
 
 	private ResponseTextEditor responseEditor;
 
-	private MockSettingsSaver settingSaver;
+	private SettingsSaver settingSaver;
 
-	public MockTabPanel(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockHolder mockHolder, ResponseTextEditor responseEditor, MockSettingsSaver settingSaver) {
+	public MockTabPanel(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockRepository mockHolder, ResponseTextEditor responseEditor, SettingsSaver settingSaver) {
 		this.logger = logger;
 		this.callbacks = callbacks;
 		this.mockHolder = mockHolder;

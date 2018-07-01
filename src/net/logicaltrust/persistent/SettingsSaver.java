@@ -1,4 +1,4 @@
-package net.logicaltrust.mock;
+package net.logicaltrust.persistent;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -10,9 +10,11 @@ import java.util.stream.Collectors;
 
 import burp.IBurpExtenderCallbacks;
 import net.logicaltrust.SimpleLogger;
-import net.logicaltrust.tab.MockProtocolEnum;
+import net.logicaltrust.model.MockEntry;
+import net.logicaltrust.model.MockProtocolEnum;
+import net.logicaltrust.model.MockRule;
 
-public class MockSettingsSaver {
+public class SettingsSaver {
 	
 	private static final String ID_LIST = "ID_LIST";
 	private static final String RECALCULATE_CONTENT_LENGTH = "RECALCULATE_CONTENT_LENGTH";
@@ -27,7 +29,7 @@ public class MockSettingsSaver {
 	
 	private static final int ENTRY_PARAMS = 6;
 	
-	public MockSettingsSaver(IBurpExtenderCallbacks callbacks, SimpleLogger logger) {
+	public SettingsSaver(IBurpExtenderCallbacks callbacks, SimpleLogger logger) {
 		this.callbacks = callbacks;
 		this.logger = logger;
 		if (isDebugOn()) {
