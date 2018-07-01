@@ -40,9 +40,11 @@ public class SettingsSaver {
 	
 	public void clear() {
 		String strIds = callbacks.loadExtensionSetting(ID_LIST);
-		Arrays.stream(strIds.split(DELIM_REGEX)).forEach(id -> {
-			callbacks.saveExtensionSetting("ENTRY_" + id, null);
-		});
+		if (strIds != null ) {
+			Arrays.stream(strIds.split(DELIM_REGEX)).forEach(id -> {
+				callbacks.saveExtensionSetting("ENTRY_" + id, null);
+			});
+		}
 		callbacks.saveExtensionSetting(ID_LIST, null);
 		callbacks.saveExtensionSetting(RECALCULATE_CONTENT_LENGTH, null);
 		callbacks.saveExtensionSetting(DEBUG_OUTPUT, null);

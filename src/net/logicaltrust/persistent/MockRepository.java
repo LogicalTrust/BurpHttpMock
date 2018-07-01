@@ -27,7 +27,7 @@ public class MockRepository {
 			entries.put(e.getId() + "", e);
 			logger.debug("Index: " + i++ + ", ID: " + e.getId() + ", URL: " + e.getRule());
 		}
-		long maxId = loadedEntries.get(loadedEntries.size() - 1).getId();
+		long maxId = loadedEntries.isEmpty() ? 0 : loadedEntries.get(loadedEntries.size() - 1).getId();
 		logger.debug("Calculated max id: " + maxId);
 		counter = maxId + 1;
 	}

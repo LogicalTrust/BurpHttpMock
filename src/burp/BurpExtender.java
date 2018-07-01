@@ -19,6 +19,7 @@ public class BurpExtender implements IBurpExtender {
 		PrintWriter stderr = new PrintWriter(callbacks.getStderr(), true);
 		SimpleLogger logger = new SimpleLogger(new PrintWriter(callbacks.getStdout(), true), stderr);
 		SettingsSaver settingSaver = new SettingsSaver(callbacks, logger);
+		settingSaver.clear();
 		MockRepository mockRepository = new MockRepository(logger, settingSaver);
 
 		ResponseTextEditor responseTextEditor = new ResponseTextEditor(logger, 
