@@ -32,12 +32,7 @@ public class MockLocalServer implements IExtensionStateListener {
 					logger.debug("Waiting for connection");
 					Socket accept = ss.accept();
 					logger.debug("Connection " + accept + " accepted");
-					BufferedReader br = new BufferedReader(new InputStreamReader(accept.getInputStream()));				    
-					BufferedOutputStream bos = new BufferedOutputStream(accept.getOutputStream());
-					bos.write("HTTP/1.0 418 I'm a teapot\r\nConnection: close\r\n\r\ntest".getBytes());
-					bos.close();
-					br.close();
-					accept.close();
+					handleConnection(accept);
 				} catch (IOException e) {
 					if (isStopped()) {
 						logger.debugForce("Server has stopped");
@@ -50,6 +45,15 @@ public class MockLocalServer implements IExtensionStateListener {
 			e.printStackTrace(logger.getStderr());
 			logger.debugForce("Cannot create server. Try with another port.");
 		}
+	}
+
+	private void handleConnection(Socket accept) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(accept.getInputStream()));				    
+		BufferedOutputStream bos = new BufferedOutputStream(accept.getOutputStream());
+		bos.write("HTTP/1.0 418 I'm a teapot\r\nConnection: close\r\n\r\ntest".getBytes());
+		bos.close();
+		br.close();
+		accept.close();
 	}
 	
 	private synchronized boolean isStopped() {

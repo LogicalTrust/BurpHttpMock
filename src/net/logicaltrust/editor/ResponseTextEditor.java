@@ -1,7 +1,6 @@
 package net.logicaltrust.editor;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +11,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import burp.IExtensionHelpers;
@@ -34,7 +32,6 @@ public class ResponseTextEditor {
 	private MockEntry currentEntry;
 	private SimpleLogger logger;
 	private MockRepository mockHolder;
-	private SettingsSaver settingSaver;
 	private IExtensionHelpers helpers;
 	
 	private static final Pattern CONTENT_LENGTH_PATTERN = Pattern.compile("^Content-Length: .*$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
@@ -44,14 +41,15 @@ public class ResponseTextEditor {
 		this.textEditor = textEditor;
 		this.mockHolder = mockHolder;
 		this.helpers = helpers;
-		this.settingSaver = settingSaver;
 		this.textEditor.setEditable(false);
-		mainPanel = new JPanel();
 		
+		mainPanel = new JPanel();
 		mainPanel.setBorder(new TitledBorder(new EmptyBorder(0, 0, 0, 0), "Response editor", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		mainPanel.setLayout(new BorderLayout());
+
 		JPanel textButtonPanel = new JPanel();
 		textButtonPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		
 		saveTextButton = new JButton("Save");
 		discardTextButton = new JButton("Discard");
 		recalcBox = new JCheckBox("Recalculate Content-Length");
@@ -69,17 +67,15 @@ public class ResponseTextEditor {
 		mainPanel.add(textButtonPanel, BorderLayout.SOUTH);
 		
 		saveTextButton.addActionListener(e -> saveChanges());
-		
-		discardTextButton.addActionListener(e -> {
-			logger.debug("Message discarded");
-			if (textEditor.isTextModified()) {
-				textEditor.setText(currentEntry.getResponse());
-			}
-		});
-		
-		recalcBox.addActionListener(e -> {
-			settingSaver.saveRecalculateContentLength(recalcBox.isSelected());
-		});
+		discardTextButton.addActionListener(e -> discardChanges());
+		recalcBox.addActionListener(e -> settingSaver.saveRecalculateContentLength(recalcBox.isSelected()));
+	}
+
+	private void discardChanges() {
+		logger.debug("Message discarded");
+		if (textEditor.isTextModified()) {
+			textEditor.setText(currentEntry.getResponse());
+		}
 	}
 	
 	public void saveChanges() {
@@ -94,10 +90,9 @@ public class ResponseTextEditor {
 
 	private byte[] recalculateContentLength(byte[] text) {
 		IResponseInfo response = helpers.analyzeResponse(text);
-		int offset = response.getBodyOffset();
-		int contentLength = text.length - offset;
-		String str = new String(text, StandardCharsets.UTF_8);
-		Matcher matcher = CONTENT_LENGTH_PATTERN.matcher(str);
+		int contentLength = text.length - response.getBodyOffset();
+		String responseStr = new String(text, StandardCharsets.UTF_8);
+		Matcher matcher = CONTENT_LENGTH_PATTERN.matcher(responseStr);
 		String replaced = matcher.replaceFirst("Content-Length: " + contentLength);
 		return replaced.getBytes(StandardCharsets.UTF_8);
 	}
