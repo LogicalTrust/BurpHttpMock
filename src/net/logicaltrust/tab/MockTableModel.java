@@ -11,6 +11,7 @@ import net.logicaltrust.persistent.MockRepository;
 public class MockTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
+	@SuppressWarnings("unused")
 	private SimpleLogger logger;
 	private MockRepository mockHolder;
 
@@ -34,7 +35,6 @@ public class MockTableModel extends DefaultTableModel {
 	private void handleUpdateAction(MockRepository mockHolder, TableModelEvent event, int row) {
 		MockRuleColumnsEnum column = MockRuleColumnsEnum.getByIndex(event.getColumn());
 		Object value = this.getValueAt(row, column.ordinal());
-		logger.debug("Update: " + value);
 		switch (column) {
 		case ENABLED:
 			mockHolder.update(row, e -> e.setEnabled((boolean) value));
