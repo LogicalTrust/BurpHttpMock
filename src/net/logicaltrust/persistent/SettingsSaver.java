@@ -73,7 +73,7 @@ public class SettingsSaver {
 	public List<MockEntry> loadEntries() {
 		logger.debug("Loading entries");
 		String strIds = callbacks.loadExtensionSetting(ID_LIST);
-		if (strIds == null) {
+		if (strIds == null || strIds.isEmpty()) {
 			return new ArrayList<>();
 		}
 		List<MockEntry> entries = Arrays.stream(strIds.split(DELIM_REGEX)).map(id -> {
