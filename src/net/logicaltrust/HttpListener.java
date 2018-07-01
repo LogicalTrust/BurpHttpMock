@@ -29,29 +29,39 @@ public class HttpListener implements IHttpListener {
 	@Override
 	public void processHttpMessage(int toolFlag, boolean isReq, IHttpRequestResponse messageInfo) {
 		if (mockHolder.hasAnyMock()) {
-			
 			IRequestInfo analyzedReq = helpers.analyzeRequest(messageInfo.getHttpService(), messageInfo.getRequest());
 			URL url = analyzedReq.getUrl();
-			
 			if (isReq) {
-				Optional<MockEntry> match = mockHolder.findMatch(url);
-				if (match.isPresent()) {
-					MockEntry matchEntry = match.get();
-					logger.debug("Successful URL match: " + url + " with " + matchEntry);
-					IHttpService service = helpers.buildHttpService("localhost", port, false);
-					byte[] localReq = helpers.buildHttpMessage(Arrays.asList("GET /?" + matchEntry.getId() + " HTTP/1.0"), null);
-					messageInfo.setRequest(localReq);
-					messageInfo.setHttpService(service);
-				}
-			} else if (url.getHost().equals("localhost") && url.getPort() == port) {
-				String id = url.getQuery();
-				MockEntry entry = mockHolder.getEntry(id);
-				if (entry != null) {
-					messageInfo.setResponse(entry.getResponse());
-				} else {
-					logger.debugForce("Missing response for id " + id);
-				}
+				handleRequest(messageInfo, url);
+			} else if (isMockedResponse(url)) {
+				handleResponse(messageInfo, url);
 			}
+		}
+	}
+
+	private boolean isMockedResponse(URL url) {
+		return url.getHost().equals("localhost") && url.getPort() == port;
+	}
+
+	private void handleResponse(IHttpRequestResponse messageInfo, URL url) {
+		String id = url.getQuery();
+		MockEntry entry = mockHolder.getEntry(id);
+		if (entry != null) {
+			messageInfo.setResponse(entry.getResponse());
+		} else {
+			logger.debugForce("Missing response for id " + id);
+		}
+	}
+
+	private void handleRequest(IHttpRequestResponse messageInfo, URL url) {
+		Optional<MockEntry> match = mockHolder.findMatch(url);
+		if (match.isPresent()) {
+			MockEntry matchEntry = match.get();
+			logger.debug("Successful URL match: " + url + " with " + matchEntry);
+			IHttpService service = helpers.buildHttpService("localhost", port, false);
+			byte[] localReq = helpers.buildHttpMessage(Arrays.asList("GET /?" + matchEntry.getId() + " HTTP/1.0"), null);
+			messageInfo.setRequest(localReq);
+			messageInfo.setHttpService(service);
 		}
 	}
 	

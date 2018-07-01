@@ -48,6 +48,10 @@ public class MockEntry {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
+	
+	public Object[] toObject() {
+		return new Object[] { enabled, getRule().getProtocol(), getRule().getHost(), getRule().getPort(), getRule().getPath() };
+	}
 
 	@Override
 	public String toString() {

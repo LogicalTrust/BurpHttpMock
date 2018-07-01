@@ -6,7 +6,6 @@ import javax.swing.table.DefaultTableModel;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.model.MockEntry;
 import net.logicaltrust.model.MockProtocolEnum;
-import net.logicaltrust.model.MockRule;
 import net.logicaltrust.persistent.MockRepository;
 
 public class MockTableModel extends DefaultTableModel {
@@ -16,19 +15,20 @@ public class MockTableModel extends DefaultTableModel {
 	private MockRepository mockHolder;
 
 	public MockTableModel(MockRepository mockHolder, SimpleLogger logger) {
-		super(mockHolder.getEntries().stream().map(v -> v.getRule()).map(v -> new Object[] { true, v.getProtocol(), v.getHost(), v.getPort(), v.getPath() }).toArray(Object[][]::new), MockRuleColumnsEnum.getDisplayNames());
+		super(mockHolder.getEntries().stream().map(v -> v.toObject()).toArray(Object[][]::new), 
+				MockRuleColumnsEnum.getDisplayNames());
 		this.mockHolder = mockHolder;
 		this.logger = logger;
-		this.addTableModelListener(e -> {
-			int row = e.getFirstRow();
-			if (e.getType() == TableModelEvent.INSERT) {
-				//ignore
-			} else if (e.getType() == TableModelEvent.DELETE) {
-				handleDeleteAction(mockHolder, row);
-			} else if (e.getType() == TableModelEvent.UPDATE) {
-				handleUpdateAction(mockHolder, e, row);
-			}
-		});
+		this.addTableModelListener(this::handleTableChange);
+	}
+	
+	private void handleTableChange(TableModelEvent e) {
+		int row = e.getFirstRow();
+		if (e.getType() == TableModelEvent.DELETE) {
+			handleDeleteAction(mockHolder, row);
+		} else if (e.getType() == TableModelEvent.UPDATE) {
+			handleUpdateAction(mockHolder, e, row);
+		}
 	}
 
 	private void handleUpdateAction(MockRepository mockHolder, TableModelEvent event, int row) {
@@ -61,9 +61,7 @@ public class MockTableModel extends DefaultTableModel {
 	}
 
 	public void addMock(MockEntry entry) {
-		MockRule rule = entry.getRule();
-		Object[] row = new Object[] { true, rule.getProtocol(), rule.getHost(), rule.getPort(), rule.getPath() };
-		this.addRow(row);
+		this.addRow(entry.toObject());
 		mockHolder.add(entry);
 	}
 
