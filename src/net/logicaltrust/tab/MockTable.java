@@ -37,17 +37,13 @@ public class MockTable extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	private MockTableModel model;
-	private ResponseTextEditor responseTextEditor;
 	int previousRow = -1;
 
 	public MockTable(String title, String tooltip, MockRepository mockHolder, 
 			Consumer<Collection<String>> updateValues, SimpleLogger logger, ResponseTextEditor responseTextEditor) {
-		
-		this.responseTextEditor = responseTextEditor;
 		this.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), title, TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		this.setToolTipText(tooltip);
 		this.setLayout(new BorderLayout(0, 0));
-		
 		model = new MockTableModel(mockHolder, logger);
 		
 		JPanel buttonPanel = createButtonPanel();
@@ -55,10 +51,8 @@ public class MockTable extends JPanel {
 
 		JButton addButton = new JButton("Add");
 		addButton.addActionListener(e -> handleAdd());
-		
 		JButton deleteButton = new JButton("Delete");
 		deleteButton.addActionListener(e -> handleDelete(table) );
-		
 		JButton pasteUrlButton = new JButton("Paste URL");
 		pasteUrlButton.addActionListener(e -> handlePasteURL(logger));
 
@@ -76,29 +70,25 @@ public class MockTable extends JPanel {
 		int row = table.getSelectedRow();
 		logger.debug("Selection changed, from: " + previousRow + " to: " + row);
 		if (row != previousRow) {
-			boolean cancel = false;
 			if (responseTextEditor.hasUnsavedChanges()) {
 				int result = JOptionPane.showConfirmDialog(null, "Do you want to save before leave?", "Changes not saved", JOptionPane.YES_NO_CANCEL_OPTION);
 				if (result == JOptionPane.YES_OPTION) {
 					responseTextEditor.saveChanges();
-					previousRow = row;
-				} else if (result == JOptionPane.NO_OPTION) {
-					//discard
-					previousRow = row;
-				} else {
-					//go back
+				} else if (result == JOptionPane.CANCEL_OPTION) {
 					table.setRowSelectionInterval(previousRow, previousRow);
-					cancel = true;
+					return;
 				}
 			}
-			
-			if (!cancel) {
-				previousRow = row;
-				MockEntry entry = mockHolder.getEntry(row);
-				logger.debug("Selected row: " + row + ", entry: " + entry.getId() + ", " + entry.getRule());
-				responseTextEditor.loadResponse(entry);
-			}
+			goToNextEntry(mockHolder, logger, responseTextEditor, row);
 		}
+	}
+
+	private void goToNextEntry(MockRepository mockHolder, SimpleLogger logger, ResponseTextEditor responseTextEditor,
+			int row) {
+		previousRow = row;
+		MockEntry entry = mockHolder.getEntry(row);
+		logger.debug("Selected row: " + row + ", entry: " + entry.getId() + ", " + entry.getRule());
+		responseTextEditor.loadResponse(entry);
 	}
 
 	private void prepareProtocolEnumCombo(JTable table) {

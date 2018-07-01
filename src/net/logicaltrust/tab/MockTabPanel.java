@@ -121,7 +121,7 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 
 	@Override
 	public String getTabCaption() {
-		return "Mock";
+		return "HTTP Mock";
 	}
 
 	@Override
