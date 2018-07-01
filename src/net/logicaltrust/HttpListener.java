@@ -16,19 +16,19 @@ public class HttpListener implements IHttpListener {
 
 	private IExtensionHelpers helpers;
 	private SimpleLogger logger;
-	private MockRepository mockHolder;
+	private MockRepository mockRepository;
 	private final int port;
 
-	public HttpListener(IExtensionHelpers helpers, SimpleLogger logger, MockRepository mockHolder, int port) {
+	public HttpListener(IExtensionHelpers helpers, SimpleLogger logger, MockRepository mockRepository, int port) {
 		this.helpers = helpers;
 		this.logger = logger;
-		this.mockHolder = mockHolder;
+		this.mockRepository = mockRepository;
 		this.port = port;
 	}
 
 	@Override
 	public void processHttpMessage(int toolFlag, boolean isReq, IHttpRequestResponse messageInfo) {
-		if (mockHolder.hasAnyMock()) {
+		if (mockRepository.hasAnyMock()) {
 			IRequestInfo analyzedReq = helpers.analyzeRequest(messageInfo.getHttpService(), messageInfo.getRequest());
 			URL url = analyzedReq.getUrl();
 			if (isReq) {
@@ -45,7 +45,7 @@ public class HttpListener implements IHttpListener {
 
 	private void handleResponse(IHttpRequestResponse messageInfo, URL url) {
 		String id = url.getQuery();
-		MockEntry entry = mockHolder.getEntry(id);
+		MockEntry entry = mockRepository.getEntry(id);
 		if (entry != null) {
 			messageInfo.setResponse(entry.getResponse());
 		} else {
@@ -54,7 +54,7 @@ public class HttpListener implements IHttpListener {
 	}
 
 	private void handleRequest(IHttpRequestResponse messageInfo, URL url) {
-		Optional<MockEntry> match = mockHolder.findMatch(url);
+		Optional<MockEntry> match = mockRepository.findMatch(url);
 		if (match.isPresent()) {
 			MockEntry matchEntry = match.get();
 			logger.debug("Successful URL match: " + url + " with " + matchEntry);

@@ -32,7 +32,7 @@ public class MockRepository {
 		counter = maxId + 1;
 	}
 
-	public Optional<MockEntry> findMatch(URL url) {
+	public synchronized Optional<MockEntry> findMatch(URL url) {
 		return entries.values().stream()
 				.filter(e -> e.isEnabled())
 				.filter(e -> e.getRule().matches(url))
@@ -47,7 +47,7 @@ public class MockRepository {
 		settingSaver.saveIdList(getEntries());
 	}
 
-	public List<MockEntry> getEntries() {
+	public synchronized List<MockEntry> getEntries() {
 		return new ArrayList<>(entries.values());
 	}
 	
@@ -76,7 +76,7 @@ public class MockRepository {
 		return !entries.isEmpty();
 	}
 	
-	public void updateResponse(String id, byte[] response) {
+	public synchronized void updateResponse(String id, byte[] response) {
 		MockEntry entry = entries.get(id);
 		entry.setResponse(response);
 		logger.debug("Updating " + entry + ", " + id);
