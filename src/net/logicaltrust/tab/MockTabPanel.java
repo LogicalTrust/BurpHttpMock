@@ -3,6 +3,7 @@ package net.logicaltrust.tab;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.FlowLayout;
@@ -18,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 
 import burp.IBurpExtenderCallbacks;
@@ -84,9 +86,13 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 		checkboxPanel.add(changePort);
 	}
 	
-	private void handleChangePortButton() {
+	private void handleChangePortButton() {	
 		int initValue = settingSaver.loadPort();
 		String input = JOptionPane.showInputDialog("Set port number for local server", initValue + "");
+		
+		if (input == null)
+			return;
+		
 		try {
 			int port = Integer.parseInt(input);
 			if (port > 0 && port < 65536) {
