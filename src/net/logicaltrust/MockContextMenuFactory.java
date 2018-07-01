@@ -1,4 +1,4 @@
-package burp;
+package net.logicaltrust;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,19 +8,23 @@ import java.util.List;
 
 import javax.swing.JMenuItem;
 
-import net.logicaltrust.SimpleLogger;
+import burp.IContextMenuFactory;
+import burp.IContextMenuInvocation;
+import burp.IExtensionHelpers;
+import burp.IHttpRequestResponse;
+import burp.IRequestInfo;
 import net.logicaltrust.mock.MockAdder;
 import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockRule;
 
-public class MyContextMenuFactory implements IContextMenuFactory, ActionListener {
+public class MockContextMenuFactory implements IContextMenuFactory, ActionListener {
 
 	private SimpleLogger logger;
 	private IContextMenuInvocation invocation;
 	private IExtensionHelpers helpers;
 	private MockAdder mockAdder;
 	
-	public MyContextMenuFactory(SimpleLogger logger, IExtensionHelpers helpers, MockAdder mockAdder) {
+	public MockContextMenuFactory(SimpleLogger logger, IExtensionHelpers helpers, MockAdder mockAdder) {
 		this.logger = logger;
 		this.helpers = helpers;
 		this.mockAdder = mockAdder;
@@ -29,7 +33,7 @@ public class MyContextMenuFactory implements IContextMenuFactory, ActionListener
 	@Override
 	public List<JMenuItem> createMenuItems(IContextMenuInvocation invocation) {
 		this.invocation = invocation;
-		JMenuItem jMenuItem = new JMenuItem("Mock response");
+		JMenuItem jMenuItem = new JMenuItem("Mock HTTP response");
 		jMenuItem.addActionListener(this);
 		List<JMenuItem> list = new ArrayList<>();
 		list.add(jMenuItem);

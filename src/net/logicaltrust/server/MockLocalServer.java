@@ -11,14 +11,14 @@ import java.net.Socket;
 import burp.IExtensionStateListener;
 import net.logicaltrust.SimpleLogger;
 
-public class MyMockServer implements IExtensionStateListener {
+public class MockLocalServer implements IExtensionStateListener {
 
 	private SimpleLogger logger;
 	private boolean stopped = false;
 	private ServerSocket ss;
 	private final int port;
 	
-	public MyMockServer(SimpleLogger logger, int port) {
+	public MockLocalServer(SimpleLogger logger, int port) {
 		this.logger = logger;
 		this.port = port;
 	}

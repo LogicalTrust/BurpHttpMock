@@ -12,14 +12,14 @@ import burp.IRequestInfo;
 import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockHolder;
 
-public class MyHttpListener implements IHttpListener {
+public class HttpListener implements IHttpListener {
 
 	private IExtensionHelpers helpers;
 	private SimpleLogger logger;
 	private MockHolder mockHolder;
 	private final int port;
 
-	public MyHttpListener(IExtensionHelpers helpers, SimpleLogger logger, MockHolder mockHolder, int port) {
+	public HttpListener(IExtensionHelpers helpers, SimpleLogger logger, MockHolder mockHolder, int port) {
 		this.helpers = helpers;
 		this.logger = logger;
 		this.mockHolder = mockHolder;

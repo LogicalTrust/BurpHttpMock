@@ -2,7 +2,7 @@ package net.logicaltrust.tab;
 
 import java.util.Arrays;
 
-public enum MockTableColumns {
+public enum MockRuleColumnsEnum {
 	
 	ENABLED("Enabled"),
 	
@@ -16,22 +16,24 @@ public enum MockTableColumns {
 	
 	private String displayName;
 	
-	private MockTableColumns(String displayName) {
+	private MockRuleColumnsEnum(String displayName) {
 		this.displayName = displayName;
 	}
 	
 	public static Object[] getDisplayNames() {
-		Object[] array = Arrays.stream(MockTableColumns.values()).map(v -> v.displayName).toArray();
+		Object[] array = Arrays.stream(MockRuleColumnsEnum.values()).map(v -> v.displayName).toArray();
 		return array;
 	}
 	
-	public static MockTableColumns getByIndex(int index) {
-		return MockTableColumns.values()[index];
+	public static MockRuleColumnsEnum getByIndex(int index) {
+		return MockRuleColumnsEnum.values()[index];
 	}
 	
 	public static Class<?> getType(int index) {
 		if (index == 0) {
 			return Boolean.class;
+		} else if (index == 1 ) {
+			return MockProtocolEnum.class;
 		}
 		return String.class;
 	}

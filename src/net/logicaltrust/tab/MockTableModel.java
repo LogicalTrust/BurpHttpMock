@@ -15,7 +15,7 @@ public class MockTableModel extends DefaultTableModel {
 	private MockHolder mockHolder;
 
 	public MockTableModel(MockHolder mockHolder, SimpleLogger logger) {
-		super(mockHolder.getEntries().stream().map(v -> v.getRule()).map(v -> new Object[] { true, MockProtocolEnum.ANY, v.getHost(), v.getPort(), v.getPath() }).toArray(Object[][]::new), MockTableColumns.getDisplayNames());
+		super(mockHolder.getEntries().stream().map(v -> v.getRule()).map(v -> new Object[] { true, v.getProtocol(), v.getHost(), v.getPort(), v.getPath() }).toArray(Object[][]::new), MockRuleColumnsEnum.getDisplayNames());
 		this.mockHolder = mockHolder;
 		this.logger = logger;
 		this.addTableModelListener(e -> {
@@ -31,7 +31,7 @@ public class MockTableModel extends DefaultTableModel {
 	}
 
 	private void handleUpdateAction(MockHolder mockHolder, TableModelEvent event, int row) {
-		MockTableColumns column = MockTableColumns.getByIndex(event.getColumn());
+		MockRuleColumnsEnum column = MockRuleColumnsEnum.getByIndex(event.getColumn());
 		Object value = this.getValueAt(row, column.ordinal());
 		logger.debug("Update: " + value);
 		switch (column) {
@@ -68,7 +68,7 @@ public class MockTableModel extends DefaultTableModel {
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
-		return MockTableColumns.getType(columnIndex);
+		return MockRuleColumnsEnum.getType(columnIndex);
 	}
 
 }

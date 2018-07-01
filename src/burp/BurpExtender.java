@@ -3,13 +3,14 @@ package burp;
 import java.io.PrintWriter;
 import java.util.List;
 
-import net.logicaltrust.MyHttpListener;
+import net.logicaltrust.HttpListener;
+import net.logicaltrust.MockContextMenuFactory;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.editor.ResponseTextEditor;
 import net.logicaltrust.mock.MockEntry;
 import net.logicaltrust.mock.MockHolder;
 import net.logicaltrust.mock.MockSettingsSaver;
-import net.logicaltrust.server.MyMockServer;
+import net.logicaltrust.server.MockLocalServer;
 import net.logicaltrust.tab.MockTabPanel;
 
 public class BurpExtender implements IBurpExtender {
@@ -29,12 +30,12 @@ public class BurpExtender implements IBurpExtender {
 		MockTabPanel tab = new MockTabPanel(logger, callbacks, mockHolder, responseTextEditor, settingSaver);
 		callbacks.addSuiteTab(tab);
 
-		MyHttpListener httpListener = new MyHttpListener(callbacks.getHelpers(), logger, mockHolder, settingSaver.loadPort());
+		HttpListener httpListener = new HttpListener(callbacks.getHelpers(), logger, mockHolder, settingSaver.loadPort());
 		callbacks.registerHttpListener(httpListener);
 		
-		callbacks.registerContextMenuFactory(new MyContextMenuFactory(logger, callbacks.getHelpers(), tab));
+		callbacks.registerContextMenuFactory(new MockContextMenuFactory(logger, callbacks.getHelpers(), tab));
 		
-		MyMockServer myMockServer = new MyMockServer(logger, settingSaver.loadPort());
+		MockLocalServer myMockServer = new MockLocalServer(logger, settingSaver.loadPort());
 		callbacks.registerExtensionStateListener(myMockServer);
 		new Thread(() -> {
 			myMockServer.run();
