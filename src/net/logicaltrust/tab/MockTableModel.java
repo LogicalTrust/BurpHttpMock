@@ -20,10 +20,17 @@ public class MockTableModel extends DefaultTableModel {
 				MockRuleColumnsEnum.getDisplayNames());
 		this.mockHolder = mockHolder;
 		this.logger = logger;
-		this.addTableModelListener(this::handleTableChange);
+		this.addTableModelListener(e -> handleTableChange(e));
+	}
+	
+	@Override
+	public void removeRow(int row) {
+		logger.debug("Remove row " + row);
+		super.removeRow(row);
 	}
 	
 	private void handleTableChange(TableModelEvent e) {
+		logger.debug("ModelTable event " + e.getType() + "");
 		int row = e.getFirstRow();
 		if (e.getType() == TableModelEvent.DELETE) {
 			handleDeleteAction(mockHolder, row);

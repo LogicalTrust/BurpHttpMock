@@ -38,23 +38,30 @@ public class MockTable extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private MockTableModel model;
 	int previousRow = -1;
+	private SimpleLogger logger;
+	private ResponseTextEditor responseTextEditor;
+	private JTable table;
+	private MockRepository mockHolder;
 
 	public MockTable(String title, String tooltip, MockRepository mockHolder, 
 			Consumer<Collection<String>> updateValues, SimpleLogger logger, ResponseTextEditor responseTextEditor) {
+		this.mockHolder = mockHolder;
+		this.logger = logger;
+		this.responseTextEditor = responseTextEditor;
 		this.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), title, TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		this.setToolTipText(tooltip);
 		this.setLayout(new BorderLayout(0, 0));
 		model = new MockTableModel(mockHolder, logger);
 		
 		JPanel buttonPanel = createButtonPanel();
-		JTable table = createTable();
+		table = createTable();
 
 		JButton addButton = new JButton("Add");
 		addButton.addActionListener(e -> handleAdd());
 		JButton deleteButton = new JButton("Delete");
-		deleteButton.addActionListener(e -> handleDelete(table) );
+		deleteButton.addActionListener(e -> handleDelete() );
 		JButton pasteUrlButton = new JButton("Paste URL");
-		pasteUrlButton.addActionListener(e -> handlePasteURL(logger));
+		pasteUrlButton.addActionListener(e -> handlePasteURL());
 
 		buttonPanel.add(addButton, createTableButtonConstraints(0));
 		buttonPanel.add(deleteButton, createTableButtonConstraints(1));
@@ -62,33 +69,45 @@ public class MockTable extends JPanel {
 		
 		ListSelectionModel selectionModel = table.getSelectionModel();
 		selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		selectionModel.addListSelectionListener(e -> handleTableSelection(mockHolder, logger, responseTextEditor, table));
+		selectionModel.addListSelectionListener(e -> handleTableSelection());
 	}
 
-	private void handleTableSelection(MockRepository mockHolder, SimpleLogger logger,
-			ResponseTextEditor responseTextEditor, JTable table) {
+	private void handleTableSelection() {
 		int row = table.getSelectedRow();
 		logger.debug("Selection changed, from: " + previousRow + " to: " + row);
 		if (row != previousRow) {
-			if (responseTextEditor.hasUnsavedChanges()) {
-				int result = JOptionPane.showConfirmDialog(null, "Do you want to save before leave?", "Changes not saved", JOptionPane.YES_NO_CANCEL_OPTION);
-				if (result == JOptionPane.YES_OPTION) {
-					responseTextEditor.saveChanges();
-				} else if (result == JOptionPane.CANCEL_OPTION) {
-					table.setRowSelectionInterval(previousRow, previousRow);
-					return;
-				}
+			if (row == -1) {
+				unloadEntry();
+			} else {
+				selectionChanged(row);
 			}
-			goToNextEntry(mockHolder, logger, responseTextEditor, row);
 		}
 	}
 
-	private void goToNextEntry(MockRepository mockHolder, SimpleLogger logger, ResponseTextEditor responseTextEditor,
-			int row) {
+	private void selectionChanged(int row) {
+		if (responseTextEditor.hasUnsavedChanges()) {
+			int result = JOptionPane.showConfirmDialog(null, "Do you want to save before leave?", "Changes not saved", JOptionPane.YES_NO_CANCEL_OPTION);
+			if (result == JOptionPane.YES_OPTION) {
+				responseTextEditor.saveChanges();
+			} else if (result == JOptionPane.CANCEL_OPTION) {
+				table.setRowSelectionInterval(previousRow, previousRow);
+				return;
+			}
+		}
+		goToNextEntry(row);
+	}
+	
+	private void goToNextEntry(int row) {
 		previousRow = row;
 		MockEntry entry = mockHolder.getEntry(row);
-		logger.debug("Selected row: " + row + ", entry: " + entry.getId() + ", " + entry.getRule());
+		logger.debug("Selected row: " + row + ", entry: " + entry);
 		responseTextEditor.loadResponse(entry);
+	}
+	
+	private void unloadEntry() {
+		previousRow = -1;
+		logger.debug("Selected row: -1, no entry");
+		responseTextEditor.unloadResponse();
 	}
 
 	private void prepareProtocolEnumCombo(JTable table) {
@@ -109,14 +128,14 @@ public class MockTable extends JPanel {
 		}
 	}
 
-	private void handleDelete(JTable table) {
+	private void handleDelete() {
 		int selectedRow = table.getSelectedRow();
 		if (selectedRow != -1) {
 			model.removeRow(selectedRow);
 		}
 	}
 
-	private void handlePasteURL(SimpleLogger logger) {
+	private void handlePasteURL() {
 		try {
 			String clipboard = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
 			try {

@@ -103,6 +103,12 @@ public class ResponseTextEditor {
 		this.textEditor.setText(entry.getResponse());
 	}
 	
+	public void unloadResponse() {
+		this.currentEntry = null;
+		this.textEditor.setEditable(false);
+		this.textEditor.setText(null);
+	}
+	
 	public boolean hasUnsavedChanges() {
 		return currentEntry != null && textEditor.isTextModified();
 	}
