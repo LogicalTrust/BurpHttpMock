@@ -21,11 +21,22 @@ public class MockRule {
 		this.protocol = protocol;
 	}
 	
-	public MockRule(URL url) {
-		this(MockProtocolEnum.fromURL(url), 
+	public static MockRule fromURLwithoutQuery(URL url) {
+		return new MockRule(MockProtocolEnum.fromURL(url), 
 				decorateFull(url.getHost()), 
-				decorateFull((url.getPort() != -1 ? url.getPort() : url.getDefaultPort()) + ""), 
+				decorateFull(getPortFromURL(url)), 
 				decorateFromStart(url.getPath()));
+	}
+	
+	public static MockRule fromURL(URL url) {
+		return new MockRule(MockProtocolEnum.fromURL(url), 
+				decorateFull(url.getHost()), 
+				decorateFull(getPortFromURL(url)), 
+				decorateFull(url.getFile()));
+	}
+	
+	private static String getPortFromURL(URL url) {
+		return (url.getPort() != -1 ? url.getPort() : url.getDefaultPort()) + "";
 	}
 	
 	public boolean matches(URL url) {
@@ -71,15 +82,23 @@ public class MockRule {
 	}
 	
 	private static String decorateFull(String value) {
-		return "^" + quote(value) + "$";
+		return "^" + escape(value) + "$";
 	}
 	
 	private static String decorateFromStart(String value) {
-		return "^" + quote(value) + ".*";
+		return "^" + escape(value) + ".*";
 	}
 	
-	private static String quote(String value) {
-		return value.replaceAll("\\.", "\\\\.");
+	private static final String[] REGEX_SPECIAL_CHARACTERS = new String[] {"\\.","\\[","\\]","\\{","\\}","\\(","\\)","\\<","\\>","\\*","\\+","\\-","\\=","\\?","\\^","\\|"};
+	
+	private static String escape(String before) {
+		before = before.replaceAll("\\\\", "\\\\\\\\");
+		before = before.replaceAll("\\$", "#");
+		String after = before.replaceAll("#", "\\\\\\$");
+		for (String s : REGEX_SPECIAL_CHARACTERS) {
+			after = after.replaceAll(s, "\\" + s);
+		}
+		return after;
 	}
 
 	@Override

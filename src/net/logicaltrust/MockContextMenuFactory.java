@@ -1,7 +1,5 @@
 package net.logicaltrust;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +15,7 @@ import net.logicaltrust.model.MockEntry;
 import net.logicaltrust.model.MockRule;
 import net.logicaltrust.persistent.MockAdder;
 
-public class MockContextMenuFactory implements IContextMenuFactory, ActionListener {
+public class MockContextMenuFactory implements IContextMenuFactory {
 
 	private SimpleLogger logger;
 	private IContextMenuInvocation invocation;
@@ -34,14 +32,16 @@ public class MockContextMenuFactory implements IContextMenuFactory, ActionListen
 	public List<JMenuItem> createMenuItems(IContextMenuInvocation invocation) {
 		this.invocation = invocation;
 		JMenuItem jMenuItem = new JMenuItem("Mock HTTP response");
-		jMenuItem.addActionListener(this);
+		jMenuItem.addActionListener(e -> actionPerformed(true));
+		JMenuItem jMenuItemWithoutQuery = new JMenuItem("Mock HTTP response (URL without query)");
+		jMenuItemWithoutQuery.addActionListener(e -> actionPerformed(false));
 		List<JMenuItem> list = new ArrayList<>();
 		list.add(jMenuItem);
+		list.add(jMenuItemWithoutQuery);
 		return list;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(boolean fullURL) {
 		try {
 			IHttpRequestResponse[] selectedMessages = invocation.getSelectedMessages();
 			
@@ -53,7 +53,7 @@ public class MockContextMenuFactory implements IContextMenuFactory, ActionListen
 			for (IHttpRequestResponse msg : selectedMessages) {
 				IRequestInfo analyzedReq = helpers.analyzeRequest(msg.getHttpService(), msg.getRequest());
 				URL analyzedURL = analyzedReq.getUrl();
-				MockRule mockRule = new MockRule(analyzedURL);
+				MockRule mockRule = fullURL ? MockRule.fromURL(analyzedURL) : MockRule.fromURLwithoutQuery(analyzedURL);
 				MockEntry mockEntry = new MockEntry(true, mockRule, msg.getResponse());
 				mockAdder.addMock(mockEntry);
 				logger.debug("Mock added for " + mockRule);

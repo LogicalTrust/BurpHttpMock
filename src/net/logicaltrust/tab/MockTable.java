@@ -140,7 +140,7 @@ public class MockTable extends JPanel {
 			String clipboard = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
 			try {
 				URL url = new URL(clipboard);
-				MockRule rule = new MockRule(url);
+				MockRule rule = MockRule.fromURL(url);
 				addRule(rule);
 			} catch (MalformedURLException e2) {
 				logger.debug("Cannot parse URL " + clipboard);
