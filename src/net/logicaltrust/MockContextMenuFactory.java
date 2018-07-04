@@ -53,7 +53,12 @@ public class MockContextMenuFactory implements IContextMenuFactory {
 			for (IHttpRequestResponse msg : selectedMessages) {
 				IRequestInfo analyzedReq = helpers.analyzeRequest(msg.getHttpService(), msg.getRequest());
 				URL analyzedURL = analyzedReq.getUrl();
-				MockRule mockRule = fullURL ? MockRule.fromURL(analyzedURL) : MockRule.fromURLwithoutQuery(analyzedURL);
+				MockRule mockRule = null;
+				if (fullURL) {
+					mockRule = MockRule.fromURL(analyzedURL);
+				} else {
+					 mockRule = MockRule.fromURLwithoutQuery(analyzedURL);
+				}
 				MockEntry mockEntry = new MockEntry(true, mockRule, msg.getResponse());
 				mockAdder.addMock(mockEntry);
 				logger.debug("Mock added for " + mockRule);

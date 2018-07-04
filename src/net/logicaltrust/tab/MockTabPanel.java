@@ -86,7 +86,7 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 	
 	private void handleChangePortButton() {	
 		int initValue = settingSaver.loadPort();
-		String input = JOptionPane.showInputDialog("Set port number for local server", initValue + "");
+		String input = JOptionPane.showInputDialog(this, "Set port number for local server", initValue + "");
 		
 		if (input == null)
 			return;

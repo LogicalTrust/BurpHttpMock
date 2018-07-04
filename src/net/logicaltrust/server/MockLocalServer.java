@@ -53,7 +53,7 @@ public class MockLocalServer implements IExtensionStateListener {
 		logger.debug("Connection " + accept + " accepted");
 		BufferedReader br = new BufferedReader(new InputStreamReader(accept.getInputStream()));				    
 		BufferedOutputStream bos = new BufferedOutputStream(accept.getOutputStream());
-		bos.write("HTTP/1.0 418 I'm a teapot\r\nConnection: close\r\n\r\ntest".getBytes());
+		bos.write("HTTP/1.0 292 Mock\r\nContent-Type: application/x\r\n\r\n".getBytes());
 		bos.close();
 		br.close();
 		accept.close();

@@ -15,7 +15,6 @@ public class BurpExtender implements IBurpExtender {
 
 	@Override
 	public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
-		
 		PrintWriter stderr = new PrintWriter(callbacks.getStderr(), true);
 		SimpleLogger logger = new SimpleLogger(new PrintWriter(callbacks.getStdout(), true), stderr);
 		SettingsSaver settingSaver = new SettingsSaver(callbacks, logger);
@@ -30,7 +29,7 @@ public class BurpExtender implements IBurpExtender {
 		MockTabPanel tab = new MockTabPanel(logger, callbacks, mockRepository, responseTextEditor, settingSaver);
 		callbacks.addSuiteTab(tab);
 
-		callbacks.registerHttpListener(new HttpListener(callbacks.getHelpers(), logger, mockRepository, settingSaver.loadPort()));
+		callbacks.registerProxyListener(new HttpListener(callbacks.getHelpers(), logger, mockRepository, settingSaver.loadPort()));
 		
 		callbacks.registerContextMenuFactory(new MockContextMenuFactory(logger, callbacks.getHelpers(), tab));
 		

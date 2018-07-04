@@ -86,7 +86,7 @@ public class MockTable extends JPanel {
 
 	private void selectionChanged(int row) {
 		if (responseTextEditor.hasUnsavedChanges()) {
-			int result = JOptionPane.showConfirmDialog(null, "Do you want to save before leave?", "Changes not saved", JOptionPane.YES_NO_CANCEL_OPTION);
+			int result = JOptionPane.showConfirmDialog(this, "Do you want to save before leave?", "Changes not saved", JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.YES_OPTION) {
 				responseTextEditor.saveChanges();
 			} else if (result == JOptionPane.CANCEL_OPTION) {
@@ -121,7 +121,7 @@ public class MockTable extends JPanel {
 		JTextField port = new JTextField();
 		JTextField file = new JTextField();
 		Object[] msg = new Object[] { "Protocol", proto, "Host", host, "Port", port, "File", file };
-		int result = JOptionPane.showConfirmDialog(null, msg, "Add mock", JOptionPane.OK_CANCEL_OPTION);
+		int result = JOptionPane.showConfirmDialog(this, msg, "Add mock", JOptionPane.OK_CANCEL_OPTION);
 		if (result == JOptionPane.OK_OPTION) {
 			MockRule rule = new MockRule((MockProtocolEnum) proto.getSelectedItem(), host.getText(), port.getText(), file.getText());
 			addRule(rule);
