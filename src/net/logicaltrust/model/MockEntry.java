@@ -1,6 +1,7 @@
 package net.logicaltrust.model;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class MockEntry {
 
@@ -56,6 +57,10 @@ public class MockEntry {
 	@Override
 	public String toString() {
 		return "MockEntry [id=" + id + ", enabled=" + enabled + ", rule=" + rule + "]";
+	}
+	
+	public MockEntry duplicate() {
+		return new MockEntry(this.enabled, this.rule.duplicate(), Arrays.copyOf(response, response.length));
 	}
 
 }

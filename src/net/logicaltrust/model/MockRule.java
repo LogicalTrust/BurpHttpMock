@@ -106,4 +106,8 @@ public class MockRule {
 		return "MockRule [protocol=" + protocol + ", host=" + host + ", port=" + port + ", path=" + path + "]";
 	}
 	
+	public MockRule duplicate() {
+		return new MockRule(this.protocol, this.host, this.port, this.path);
+	}
+	
 }

@@ -18,7 +18,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import burp.IBurpExtenderCallbacks;

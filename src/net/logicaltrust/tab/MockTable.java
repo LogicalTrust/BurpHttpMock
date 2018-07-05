@@ -62,6 +62,8 @@ public class MockTable extends JPanel {
 		deleteButton.addActionListener(e -> handleDelete() );
 		JButton pasteUrlButton = new JButton("Paste URL");
 		pasteUrlButton.addActionListener(e -> handlePasteURL());
+		JButton duplicateButton = new JButton("Duplicate");
+		duplicateButton.addActionListener(e -> handleDuplicate());
 		JButton upButton = new JButton("Up");
 		upButton.addActionListener(e -> handleUp());
 		JButton downButton = new JButton("Down");
@@ -71,12 +73,22 @@ public class MockTable extends JPanel {
 		buttonPanel.add(addButton, createTableButtonConstraints(0));
 		buttonPanel.add(deleteButton, createTableButtonConstraints(1));
 		buttonPanel.add(pasteUrlButton, createTableButtonConstraints(2));
-		buttonPanel.add(upButton, createTableButtonConstraints(3));
-		buttonPanel.add(downButton, createTableButtonConstraints(4));
+		buttonPanel.add(duplicateButton, createTableButtonConstraints(3));
+		buttonPanel.add(upButton, createTableButtonConstraints(4));
+		buttonPanel.add(downButton, createTableButtonConstraints(5));
 		
 		ListSelectionModel selectionModel = table.getSelectionModel();
 		selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		selectionModel.addListSelectionListener(e -> handleTableSelection());
+	}
+	
+	private void handleDuplicate() {
+		int row = table.getSelectedRow();
+		if (row != -1) {
+			MockEntry entry = mockHolder.getEntryByIndex(row);
+			MockEntry duplicate = entry.duplicate();
+			model.addMock(duplicate);
+		}
 	}
 	
 	private void handleUp() {
@@ -203,7 +215,7 @@ public class MockTable extends JPanel {
 		buttonPanelLayout.columnWidths = new int[] {50};
 		buttonPanelLayout.rowHeights = new int[] {0, 0, 0, 25};
 		buttonPanelLayout.columnWeights = new double[]{0.0};
-		buttonPanelLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		buttonPanelLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		buttonPanel.setLayout(buttonPanelLayout);
 		this.add(buttonPanel, BorderLayout.WEST);
 		return buttonPanel;
