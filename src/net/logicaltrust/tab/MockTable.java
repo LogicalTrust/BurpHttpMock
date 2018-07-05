@@ -8,6 +8,7 @@ import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -192,7 +193,16 @@ public class MockTable extends JPanel {
 	}
 
 	private JTable createTable() {
-		JTable table = new JTable();
+		JTable table = new JTable() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public String getToolTipText(MouseEvent event) {
+				int row = this.rowAtPoint(event.getPoint());
+				int column = this.columnAtPoint(event.getPoint());
+				Object value = model.getValueAt(row, column);
+				return value + "";
+			}	
+		};
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setModel(model);
 		table.getColumnModel().getColumn(0).setMaxWidth(65);

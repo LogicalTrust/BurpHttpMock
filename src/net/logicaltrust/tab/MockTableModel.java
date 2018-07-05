@@ -87,5 +87,5 @@ public class MockTableModel extends DefaultTableModel {
 	public Class<?> getColumnClass(int columnIndex) {
 		return MockRuleColumnsEnum.getType(columnIndex);
 	}
-
+	
 }
