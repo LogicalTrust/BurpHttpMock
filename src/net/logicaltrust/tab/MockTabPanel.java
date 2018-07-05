@@ -18,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import burp.IBurpExtenderCallbacks;
@@ -79,14 +80,15 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 		chckbxDebug.addActionListener(e -> { settingSaver.saveDebugOutput(chckbxDebug.isSelected()); });
 		checkboxPanel.add(chckbxDebug);
 		
-		JButton changePort = new JButton("Local port");
+		JButton changePort = new JButton("Advanced");
 		changePort.addActionListener(e -> handleChangePortButton());
 		checkboxPanel.add(changePort);
 	}
 	
 	private void handleChangePortButton() {	
 		int initValue = settingSaver.loadPort();
-		String input = JOptionPane.showInputDialog(this, "Set port number for local server", initValue + "");
+		String input = (String)JOptionPane.showInputDialog(this, "Set port number for local server",
+                "Advanced settings", JOptionPane.QUESTION_MESSAGE, null, null, initValue + "");
 		
 		if (input == null)
 			return;
