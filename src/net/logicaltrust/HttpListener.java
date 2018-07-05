@@ -47,7 +47,7 @@ public class HttpListener implements IProxyListener {
 
 	private void handleResponse(IHttpRequestResponse messageInfo, URL url) {
 		String id = url.getQuery();
-		MockEntry entry = mockRepository.getEntry(id);
+		MockEntry entry = mockRepository.getEntryById(id);
 		if (entry != null) {
 			messageInfo.setResponse(entry.getResponse());
 		} else {

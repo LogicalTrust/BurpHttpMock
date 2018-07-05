@@ -1,8 +1,9 @@
 package net.logicaltrust.persistent;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,7 +14,8 @@ import net.logicaltrust.model.MockEntry;
 
 public class MockRepository {
 
-	private Map<String, MockEntry> entries = new LinkedHashMap<>();
+	private Map<String, MockEntry> entriesById = new HashMap<>();
+	private LinkedList<MockEntry> entries = new LinkedList<>();
 	private long counter = 0L;
 	private SettingsSaver settingSaver;
 	private SimpleLogger logger;
@@ -23,17 +25,19 @@ public class MockRepository {
 		this.settingSaver = settingSaver;
 		List<MockEntry> loadedEntries = settingSaver.loadEntries();
 		int i = 0;
+		long maxId = 0;
 		for (MockEntry e : loadedEntries) {
-			entries.put(e.getId() + "", e);
+			entriesById.put(e.getId() + "", e);
+			entries.add(e);
 			logger.debug("Index: " + i++ + ", ID: " + e.getId() + ", URL: " + e.getRule());
+			maxId = Math.max(maxId, e.getId());
 		}
-		long maxId = loadedEntries.isEmpty() ? 0 : loadedEntries.get(loadedEntries.size() - 1).getId();
 		logger.debug("Calculated max id: " + maxId);
 		counter = maxId + 1;
 	}
 
 	public synchronized Optional<MockEntry> findMatch(URL url) {
-		return entries.values().stream()
+		return entries.stream()
 				.filter(e -> e.isEnabled())
 				.filter(e -> e.getRule().matches(url))
 				.findAny();
@@ -42,21 +46,22 @@ public class MockRepository {
 	public synchronized void add(MockEntry entry) {
 		long id = counter++;
 		entry.setId(id);
-		entries.put(id + "", entry);
+		entriesById.put(id + "", entry);
+		entries.add(entry);
 		settingSaver.saveEntry(entry);
 		settingSaver.saveIdList(getEntries());
 	}
 
 	public synchronized List<MockEntry> getEntries() {
-		return new ArrayList<>(entries.values());
+		return entries;
 	}
 	
-	public synchronized MockEntry getEntry(String id) {
-		return entries.get(id);
+	public synchronized MockEntry getEntryById(String id) {
+		return entriesById.get(id);
 	}
 	
-	public synchronized MockEntry getEntry(int row) {
-		return getEntries().get(row);
+	public synchronized MockEntry getEntryByIndex(int row) {
+		return entries.get(row);
 	}
 
 	public synchronized void update(int row, Consumer<MockEntry> updater) {
@@ -66,21 +71,26 @@ public class MockRepository {
 	}
 	
 	public synchronized void delete(int row) {
-		MockEntry entry = getEntry(row);
-		entries.remove(entry.getId() + "");;
+		MockEntry entry = entries.remove(row);
+		entriesById.remove(entry.getId() + "");
 		settingSaver.removeEntry(entry.getId());
 		settingSaver.saveIdList(getEntries());
 	}
 	
 	public synchronized boolean hasAnyMock() {
-		return !entries.isEmpty();
+		return !entriesById.isEmpty();
 	}
 	
 	public synchronized void updateResponse(String id, byte[] response) {
-		MockEntry entry = entries.get(id);
+		MockEntry entry = entriesById.get(id);
 		entry.setResponse(response);
 		logger.debug("Updating " + entry + ", " + id);
 		settingSaver.saveEntry(entry);
+	}
+	
+	public synchronized void swap(int first, int second) {
+		Collections.swap(entries, first, second);
+		settingSaver.saveIdList(getEntries());
 	}
 
 }

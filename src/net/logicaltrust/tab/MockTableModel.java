@@ -11,7 +11,6 @@ import net.logicaltrust.persistent.MockRepository;
 public class MockTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
-	@SuppressWarnings("unused")
 	private SimpleLogger logger;
 	private MockRepository mockHolder;
 
@@ -30,17 +29,28 @@ public class MockTableModel extends DefaultTableModel {
 	}
 	
 	private void handleTableChange(TableModelEvent e) {
-		logger.debug("ModelTable event " + e.getType() + "");
-		int row = e.getFirstRow();
+		logger.debug("ModelTable event " + e.getType() + ", first " + e.getFirstRow() + ", last " + e.getLastRow() + ", column " + e.getColumn());
 		if (e.getType() == TableModelEvent.DELETE) {
-			handleDeleteAction(mockHolder, row);
+			handleDeleteAction(mockHolder, e.getFirstRow());
 		} else if (e.getType() == TableModelEvent.UPDATE) {
-			handleUpdateAction(mockHolder, e, row);
+			handleUpdateAction(mockHolder, e);
 		}
 	}
 
-	private void handleUpdateAction(MockRepository mockHolder, TableModelEvent event, int row) {
-		MockRuleColumnsEnum column = MockRuleColumnsEnum.getByIndex(event.getColumn());
+	private void handleUpdateAction(MockRepository mockHolder, TableModelEvent event) {
+		if (event.getFirstRow() != event.getLastRow()) {
+			swapEntries(mockHolder, event.getFirstRow(), event.getLastRow());
+		} else {
+			updateColumn(mockHolder, event.getColumn(), event.getFirstRow());
+		}
+	}
+
+	private void swapEntries(MockRepository mockHolder, int firstRow, int lastRow) {
+		mockHolder.swap(firstRow, lastRow);
+	}
+
+	private void updateColumn(MockRepository mockHolder, int columnIndex, int row) {
+		MockRuleColumnsEnum column = MockRuleColumnsEnum.getByIndex(columnIndex);
 		Object value = this.getValueAt(row, column.ordinal());
 		switch (column) {
 		case ENABLED:
@@ -62,6 +72,7 @@ public class MockTableModel extends DefaultTableModel {
 			break;
 		}
 	}
+	
 
 	private void handleDeleteAction(MockRepository mockHolder, int row) {
 		mockHolder.delete(row);

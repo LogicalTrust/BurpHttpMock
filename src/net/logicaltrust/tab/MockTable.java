@@ -62,14 +62,42 @@ public class MockTable extends JPanel {
 		deleteButton.addActionListener(e -> handleDelete() );
 		JButton pasteUrlButton = new JButton("Paste URL");
 		pasteUrlButton.addActionListener(e -> handlePasteURL());
+		JButton upButton = new JButton("Up");
+		upButton.addActionListener(e -> handleUp());
+		JButton downButton = new JButton("Down");
+		downButton.addActionListener(e -> handleDown());
+		
 
 		buttonPanel.add(addButton, createTableButtonConstraints(0));
 		buttonPanel.add(deleteButton, createTableButtonConstraints(1));
 		buttonPanel.add(pasteUrlButton, createTableButtonConstraints(2));
+		buttonPanel.add(upButton, createTableButtonConstraints(3));
+		buttonPanel.add(downButton, createTableButtonConstraints(4));
 		
 		ListSelectionModel selectionModel = table.getSelectionModel();
 		selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		selectionModel.addListSelectionListener(e -> handleTableSelection());
+	}
+	
+	private void handleUp() {
+		int selectedRow = table.getSelectedRow();
+		if (selectedRow > 0) {
+			moveRow(selectedRow, -1);
+		}
+	}
+	
+	private void handleDown() {
+		int selectedRow = table.getSelectedRow();
+		if (selectedRow < model.getRowCount() - 1) {
+			moveRow(selectedRow, 1);
+		}
+	}
+	
+	private void moveRow(int row, int step) {
+		int newRow = row + step;
+		model.moveRow(row, row, newRow);
+		previousRow = newRow;
+		table.setRowSelectionInterval(newRow, newRow);
 	}
 
 	private void handleTableSelection() {
@@ -99,7 +127,7 @@ public class MockTable extends JPanel {
 	
 	private void goToNextEntry(int row) {
 		previousRow = row;
-		MockEntry entry = mockHolder.getEntry(row);
+		MockEntry entry = mockHolder.getEntryByIndex(row);
 		logger.debug("Selected row: " + row + ", entry: " + entry);
 		responseTextEditor.loadResponse(entry);
 	}
