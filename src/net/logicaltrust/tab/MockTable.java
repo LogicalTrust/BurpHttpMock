@@ -155,12 +155,12 @@ public class MockTable extends JPanel {
 		JTable table = new JTable();
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setModel(model);
-		table.getColumnModel().getColumn(0).setMaxWidth(55);
+		table.getColumnModel().getColumn(0).setMaxWidth(65);
 		table.getColumnModel().getColumn(1).setMaxWidth(75);
 		table.getColumnModel().getColumn(1).setPreferredWidth(70);
 		table.getColumnModel().getColumn(2).setPreferredWidth(150);
 		table.getColumnModel().getColumn(3).setMaxWidth(70);
-		table.getColumnModel().getColumn(3).setPreferredWidth(65);
+		table.getColumnModel().getColumn(3).setPreferredWidth(70);
 		table.getColumnModel().getColumn(4).setPreferredWidth(300);
 		prepareProtocolEnumCombo(table);
 		JScrollPane scroll = new JScrollPane(table);
