@@ -4,7 +4,6 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.logicaltrust</groupId>
 	<artifactId>BurpHttpMock</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
@@ -25,4 +24,5 @@
 			<version>1.7.22</version>
 		</dependency>
 	</dependencies>
+	<version>1.0.0</version>
 </project>
