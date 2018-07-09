@@ -9,6 +9,7 @@ It differs from intercepting responses mainly in two ways:
 - the original request is not send to the server anymore;
 - it provides a more convenient and comprehensive solution to modifying responses.
 
+[Demo](https://drive.google.com/file/d/1jypD6-CnpSv25IVnMFt-o3rnljbMqsAv)
 
 ![screen 3](https://raw.githubusercontent.com/LogicalTrust/materials/master/burp-httpmock/1.png)
 ![screen 1](https://raw.githubusercontent.com/LogicalTrust/materials/master/burp-httpmock/2.png)
