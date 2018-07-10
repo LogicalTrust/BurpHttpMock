@@ -6,6 +6,10 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -18,7 +22,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import burp.IBurpExtenderCallbacks;
 import burp.ITab;
@@ -29,7 +37,7 @@ import net.logicaltrust.persistent.MockAdder;
 import net.logicaltrust.persistent.MockRepository;
 import net.logicaltrust.persistent.SettingsSaver;
 
-public class MockTabPanel extends JPanel implements ITab, MockAdder {
+public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,12 +45,15 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 	private MockRepository mockHolder;
 	private MockTable mockTable;
 	private SettingsSaver settingSaver;
+	JTabbedPane tabbedPane;
+	ChangeListener changeListener;
 
 	public MockTabPanel(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockRepository mockHolder, ResponseTextEditor responseEditor, SettingsSaver settingSaver) {
 		this.logger = logger;
 		this.mockHolder = mockHolder;
 		this.settingSaver = settingSaver;
 		prepareGui(responseEditor);
+		addHierarchyListener(this);
 	}
 	
 	private void prepareGui(ResponseTextEditor responseEditor) {
@@ -137,6 +148,63 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder {
 	@Override
 	public void addMock(MockEntry entry) {
 		mockTable.addMock(entry);
+		highlightTab();
 	}
 
+	void highlightTab()
+	{
+		if(tabbedPane != null)
+		{
+			for(int i = 0; i < tabbedPane.getTabCount(); i++)
+			{
+				if(tabbedPane.getComponentAt(i) == this)
+				{
+					tabbedPane.setBackgroundAt(i, new Color(0xff6633));
+					Timer timer = new Timer(3000, new ActionListener()
+					{
+						@Override
+						public void actionPerformed(ActionEvent e)
+						{
+							for(int j = 0; j < tabbedPane.getTabCount(); j++)
+							{
+								if (tabbedPane.getComponentAt(j) == MockTabPanel.this)
+								{
+									tabbedPane.setBackgroundAt(j, Color.BLACK);
+									break;
+								}
+							}
+						}
+					});
+					timer.setRepeats(false);
+					timer.start();
+					break;
+				}
+			}
+		}
+	}
+
+	@Override
+	public void hierarchyChanged(HierarchyEvent e)
+	{
+		tabbedPane = (JTabbedPane) getParent();
+		changeListener = new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				if(tabbedPane.getSelectedComponent() == MockTabPanel.this)
+				{
+					tabbedPane.setBackgroundAt(tabbedPane.getSelectedIndex(), Color.BLACK);
+				}
+			}
+		};
+		tabbedPane.addChangeListener(changeListener);
+		removeHierarchyListener(this);
+	}
+
+	// call from extensionUnloaded
+	void removeChangeListener()
+	{
+		if (changeListener != null)
+		{
+			tabbedPane.removeChangeListener(changeListener);
+		}
+	}
 }
