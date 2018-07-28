@@ -71,7 +71,7 @@ public class ResponseTextEditor {
 		recalcBox.addActionListener(e -> settingSaver.saveRecalculateContentLength(recalcBox.isSelected()));
 	}
 
-	private void discardChanges() {
+	public void discardChanges() {
 		logger.debug("Message discarded");
 		if (textEditor.isTextModified()) {
 			textEditor.setText(currentEntry.getResponse());
