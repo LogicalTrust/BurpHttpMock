@@ -1,5 +1,7 @@
 package net.logicaltrust.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -8,8 +10,14 @@ public class MockEntry {
 	private static final byte[] DEFAULT_RESPONSE = "HTTP/1.1 200 OK\r\nConnection: close\r\n".getBytes(StandardCharsets.UTF_8);
 	
 	private long id;
+
+	@Expose
 	private boolean enabled;
+
+	@Expose
 	private MockRule rule;
+
+	@Expose
 	private byte[] response;
 	
 	public MockEntry(boolean enabled, MockRule rule, byte[] response) {

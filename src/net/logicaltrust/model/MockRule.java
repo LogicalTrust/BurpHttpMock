@@ -1,13 +1,19 @@
 package net.logicaltrust.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.net.URL;
 import java.util.regex.Pattern;
 
 public class MockRule {
-	
+
+	@Expose
 	private MockProtocolEnum protocol;
+	@Expose
 	private String host;
+	@Expose
 	private String port;
+	@Expose
 	private String path;
 	
 	private Pattern pathRegex;
@@ -19,6 +25,10 @@ public class MockRule {
 		this.setPath(path);
 		this.setPort(port);
 		this.protocol = protocol;
+	}
+
+	public MockRule() {
+
 	}
 	
 	public static MockRule fromURLwithoutQuery(URL url) {

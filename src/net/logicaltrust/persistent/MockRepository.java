@@ -1,16 +1,19 @@
 package net.logicaltrust.persistent;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.function.Consumer;
 
+import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.model.MockEntry;
+import net.logicaltrust.model.MockProtocolEnum;
+import net.logicaltrust.model.MockRule;
 
 public class MockRepository {
 
