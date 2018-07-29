@@ -103,6 +103,8 @@ public class MockTable extends JPanel {
 				for (MockEntry entry : entries) {
 					addMock(entry);
 				}
+				logger.debug("Loaded " + entries.size() + " entries");
+				JOptionPane.showMessageDialog(this, "Loaded " + entries.size() + " entries");
 			} catch (Exception e1) {
 				e1.printStackTrace(logger.getStderr());
 			}
@@ -110,13 +112,22 @@ public class MockTable extends JPanel {
 	}
 
 	private void handleSave() {
+		int[] selectedRows = table.getSelectedRows();
+		if (selectedRows.length == 0) {
+			JOptionPane.showMessageDialog(this, "Select entries to save");
+			return;
+		}
+
 		JFileChooser fileChooser = new JFileChooser();
 		int dialog = fileChooser.showSaveDialog(this);
 		if (dialog == JFileChooser.APPROVE_OPTION) {
 			File file = fileChooser.getSelectedFile();
 			try {
 				logger.debug("Saving entries to file " + file);
-				Files.write(file.toPath(), serializer.serialize(mockHolder.getEntries()));
+				List<MockEntry> entries = mockHolder.getEntriesByIndexArray(selectedRows);
+				Files.write(file.toPath(), serializer.serialize(entries));
+				JOptionPane.showMessageDialog(this, "Saved " + entries.size() + " entries");
+				logger.debugForce("Saved " + entries.size() + " entries to " + file);
 			} catch (Exception e1) {
 				e1.printStackTrace(logger.getStderr());
 			}

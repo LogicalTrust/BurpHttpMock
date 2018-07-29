@@ -67,6 +67,14 @@ public class MockRepository {
 		return entries.get(row);
 	}
 
+	public synchronized List<MockEntry> getEntriesByIndexArray(int[] rows) {
+		List<MockEntry> result = new ArrayList<>(rows.length);
+		for (int row : rows) {
+			result.add(entries.get(row));
+		}
+		return result;
+	}
+
 	public synchronized void update(int row, Consumer<MockEntry> updater) {
 		MockEntry toEdit = getEntries().get(row);
 		updater.accept(toEdit);
