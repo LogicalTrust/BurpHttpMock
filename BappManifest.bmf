@@ -8,5 +8,5 @@ MinPlatformVersion: 0
 ProOnly: False
 Author: Michal Dardas
 ShortDescription: Provides mock responses that can be configured, based on real ones.
-EntryPoint: target/BurpHttpMock-1.0.1.jar
+EntryPoint: target/BurpHttpMock-1.0.1-jar-with-dependencies.jar
 BuildCommand: mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B
