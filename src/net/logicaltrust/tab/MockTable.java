@@ -9,21 +9,19 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
@@ -32,6 +30,7 @@ import net.logicaltrust.editor.ResponseTextEditor;
 import net.logicaltrust.model.MockEntry;
 import net.logicaltrust.model.MockProtocolEnum;
 import net.logicaltrust.model.MockRule;
+import net.logicaltrust.persistent.MockJsonSerializer;
 import net.logicaltrust.persistent.MockRepository;
 
 public class MockTable extends JPanel {
@@ -43,11 +42,13 @@ public class MockTable extends JPanel {
 	private ResponseTextEditor responseTextEditor;
 	private JTable table;
 	private MockRepository mockHolder;
+	private MockJsonSerializer serializer;
 
 	public MockTable(String title, String tooltip, MockRepository mockHolder, 
 			Consumer<Collection<String>> updateValues, SimpleLogger logger, ResponseTextEditor responseTextEditor) {
 		this.mockHolder = mockHolder;
 		this.logger = logger;
+		this.serializer = new MockJsonSerializer(logger);
 		this.responseTextEditor = responseTextEditor;
 		this.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), title, TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		this.setToolTipText(tooltip);
@@ -69,58 +70,146 @@ public class MockTable extends JPanel {
 		upButton.addActionListener(e -> handleUp());
 		JButton downButton = new JButton("Down");
 		downButton.addActionListener(e -> handleDown());
-		
+		JButton loadButton = new JButton("Load...");
+		loadButton.addActionListener(e -> handleLoad());
+		JButton saveButton = new JButton("Save...");
+		saveButton.addActionListener(e -> handleSave());
 
-		buttonPanel.add(addButton, createTableButtonConstraints(0));
-		buttonPanel.add(deleteButton, createTableButtonConstraints(1));
-		buttonPanel.add(pasteUrlButton, createTableButtonConstraints(2));
-		buttonPanel.add(duplicateButton, createTableButtonConstraints(3));
-		buttonPanel.add(upButton, createTableButtonConstraints(4));
-		buttonPanel.add(downButton, createTableButtonConstraints(5));
-		
+		int buttonIndex = 0;
+		buttonPanel.add(addButton, createTableButtonConstraints(buttonIndex++));
+		buttonPanel.add(deleteButton, createTableButtonConstraints(buttonIndex++));
+		buttonPanel.add(pasteUrlButton, createTableButtonConstraints(buttonIndex++));
+		buttonPanel.add(duplicateButton, createTableButtonConstraints(buttonIndex++));
+		buttonPanel.add(new JSeparator(SwingConstants.HORIZONTAL), createTableButtonConstraints(buttonIndex++));
+		buttonPanel.add(upButton, createTableButtonConstraints(buttonIndex++));
+		buttonPanel.add(downButton, createTableButtonConstraints(buttonIndex++));
+		buttonPanel.add(new JSeparator(SwingConstants.HORIZONTAL), createTableButtonConstraints(buttonIndex++));
+		buttonPanel.add(loadButton, createTableButtonConstraints(buttonIndex++));
+		buttonPanel.add(saveButton, createTableButtonConstraints(buttonIndex++));
+
 		ListSelectionModel selectionModel = table.getSelectionModel();
-		selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		selectionModel.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		selectionModel.addListSelectionListener(e -> handleTableSelection());
+	}
+
+	private void handleLoad() {
+		JFileChooser fileChooser = new JFileChooser();
+		int dialog = fileChooser.showOpenDialog(this);
+		if (dialog == JFileChooser.APPROVE_OPTION) {
+			File file = fileChooser.getSelectedFile();
+			try {
+				logger.debug("Loading entries from " + file);
+				List<MockEntry> entries = serializer.deserialize(file);
+				for (MockEntry entry : entries) {
+					addMock(entry);
+				}
+				logger.debug("Loaded " + entries.size() + " entries");
+				JOptionPane.showMessageDialog(this, "Loaded " + entries.size() + " entries");
+			} catch (Exception e1) {
+				e1.printStackTrace(logger.getStderr());
+			}
+		}
+	}
+
+	private void handleSave() {
+		int[] selectedRows = table.getSelectedRows();
+		if (selectedRows.length == 0) {
+			JOptionPane.showMessageDialog(this, "Select entries to save");
+			return;
+		}
+
+		JFileChooser fileChooser = new JFileChooser();
+		int dialog = fileChooser.showSaveDialog(this);
+		if (dialog == JFileChooser.APPROVE_OPTION) {
+			File file = fileChooser.getSelectedFile();
+			try {
+				logger.debug("Saving entries to file " + file);
+				List<MockEntry> entries = mockHolder.getEntriesByIndexArray(selectedRows);
+				Files.write(file.toPath(), serializer.serialize(entries));
+				JOptionPane.showMessageDialog(this, "Saved " + entries.size() + " entries");
+				logger.debugForce("Saved " + entries.size() + " entries to " + file);
+			} catch (Exception e1) {
+				e1.printStackTrace(logger.getStderr());
+			}
+		}
 	}
 	
 	private void handleDuplicate() {
-		int row = table.getSelectedRow();
-		if (row != -1) {
-			MockEntry entry = mockHolder.getEntryByIndex(row);
-			MockEntry duplicate = entry.duplicate();
-			model.addMock(duplicate);
+		int[] rows = table.getSelectedRows();
+		if (rows.length > 0) {
+			for (int i = 0; i < rows.length; i++) {
+				int row = rows[i];
+				MockEntry entry = mockHolder.getEntryByIndex(row);
+				MockEntry duplicate = entry.duplicate();
+				model.addMock(duplicate);
+			}
 		}
 	}
 	
 	private void handleUp() {
-		int selectedRow = table.getSelectedRow();
-		if (selectedRow > 0) {
-			moveRow(selectedRow, -1);
+		int[] rows = table.getSelectedRows();
+		if (rows.length > 0 && continueAfterDialog()) {
+			previousRow = IntStream.of(rows).min().getAsInt();
+			boolean first = true;
+			for (int i = 0; i < rows.length; i++) {
+				int selectedRow = rows[i];
+				if (selectedRow > 0) {
+					moveRow(selectedRow, -1, first);
+					first = false;
+				}
+			}
 		}
 	}
 	
 	private void handleDown() {
-		int selectedRow = table.getSelectedRow();
-		if (selectedRow < model.getRowCount() - 1) {
-			moveRow(selectedRow, 1);
+		int[] rows = table.getSelectedRows();
+		if (rows.length > 0 && continueAfterDialog()) {
+			previousRow = IntStream.of(rows).min().getAsInt();
+			boolean first = true;
+			for (int i = rows.length - 1; i >= 0; i--) {
+				int selectedRow = rows[i];
+				if (selectedRow < model.getRowCount() - 1) {
+					moveRow(selectedRow, 1, first);
+					first = false;
+				}
+			}
 		}
 	}
-	
-	private void moveRow(int row, int step) {
+
+	private boolean continueAfterDialog() {
+		if (responseTextEditor.hasUnsavedChanges()) {
+			int result = JOptionPane.showConfirmDialog(this, "Do you want to save before move?", "Changes not saved", JOptionPane.YES_NO_CANCEL_OPTION);
+			if (result == JOptionPane.YES_OPTION) {
+				responseTextEditor.saveChanges();
+			} else if (result == JOptionPane.NO_OPTION) {
+				responseTextEditor.discardChanges();
+			} else {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private void moveRow(int row, int step, boolean first) {
 		int newRow = row + step;
 		model.moveRow(row, row, newRow);
-		previousRow = newRow;
-		table.setRowSelectionInterval(newRow, newRow);
+		if (first) {
+			table.setRowSelectionInterval(newRow, newRow);
+		} else {
+			table.addRowSelectionInterval(newRow, newRow);
+		}
 	}
 
 	private void handleTableSelection() {
+		int[] rows = table.getSelectedRows();
 		int row = table.getSelectedRow();
-		logger.debug("Selection changed, from: " + previousRow + " to: " + row);
-		if (row != previousRow) {
-			if (row == -1) {
+		logger.debug("Selection changed, from: " + previousRow + " to: " + Arrays.toString(rows));
+		if (IntStream.of(rows).allMatch(v -> v != previousRow)) {
+			if (rows.length == 0) {
 				unloadEntry();
 			} else {
-				selectionChanged(row);
+				selectionChanged(IntStream.of(rows).min().getAsInt());
 			}
 		}
 	}
@@ -170,9 +259,12 @@ public class MockTable extends JPanel {
 	}
 
 	private void handleDelete() {
-		int selectedRow = table.getSelectedRow();
-		if (selectedRow != -1) {
-			model.removeRow(selectedRow);
+		int[] rows = table.getSelectedRows();
+		if (rows.length > 0) {
+			for (int i = rows.length - 1; i >= 0; i--) {
+				int row = rows[i];
+				model.removeRow(row);
+			}
 		}
 	}
 
@@ -225,7 +317,7 @@ public class MockTable extends JPanel {
 		buttonPanelLayout.columnWidths = new int[] {50};
 		buttonPanelLayout.rowHeights = new int[] {0, 0, 0, 25};
 		buttonPanelLayout.columnWeights = new double[]{0.0};
-		buttonPanelLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		buttonPanelLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		buttonPanel.setLayout(buttonPanelLayout);
 		this.add(buttonPanel, BorderLayout.WEST);
 		return buttonPanel;

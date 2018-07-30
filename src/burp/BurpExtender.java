@@ -3,7 +3,7 @@ package burp;
 import java.io.PrintWriter;
 
 import net.logicaltrust.HttpListener;
-import net.logicaltrust.MockContextMenuFactory;
+import net.logicaltrust.context.MockContextMenuFactory;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.editor.ResponseTextEditor;
 import net.logicaltrust.persistent.MockRepository;
@@ -31,8 +31,8 @@ public class BurpExtender implements IBurpExtender {
 
 		callbacks.registerProxyListener(new HttpListener(callbacks.getHelpers(), logger, mockRepository, settingSaver.loadPort()));
 		
-		callbacks.registerContextMenuFactory(new MockContextMenuFactory(logger, callbacks.getHelpers(), tab));
-		
+		callbacks.registerContextMenuFactory(new MockContextMenuFactory(logger, callbacks, tab));
+
 		MockLocalServer myMockServer = new MockLocalServer(logger, settingSaver.loadPort());
 		callbacks.registerExtensionStateListener(myMockServer);
 		new Thread(() -> {
