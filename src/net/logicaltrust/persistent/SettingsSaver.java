@@ -20,10 +20,19 @@ public class SettingsSaver {
 	private static final String RECALCULATE_CONTENT_LENGTH = "RECALCULATE_CONTENT_LENGTH";
 	private static final String DEBUG_OUTPUT = "DEBUG_OUTPUT";
 	private static final String SERVER_PORT = "SERVER_PORT";
+	private static final String THRESHOLD = "THRESHOLD";
+	private static final String DISPLAY_LARGE_RESPONSES_IN_EDITOR = "DISPLAY_LARGE_RESPONSES_IN_EDITOR";
+	private static final String INFORM_ABOUT_LARGE_RESPONSE = "INFORM_ABOUT_LARGE_RESPONSE";
 	private static final String DELIM = "|";
 	private static final String DELIM_REGEX = "\\|";
 	private static final int DEFAULT_PORT = 7654;
+	private static final int DEFAULT_THRESHOLD = 2 * 1024 * 1024; //2MB
 	private static final int ENTRY_PARAMS = 6;
+
+	private Boolean displayLargeResponsesInEditorCache;
+	private Boolean informAboutLargeResponseCache;
+	private Integer thresholdCache;
+	private Boolean recalculateCache;
 	
 	private IBurpExtenderCallbacks callbacks;
 	private SimpleLogger logger;
@@ -87,11 +96,15 @@ public class SettingsSaver {
 	
 	public void saveRecalculateContentLength(boolean recalc) {
 		callbacks.saveExtensionSetting(RECALCULATE_CONTENT_LENGTH, Boolean.toString(recalc));
+		recalculateCache = recalc;
 	}
 	
 	public boolean loadRecalculateContentLength() {
-		String value = callbacks.loadExtensionSetting(RECALCULATE_CONTENT_LENGTH);
-		return value == null ? true : Boolean.parseBoolean(value);
+		if (recalculateCache == null) {
+			String value = callbacks.loadExtensionSetting(RECALCULATE_CONTENT_LENGTH);
+			recalculateCache = value == null ? true : Boolean.parseBoolean(value);
+		}
+		return recalculateCache;
 	}
 	
 	public void saveDebugOutput(boolean debug) {
@@ -101,6 +114,53 @@ public class SettingsSaver {
 		} else {
 			logger.disableDebug();
 		}
+	}
+
+	public void saveThreshold(int threshold) {
+		callbacks.saveExtensionSetting(THRESHOLD, threshold + "");
+		thresholdCache = threshold;
+	}
+
+	public int loadThreshold() {
+		if (thresholdCache == null) {
+			String threshold = callbacks.loadExtensionSetting(THRESHOLD);
+			if (threshold != null) {
+				try {
+					thresholdCache = Integer.parseInt(threshold);
+				} catch (NumberFormatException e) {
+					logger.debugForce("Invalid threshold " + threshold);
+				}
+			} else {
+				thresholdCache = DEFAULT_THRESHOLD;
+			}
+		}
+		return thresholdCache;
+	}
+
+	public void saveDisplayLargeResponsesInEditor(boolean display) {
+		callbacks.saveExtensionSetting(DISPLAY_LARGE_RESPONSES_IN_EDITOR, Boolean.toString(display));
+		displayLargeResponsesInEditorCache = display;
+	}
+
+	public boolean loadDisplayLargeResponsesInEditor() {
+		if (displayLargeResponsesInEditorCache == null) {
+			String display = callbacks.loadExtensionSetting(DISPLAY_LARGE_RESPONSES_IN_EDITOR);
+			displayLargeResponsesInEditorCache = Boolean.parseBoolean(display);
+		}
+		return displayLargeResponsesInEditorCache;
+	}
+
+	public void saveInformAboutLargeResponse(boolean inform) {
+		callbacks.saveExtensionSetting(INFORM_ABOUT_LARGE_RESPONSE, Boolean.toString(inform));
+		informAboutLargeResponseCache = inform;
+	}
+
+	public boolean loadInformLargeResponsesInEditor() {
+		if (informAboutLargeResponseCache == null) {
+			String inform = callbacks.loadExtensionSetting(INFORM_ABOUT_LARGE_RESPONSE);
+			informAboutLargeResponseCache = inform == null ? true : Boolean.parseBoolean(inform);
+		}
+		return informAboutLargeResponseCache;
 	}
 	
 	public boolean isDebugOn() {

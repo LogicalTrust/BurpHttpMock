@@ -72,7 +72,6 @@ public class MockTableModel extends DefaultTableModel {
 			break;
 		}
 	}
-	
 
 	private void handleDeleteAction(MockRepository mockHolder, int row) {
 		mockHolder.delete(row);

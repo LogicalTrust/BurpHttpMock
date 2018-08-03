@@ -33,7 +33,8 @@ public class ResponseTextEditor {
 	private SimpleLogger logger;
 	private MockRepository mockHolder;
 	private IExtensionHelpers helpers;
-	
+	private SettingsSaver settingSaver;
+
 	private static final Pattern CONTENT_LENGTH_PATTERN = Pattern.compile("^Content-Length: .*$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
 	public ResponseTextEditor(SimpleLogger logger, ITextEditor textEditor, MockRepository mockHolder, IExtensionHelpers helpers, SettingsSaver settingSaver) {
@@ -41,6 +42,7 @@ public class ResponseTextEditor {
 		this.textEditor = textEditor;
 		this.mockHolder = mockHolder;
 		this.helpers = helpers;
+		this.settingSaver = settingSaver;
 		this.textEditor.setEditable(false);
 		
 		mainPanel = new JPanel();
@@ -99,8 +101,13 @@ public class ResponseTextEditor {
 
 	public void loadResponse(MockEntry entry) {
 		this.currentEntry = entry;
-		this.textEditor.setEditable(true);
-		this.textEditor.setText(entry.getResponse());
+		if (!settingSaver.loadDisplayLargeResponsesInEditor() && entry.getResponse().length > settingSaver.loadThreshold()) {
+			this.textEditor.setEditable(false);
+			this.textEditor.setText("Response is too large.".getBytes(StandardCharsets.UTF_8));
+		} else {
+			this.textEditor.setEditable(true);
+			this.textEditor.setText(entry.getResponse());
+		}
 	}
 	
 	public void unloadResponse() {
