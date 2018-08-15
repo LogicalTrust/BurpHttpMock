@@ -16,14 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.Timer;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -97,25 +90,62 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
 	
 	private void handleChangePortButton() {	
 		int initValue = settingSaver.loadPort();
-		String input = (String)JOptionPane.showInputDialog(this, "Set port number for local server",
-                "Advanced settings", JOptionPane.QUESTION_MESSAGE, null, null, initValue + "");
-		
-		if (input == null)
+		JTextField portField = new JTextField();
+		portField.setText(initValue + "");
+		JTextField largeFileThreshold = new JTextField();
+		largeFileThreshold.setText(settingSaver.loadThreshold() + "");
+		JCheckBox displayLargeResponsesInEditor = new JCheckBox();
+		displayLargeResponsesInEditor.setSelected(settingSaver.loadDisplayLargeResponsesInEditor());
+		displayLargeResponsesInEditor.setText("Display too large responses in editor");
+		JCheckBox informAboutLargeFiles = new JCheckBox();
+		informAboutLargeFiles.setText("Inform about too large responses");
+		informAboutLargeFiles.setSelected(settingSaver.loadInformLargeResponsesInEditor());
+
+		Object[] msg = new Object[] {
+				"Local server port number", portField,
+				"Too large response threshold", largeFileThreshold,
+				displayLargeResponsesInEditor,
+				informAboutLargeFiles
+		};
+
+		int confirm = JOptionPane.showConfirmDialog(this, msg, "Advanced settings", JOptionPane.OK_CANCEL_OPTION);
+		if (confirm != JOptionPane.OK_OPTION) {
 			return;
-		
-		try {
-			int port = Integer.parseInt(input);
-			if (port > 0 && port < 65536) {
-				if (port != initValue) {
-					settingSaver.savePort(port);
-					JOptionPane.showMessageDialog(this, "The change will take effect after restart", "Success", JOptionPane.INFORMATION_MESSAGE);
-				}
-				return;
-			}
-		} catch (NumberFormatException e1) { 
-			logger.debug("Cannot parse " + input);
 		}
-		JOptionPane.showMessageDialog(this, "Invalid value. Port must be between 1 and 65535", "Invalid value", JOptionPane.ERROR_MESSAGE);
+
+		savePortField(initValue, portField.getText());
+
+		if (largeFileThreshold.getText() != null) {
+			try {
+				int threshold = Integer.parseInt(largeFileThreshold.getText());
+				if (threshold >= 0) {
+					settingSaver.saveThreshold(threshold);
+				}
+			} catch (NumberFormatException e) {
+				logger.debug("Cannot parse " + largeFileThreshold.getText());
+			}
+		}
+
+		settingSaver.saveDisplayLargeResponsesInEditor(displayLargeResponsesInEditor.isSelected());
+		settingSaver.saveInformAboutLargeResponse(informAboutLargeFiles.isSelected());
+	}
+
+	private void savePortField(int initValue, String input) {
+		if (input != null) {
+			try {
+				int port = Integer.parseInt(input);
+				if (port > 0 && port < 65536) {
+					if (port != initValue) {
+						settingSaver.savePort(port);
+						JOptionPane.showMessageDialog(this, "The change will take effect after restart", "Success", JOptionPane.INFORMATION_MESSAGE);
+					}
+					return;
+				}
+			} catch (NumberFormatException e1) {
+				logger.debug("Cannot parse " + input);
+			}
+			JOptionPane.showMessageDialog(this, "Invalid value. Port must be between 1 and 65535", "Invalid value", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private JLabel createLabelURL(String url) {

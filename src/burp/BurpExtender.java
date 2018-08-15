@@ -31,7 +31,7 @@ public class BurpExtender implements IBurpExtender {
 
 		callbacks.registerProxyListener(new HttpListener(callbacks.getHelpers(), logger, mockRepository, settingSaver.loadPort()));
 		
-		callbacks.registerContextMenuFactory(new MockContextMenuFactory(logger, callbacks, tab));
+		callbacks.registerContextMenuFactory(new MockContextMenuFactory(logger, callbacks, tab, settingSaver));
 
 		MockLocalServer myMockServer = new MockLocalServer(logger, settingSaver.loadPort());
 		callbacks.registerExtensionStateListener(myMockServer);

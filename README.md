@@ -6,7 +6,7 @@ Create a mock by selecting entry from HTTP History or craft it manually. Request
 
 Using this extension it is possible to test how web frontend and mobile clients react to different responses, without making any changes to the backend.
 It differs from intercepting responses mainly in two ways: 
-- the original request is not send to the server anymore;
+- the original request is not sent to the server anymore;
 - it provides a more convenient and comprehensive solution to modifying responses.
 
 [Demo](https://drive.google.com/file/d/1jypD6-CnpSv25IVnMFt-o3rnljbMqsAv)

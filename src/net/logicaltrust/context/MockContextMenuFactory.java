@@ -2,15 +2,17 @@ package net.logicaltrust.context;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.JMenuItem;
+import javax.swing.*;
 
 import burp.*;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.model.MockEntry;
 import net.logicaltrust.model.MockRule;
 import net.logicaltrust.persistent.MockAdder;
+import net.logicaltrust.persistent.SettingsSaver;
 
 public class MockContextMenuFactory implements IContextMenuFactory {
 
@@ -20,12 +22,14 @@ public class MockContextMenuFactory implements IContextMenuFactory {
 	private IContextMenuInvocation invocation;
 	private IExtensionHelpers helpers;
 	private MockAdder mockAdder;
-	
-	public MockContextMenuFactory(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockAdder mockAdder) {
+	private SettingsSaver settings;
+
+	public MockContextMenuFactory(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockAdder mockAdder, SettingsSaver settings) {
 		this.logger = logger;
 		this.callbacks = callbacks;
 		this.helpers = callbacks.getHelpers();
 		this.mockAdder = mockAdder;
+		this.settings = settings;
 	}
 
 	@Override
@@ -39,7 +43,7 @@ public class MockContextMenuFactory implements IContextMenuFactory {
 		list.add(jMenuItem);
 		list.add(jMenuItemWithoutQuery);
 		if (this.invocation.getInvocationContext() == invocation.CONTEXT_TARGET_SITE_MAP_TREE) {
-			JMenuItem jMenuBranch = new JMenuItem("Moch this branch");
+			JMenuItem jMenuBranch = new JMenuItem("Mock this branch");
 			jMenuBranch.addActionListener(e -> actionPerformed(AddMockOption.SITEMAP));
 			list.add(jMenuBranch);
 		}
@@ -54,7 +58,19 @@ public class MockContextMenuFactory implements IContextMenuFactory {
 				logger.debug("No selected messages");
 				return;
 			}
-			
+
+			boolean largeResponse = Arrays.stream(selectedMessages)
+					.map(m -> m.getResponse())
+					.filter(r -> r != null)
+					.anyMatch(r -> r.length > settings.loadThreshold());
+
+			if (largeResponse) {
+				int confirm = JOptionPane.showConfirmDialog(null, "You are trying to mock a large response. Do you want to continue?", "Large response", JOptionPane.YES_NO_OPTION);
+				if (confirm == JOptionPane.NO_OPTION) {
+					return;
+				}
+			}
+
 			for (IHttpRequestResponse msg : selectedMessages) {
 				URL analyzedURL = getAnalyzedURL(msg);
 				if (addOption == AddMockOption.SITEMAP) {
