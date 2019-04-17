@@ -41,7 +41,7 @@ public class MockRepository {
 
 	public synchronized Optional<MockEntry> findMatch(URL url) {
 		return entries.stream()
-				.filter(e -> e.isEnabled())
+				.filter(MockEntry::isEnabled)
 				.filter(e -> e.getRule().matches(url))
 				.findAny();
 	}

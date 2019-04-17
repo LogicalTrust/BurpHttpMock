@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.*;
 
@@ -60,8 +61,8 @@ public class MockContextMenuFactory implements IContextMenuFactory {
 			}
 
 			boolean largeResponse = Arrays.stream(selectedMessages)
-					.map(m -> m.getResponse())
-					.filter(r -> r != null)
+					.map(IHttpRequestResponse::getResponse)
+					.filter(Objects::nonNull)
 					.anyMatch(r -> r.length > settings.loadThreshold());
 
 			if (largeResponse) {

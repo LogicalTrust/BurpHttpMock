@@ -80,7 +80,7 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
 		
 		JCheckBox chckbxDebug = new JCheckBox("Debug output");
 		chckbxDebug.setSelected(settingSaver.isDebugOn());
-		chckbxDebug.addActionListener(e -> { settingSaver.saveDebugOutput(chckbxDebug.isSelected()); });
+		chckbxDebug.addActionListener(e -> settingSaver.saveDebugOutput(chckbxDebug.isSelected()));
 		checkboxPanel.add(chckbxDebug);
 		
 		JButton changePort = new JButton("Advanced");
@@ -190,18 +190,13 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
 				if(tabbedPane.getComponentAt(i) == this)
 				{
 					tabbedPane.setBackgroundAt(i, new Color(0xff6633));
-					Timer timer = new Timer(3000, new ActionListener()
-					{
-						@Override
-						public void actionPerformed(ActionEvent e)
+					Timer timer = new Timer(3000, e -> {
+						for(int j = 0; j < tabbedPane.getTabCount(); j++)
 						{
-							for(int j = 0; j < tabbedPane.getTabCount(); j++)
+							if (tabbedPane.getComponentAt(j) == MockTabPanel.this)
 							{
-								if (tabbedPane.getComponentAt(j) == MockTabPanel.this)
-								{
-									tabbedPane.setBackgroundAt(j, Color.BLACK);
-									break;
-								}
+								tabbedPane.setBackgroundAt(j, Color.BLACK);
+								break;
 							}
 						}
 					});
@@ -217,12 +212,10 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
 	public void hierarchyChanged(HierarchyEvent e)
 	{
 		tabbedPane = (JTabbedPane) getParent();
-		changeListener = new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				if(tabbedPane.getSelectedComponent() == MockTabPanel.this)
-				{
-					tabbedPane.setBackgroundAt(tabbedPane.getSelectedIndex(), Color.BLACK);
-				}
+		changeListener = e1 -> {
+			if(tabbedPane.getSelectedComponent() == MockTabPanel.this)
+			{
+				tabbedPane.setBackgroundAt(tabbedPane.getSelectedIndex(), Color.BLACK);
 			}
 		};
 		tabbedPane.addChangeListener(changeListener);

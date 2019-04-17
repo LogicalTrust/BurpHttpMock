@@ -33,7 +33,7 @@ public enum MockProtocolEnum {
 	
 	private String protocol;
 	
-	private MockProtocolEnum(String protocol) {
+	MockProtocolEnum(String protocol) {
 		this.protocol = protocol;
 	}
 	

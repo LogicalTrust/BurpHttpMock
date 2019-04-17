@@ -15,11 +15,11 @@ public class MockTableModel extends DefaultTableModel {
 	private MockRepository mockHolder;
 
 	public MockTableModel(MockRepository mockHolder, SimpleLogger logger) {
-		super(mockHolder.getEntries().stream().map(v -> v.toObject()).toArray(Object[][]::new), 
+		super(mockHolder.getEntries().stream().map(MockEntry::toObject).toArray(Object[][]::new),
 				MockRuleColumnsEnum.getDisplayNames());
 		this.mockHolder = mockHolder;
 		this.logger = logger;
-		this.addTableModelListener(e -> handleTableChange(e));
+		this.addTableModelListener(this::handleTableChange);
 	}
 	
 	@Override

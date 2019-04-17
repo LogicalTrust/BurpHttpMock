@@ -18,7 +18,7 @@ public enum MockRuleColumnsEnum {
 	
 	private String displayName;
 	
-	private MockRuleColumnsEnum(String displayName) {
+	MockRuleColumnsEnum(String displayName) {
 		this.displayName = displayName;
 	}
 	

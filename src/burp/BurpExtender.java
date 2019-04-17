@@ -35,9 +35,7 @@ public class BurpExtender implements IBurpExtender {
 
 		MockLocalServer myMockServer = new MockLocalServer(logger, settingSaver.loadPort());
 		callbacks.registerExtensionStateListener(myMockServer);
-		new Thread(() -> {
-			myMockServer.run();
-		}).start();		
+		new Thread(myMockServer::run).start();
 	}
 	
 }

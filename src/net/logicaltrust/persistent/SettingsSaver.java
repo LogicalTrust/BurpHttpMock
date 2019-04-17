@@ -50,9 +50,7 @@ public class SettingsSaver {
 	public void clear() {
 		String strIds = callbacks.loadExtensionSetting(ID_LIST);
 		if (strIds != null ) {
-			Arrays.stream(strIds.split(DELIM_REGEX)).forEach(id -> {
-				callbacks.saveExtensionSetting("ENTRY_" + id, null);
-			});
+			Arrays.stream(strIds.split(DELIM_REGEX)).forEach(id -> callbacks.saveExtensionSetting("ENTRY_" + id, null));
 		}
 		callbacks.saveExtensionSetting(ID_LIST, null);
 		callbacks.saveExtensionSetting(RECALCULATE_CONTENT_LENGTH, null);
@@ -72,8 +70,8 @@ public class SettingsSaver {
 	
 	public void saveIdList(Collection<MockEntry> entries) {
 		String ids = entries.stream()
-				.map(e -> e.getId())
-				.map(e -> e.toString())
+				.map(MockEntry::getId)
+				.map(Object::toString)
 				.collect(Collectors.joining(DELIM, "", ""));
 		logger.debug("Saving entry list " + ids);
 		callbacks.saveExtensionSetting(ID_LIST, ids);
@@ -102,7 +100,7 @@ public class SettingsSaver {
 	public boolean loadRecalculateContentLength() {
 		if (recalculateCache == null) {
 			String value = callbacks.loadExtensionSetting(RECALCULATE_CONTENT_LENGTH);
-			recalculateCache = value == null ? true : Boolean.parseBoolean(value);
+			recalculateCache = value == null || Boolean.parseBoolean(value);
 		}
 		return recalculateCache;
 	}
@@ -158,7 +156,7 @@ public class SettingsSaver {
 	public boolean loadInformLargeResponsesInEditor() {
 		if (informAboutLargeResponseCache == null) {
 			String inform = callbacks.loadExtensionSetting(INFORM_ABOUT_LARGE_RESPONSE);
-			informAboutLargeResponseCache = inform == null ? true : Boolean.parseBoolean(inform);
+			informAboutLargeResponseCache = inform == null || Boolean.parseBoolean(inform);
 		}
 		return informAboutLargeResponseCache;
 	}
@@ -203,14 +201,13 @@ public class SettingsSaver {
 	
 	private String entryToString(MockEntry entry) {
 		MockRule rule = entry.getRule();
-		StringBuilder result = new StringBuilder();
-		result.append(entry.isEnabled()).append(DELIM)
-		.append(encode(rule.getProtocol().name())).append(DELIM)
-		.append(encode(rule.getHost())).append(DELIM)
-		.append(encode(rule.getPort()+"")).append(DELIM)
-		.append(encode(rule.getPath())).append(DELIM)
-		.append(encode(entry.getResponse()));
-		return result.toString();
+		String result = entry.isEnabled() + DELIM +
+				encode(rule.getProtocol().name()) + DELIM +
+				encode(rule.getHost()) + DELIM +
+				encode(rule.getPort() + "") + DELIM +
+				encode(rule.getPath()) + DELIM +
+				encode(entry.getResponse());
+		return result;
 	}
 	
 	private byte[] decode(String encoded) {

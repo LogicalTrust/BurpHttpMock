@@ -137,8 +137,7 @@ public class MockTable extends JPanel {
 	private void handleDuplicate() {
 		int[] rows = table.getSelectedRows();
 		if (rows.length > 0) {
-			for (int i = 0; i < rows.length; i++) {
-				int row = rows[i];
+			for (int row : rows) {
 				MockEntry entry = mockHolder.getEntryByIndex(row);
 				MockEntry duplicate = entry.duplicate();
 				model.addMock(duplicate);
@@ -151,8 +150,7 @@ public class MockTable extends JPanel {
 		if (rows.length > 0 && continueAfterDialog()) {
 			previousRow = IntStream.of(rows).min().getAsInt();
 			boolean first = true;
-			for (int i = 0; i < rows.length; i++) {
-				int selectedRow = rows[i];
+			for (int selectedRow : rows) {
 				if (selectedRow > 0) {
 					moveRow(selectedRow, -1, first);
 					first = false;
