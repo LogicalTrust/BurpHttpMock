@@ -44,6 +44,11 @@ public class MockEntry {
 		this.responseData = responseData;
 	}
 
+	public byte[] getResponseToRequest(byte[] request)
+	{
+		return getResponseData();
+	}
+
 	public MockRule getRule() {
 		return rule;
 	}

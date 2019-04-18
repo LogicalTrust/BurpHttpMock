@@ -52,7 +52,7 @@ public class HttpListener implements IProxyListener {
 		if (entry != null) {
 			byte[] body = Arrays.copyOfRange(messageInfo.getRequest(),
 					helpers.analyzeRequest(messageInfo.getRequest()).getBodyOffset(), messageInfo.getRequest().length);
-			messageInfo.setResponse(entry.getResponseData());
+			messageInfo.setResponse(entry.getResponseToRequest(body));
 		} else {
 			logger.debugForce("Missing response for id " + id);
 		}
