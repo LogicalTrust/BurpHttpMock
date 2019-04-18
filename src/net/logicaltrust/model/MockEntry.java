@@ -4,6 +4,8 @@ import com.google.gson.annotations.Expose;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MockEntry {
 
@@ -56,6 +58,25 @@ public class MockEntry {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public MockResponseTypeEnum getResponseType() {
+		Map<String, MockResponseTypeEnum> prefixMap = new HashMap<>();
+		prefixMap.put("!", MockResponseTypeEnum.CgiScript);
+		prefixMap.put("#", MockResponseTypeEnum.FileInclusion);
+		prefixMap.put("%", MockResponseTypeEnum.UrlRedirect);
+
+		entryLoop:
+		for (Map.Entry<String, MockResponseTypeEnum> e: prefixMap.entrySet())
+		{
+			byte[] prefix = e.getKey().getBytes();
+			if (prefix.length >= getResponse().length) continue;
+			for (int i = 0; i < prefix.length; i++) {
+				if (prefix[i] != getResponse()[i]) continue entryLoop;
+			}
+			return e.getValue();
+		}
+		return MockResponseTypeEnum.DirectEntry;
 	}
 	
 	public Object[] toObject() {
