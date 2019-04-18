@@ -1,6 +1,6 @@
 ## 1.0.2
 ### Added
-- Confirm adding too large response (optional)
+- Confirm adding too large responseData (optional)
 - Do not display too large responses in editor (optional)
 
 ## 1.0.1

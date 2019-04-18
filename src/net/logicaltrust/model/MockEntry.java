@@ -20,11 +20,11 @@ public class MockEntry {
 	private MockRule rule;
 
 	@Expose
-	private byte[] response;
+	private byte[] responseData;
 	
-	public MockEntry(boolean enabled, MockRule rule, byte[] response) {
+	public MockEntry(boolean enabled, MockRule rule, byte[] responseData) {
 		this.rule = rule;
-		this.response = response == null ? DEFAULT_RESPONSE : response;
+		this.responseData = responseData == null ? DEFAULT_RESPONSE : responseData;
 		this.enabled = enabled;
 	}
 	
@@ -36,12 +36,12 @@ public class MockEntry {
 		return id;
 	}
 	
-	public byte[] getResponse() {
-		return response;
+	public byte[] getResponseData() {
+		return responseData;
 	}
 	
-	public void setResponse(byte[] response) {
-		this.response = response;
+	public void setResponseData(byte[] responseData) {
+		this.responseData = responseData;
 	}
 
 	public MockRule getRule() {
@@ -70,9 +70,9 @@ public class MockEntry {
 		for (Map.Entry<String, MockResponseTypeEnum> e: prefixMap.entrySet())
 		{
 			byte[] prefix = e.getKey().getBytes();
-			if (prefix.length >= getResponse().length) continue;
+			if (prefix.length >= getResponseData().length) continue;
 			for (int i = 0; i < prefix.length; i++) {
-				if (prefix[i] != getResponse()[i]) continue entryLoop;
+				if (prefix[i] != getResponseData()[i]) continue entryLoop;
 			}
 			return e.getValue();
 		}
@@ -89,7 +89,7 @@ public class MockEntry {
 	}
 	
 	public MockEntry duplicate() {
-		return new MockEntry(this.enabled, this.rule.duplicate(), Arrays.copyOf(response, response.length));
+		return new MockEntry(this.enabled, this.rule.duplicate(), Arrays.copyOf(responseData, responseData.length));
 	}
 
 }

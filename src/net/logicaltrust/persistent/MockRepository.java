@@ -1,19 +1,11 @@
 package net.logicaltrust.persistent;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
 
-import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.model.MockEntry;
-import net.logicaltrust.model.MockProtocolEnum;
-import net.logicaltrust.model.MockRule;
 
 public class MockRepository {
 
@@ -94,7 +86,7 @@ public class MockRepository {
 	
 	public synchronized void updateResponse(String id, byte[] response) {
 		MockEntry entry = entriesById.get(id);
-		entry.setResponse(response);
+		entry.setResponseData(response);
 		logger.debug("Updating " + entry + ", " + id);
 		settingSaver.saveEntry(entry);
 	}
