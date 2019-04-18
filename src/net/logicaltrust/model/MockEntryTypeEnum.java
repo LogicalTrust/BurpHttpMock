@@ -81,10 +81,33 @@ public enum MockEntryTypeEnum {
             return true;
         }
     },
-    Pipe {
+    Pipe { //pipe full request to a process and return the stdout of that process
+        //splits strings by spaces, except when quoted
+        //pattern and code adapted from https://stackoverflow.com/a/7804472
+        Pattern stringSplitter = Pattern.compile("([^\"]\\S*|\".+?\")\\s*");
         @Override
         public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IExtensionHelpers helpers) {
-            throw new UnsupportedOperationException();
+            try {
+                ProcessBuilder pb = new ProcessBuilder();
+                List<String> commandWithArgs = new ArrayList<>();
+                Matcher m = stringSplitter.matcher(helpers.bytesToString(entryInput));
+                while (m.find()) commandWithArgs.add(m.group(1));
+                pb.command(commandWithArgs);
+                pb.directory(Paths.get(commandWithArgs.get(0)).getParent().toFile());
+                pb.redirectInput(ProcessBuilder.Redirect.PIPE);
+                pb.redirectOutput(ProcessBuilder.Redirect.PIPE);
+                Process p = pb.start();
+                p.getOutputStream().write(incomingRequest);
+                p.getOutputStream().close();
+
+                ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                while (p.getInputStream().read(buffer) != -1) stdout.write(buffer);
+
+                return stdout.toByteArray();
+            } catch (IOException e) {
+                return helpers.stringToBytes(e.toString());
+            }
         }
     };
 
