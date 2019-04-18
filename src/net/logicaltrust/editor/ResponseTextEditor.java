@@ -76,7 +76,7 @@ public class ResponseTextEditor {
 	public void discardChanges() {
 		logger.debug("Message discarded");
 		if (textEditor.isTextModified()) {
-			textEditor.setText(currentEntry.getResponseData());
+			textEditor.setText(currentEntry.getEntryInput());
 		}
 	}
 	
@@ -101,12 +101,12 @@ public class ResponseTextEditor {
 
 	public void loadResponse(MockEntry entry) {
 		this.currentEntry = entry;
-		if (!settingSaver.loadDisplayLargeResponsesInEditor() && entry.getResponseData().length > settingSaver.loadThreshold()) {
+		if (!settingSaver.loadDisplayLargeResponsesInEditor() && entry.getEntryInput().length > settingSaver.loadThreshold()) {
 			this.textEditor.setEditable(false);
 			this.textEditor.setText("Response is too large.".getBytes(StandardCharsets.UTF_8));
 		} else {
 			this.textEditor.setEditable(true);
-			this.textEditor.setText(entry.getResponseData());
+			this.textEditor.setText(entry.getEntryInput());
 		}
 	}
 	

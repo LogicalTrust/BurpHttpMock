@@ -1,6 +1,6 @@
 ## 1.0.2
 ### Added
-- Confirm adding too large responseData (optional)
+- Confirm adding too large entryInput (optional)
 - Do not display too large responses in editor (optional)
 
 ## 1.0.1

@@ -86,7 +86,7 @@ public class MockRepository {
 	
 	public synchronized void updateResponse(String id, byte[] response) {
 		MockEntry entry = entriesById.get(id);
-		entry.setResponseData(response);
+		entry.setEntryInput(response);
 		logger.debug("Updating " + entry + ", " + id);
 		settingSaver.saveEntry(entry);
 	}

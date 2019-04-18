@@ -206,7 +206,7 @@ public class SettingsSaver {
 				encode(rule.getHost()) + DELIM +
 				encode(rule.getPort() + "") + DELIM +
 				encode(rule.getPath()) + DELIM +
-				encode(entry.getResponseData());
+				encode(entry.getEntryInput());
 		return result;
 	}
 	

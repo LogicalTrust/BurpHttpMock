@@ -1,5 +1,7 @@
 package net.logicaltrust.model;
 
+import burp.IExtensionHelpers;
+import burp.IHttpRequestResponse;
 import com.google.gson.annotations.Expose;
 
 import java.nio.charset.StandardCharsets;
@@ -20,11 +22,11 @@ public class MockEntry {
 	private MockRule rule;
 
 	@Expose
-	private byte[] responseData;
+	private byte[] entryInput;
 	
-	public MockEntry(boolean enabled, MockRule rule, byte[] responseData) {
+	public MockEntry(boolean enabled, MockRule rule, byte[] entryInput) {
 		this.rule = rule;
-		this.responseData = responseData == null ? DEFAULT_RESPONSE : responseData;
+		this.entryInput = entryInput == null ? DEFAULT_RESPONSE : entryInput;
 		this.enabled = enabled;
 	}
 	
@@ -36,17 +38,30 @@ public class MockEntry {
 		return id;
 	}
 	
-	public byte[] getResponseData() {
-		return responseData;
+	public byte[] getEntryInput() {
+		return entryInput;
 	}
 	
-	public void setResponseData(byte[] responseData) {
-		this.responseData = responseData;
+	public void setEntryInput(byte[] entryInput) {
+		this.entryInput = entryInput;
 	}
 
-	public byte[] getResponseToRequest(byte[] request)
+	//returns true if the function has handled the request
+	// (and therefore the default behavior of redirecting the request should not be used)
+	public boolean handleRequest(IHttpRequestResponse request, IExtensionHelpers helpers)
 	{
-		return getResponseData();
+		MockEntryTypeEnum type = getEntryType();
+		byte[] entryInput = getEntryInput();
+		if (type != MockEntryTypeEnum.DirectEntry) entryInput = Arrays.copyOfRange(entryInput, 1, entryInput.length);
+		return getEntryType().handleRequest(entryInput, request, helpers);
+	}
+
+	public byte[] handleResponse(byte[] request, IExtensionHelpers helpers)
+	{
+	    MockEntryTypeEnum type = getEntryType();
+	    byte[] entryInput = getEntryInput();
+	    if (type != MockEntryTypeEnum.DirectEntry) entryInput = Arrays.copyOfRange(entryInput, 1, entryInput.length);
+	    return type.generateResponse(entryInput, request, helpers);
 	}
 
 	public MockRule getRule() {
@@ -65,23 +80,25 @@ public class MockEntry {
 		this.enabled = enabled;
 	}
 
-	public MockResponseTypeEnum getResponseType() {
-		Map<String, MockResponseTypeEnum> prefixMap = new HashMap<>();
-		prefixMap.put("!", MockResponseTypeEnum.CgiScript);
-		prefixMap.put("#", MockResponseTypeEnum.FileInclusion);
-		prefixMap.put("%", MockResponseTypeEnum.UrlRedirect);
+	public MockEntryTypeEnum getEntryType() {
+		Map<String, MockEntryTypeEnum> prefixMap = new HashMap<>();
+		prefixMap.put("!", MockEntryTypeEnum.CgiScript);
+		prefixMap.put("#", MockEntryTypeEnum.FileInclusion);
+		prefixMap.put("%", MockEntryTypeEnum.UrlRedirect);
+		prefixMap.put("|", MockEntryTypeEnum.Pipe);
+
 
 		entryLoop:
-		for (Map.Entry<String, MockResponseTypeEnum> e: prefixMap.entrySet())
+		for (Map.Entry<String, MockEntryTypeEnum> e: prefixMap.entrySet())
 		{
 			byte[] prefix = e.getKey().getBytes();
-			if (prefix.length >= getResponseData().length) continue;
+			if (prefix.length >= getEntryInput().length) continue;
 			for (int i = 0; i < prefix.length; i++) {
-				if (prefix[i] != getResponseData()[i]) continue entryLoop;
+				if (prefix[i] != getEntryInput()[i]) continue entryLoop;
 			}
 			return e.getValue();
 		}
-		return MockResponseTypeEnum.DirectEntry;
+		return MockEntryTypeEnum.DirectEntry;
 	}
 	
 	public Object[] toObject() {
@@ -94,7 +111,7 @@ public class MockEntry {
 	}
 	
 	public MockEntry duplicate() {
-		return new MockEntry(this.enabled, this.rule.duplicate(), Arrays.copyOf(responseData, responseData.length));
+		return new MockEntry(this.enabled, this.rule.duplicate(), Arrays.copyOf(entryInput, entryInput.length));
 	}
 
 }

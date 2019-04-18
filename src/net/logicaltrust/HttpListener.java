@@ -52,7 +52,7 @@ public class HttpListener implements IProxyListener {
 		if (entry != null) {
 			byte[] body = Arrays.copyOfRange(messageInfo.getRequest(),
 					helpers.analyzeRequest(messageInfo.getRequest()).getBodyOffset(), messageInfo.getRequest().length);
-			messageInfo.setResponse(entry.getResponseToRequest(body));
+			messageInfo.setResponse(entry.handleResponse(body, helpers));
 		} else {
 			logger.debugForce("Missing response for id " + id);
 		}
@@ -63,11 +63,13 @@ public class HttpListener implements IProxyListener {
 		if (match.isPresent()) {
 			MockEntry matchEntry = match.get();
 			logger.debug("Successful URL match: " + url + " with " + matchEntry);
-			IHttpService service = helpers.buildHttpService("127.0.0.1", port, false);
-			byte[] localReq = helpers.buildHttpMessage(
-					Collections.singletonList("POST /?" + matchEntry.getId() + " HTTP/1.0"), messageInfo.getRequest());
-			messageInfo.setRequest(localReq);
-			messageInfo.setHttpService(service);
+			if (!matchEntry.handleRequest(messageInfo, helpers)) {
+				IHttpService service = helpers.buildHttpService("127.0.0.1", port, false);
+				byte[] localReq = helpers.buildHttpMessage(
+						Collections.singletonList("POST /?" + matchEntry.getId() + " HTTP/1.0"), messageInfo.getRequest());
+				messageInfo.setRequest(localReq);
+				messageInfo.setHttpService(service);
+			}
 			message.setInterceptAction(IInterceptedProxyMessage.ACTION_DONT_INTERCEPT);
 		}
 	}
