@@ -12,30 +12,40 @@ import net.logicaltrust.server.MockLocalServer;
 import net.logicaltrust.tab.MockTabPanel;
 
 public class BurpExtender implements IBurpExtender {
+	private static IBurpExtenderCallbacks callbacks = null;
 
+	private static SimpleLogger logger = null;
 	@Override
 	public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
+		BurpExtender.callbacks = callbacks;
 		PrintWriter stderr = new PrintWriter(callbacks.getStderr(), true);
-		SimpleLogger logger = new SimpleLogger(new PrintWriter(callbacks.getStdout(), true), stderr);
-		SettingsSaver settingSaver = new SettingsSaver(callbacks, logger);
-		MockRepository mockRepository = new MockRepository(logger, settingSaver);
+		BurpExtender.logger = new SimpleLogger(new PrintWriter(callbacks.getStdout(), true), stderr);
+		SettingsSaver settingSaver = new SettingsSaver();
+		MockRepository mockRepository = new MockRepository(settingSaver);
 
-		ResponseTextEditor responseTextEditor = new ResponseTextEditor(logger, 
-				callbacks.createTextEditor(), 
-				mockRepository, 
-				callbacks.getHelpers(), 
+		ResponseTextEditor responseTextEditor = new ResponseTextEditor(
+				callbacks.createTextEditor(),
+				mockRepository,
 				settingSaver);
 
-		MockTabPanel tab = new MockTabPanel(logger, callbacks, mockRepository, responseTextEditor, settingSaver);
+		MockTabPanel tab = new MockTabPanel(mockRepository, responseTextEditor, settingSaver);
 		callbacks.addSuiteTab(tab);
 
-		callbacks.registerProxyListener(new HttpListener(callbacks.getHelpers(), logger, mockRepository, settingSaver.loadPort()));
+		callbacks.registerProxyListener(new HttpListener(mockRepository, settingSaver.loadPort()));
 		
-		callbacks.registerContextMenuFactory(new MockContextMenuFactory(logger, callbacks, tab, settingSaver));
+		callbacks.registerContextMenuFactory(new MockContextMenuFactory(tab, settingSaver));
 
-		MockLocalServer myMockServer = new MockLocalServer(logger, settingSaver.loadPort());
+		MockLocalServer myMockServer = new MockLocalServer(settingSaver.loadPort());
 		callbacks.registerExtensionStateListener(myMockServer);
 		new Thread(myMockServer::run).start();
 	}
-	
+
+	public static IBurpExtenderCallbacks getCallbacks()
+	{
+		return callbacks;
+	}
+
+	public static SimpleLogger getLogger() {
+		return logger;
+	}
 }

@@ -8,18 +8,19 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import burp.BurpExtender;
 import burp.IExtensionStateListener;
 import net.logicaltrust.SimpleLogger;
 
 public class MockLocalServer implements IExtensionStateListener {
 
-	private SimpleLogger logger;
+	private final SimpleLogger logger;
 	private boolean stopped = false;
 	private ServerSocket ss;
 	private final int port;
 	
-	public MockLocalServer(SimpleLogger logger, int port) {
-		this.logger = logger;
+	public MockLocalServer(int port) {
+		this.logger = BurpExtender.getLogger();
 		this.port = port;
 	}
 	

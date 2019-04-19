@@ -6,8 +6,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
@@ -18,10 +16,9 @@ import java.net.URISyntaxException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import burp.IBurpExtenderCallbacks;
+import burp.BurpExtender;
 import burp.ITab;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.editor.ResponseTextEditor;
@@ -34,15 +31,15 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
 
 	private static final long serialVersionUID = 1L;
 
-	private SimpleLogger logger;
-	private MockRepository mockHolder;
+	private final SimpleLogger logger;
+	private final MockRepository mockHolder;
 	private MockTable mockTable;
-	private SettingsSaver settingSaver;
+	private final SettingsSaver settingSaver;
 	JTabbedPane tabbedPane;
 	ChangeListener changeListener;
 
-	public MockTabPanel(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockRepository mockHolder, ResponseTextEditor responseEditor, SettingsSaver settingSaver) {
-		this.logger = logger;
+	public MockTabPanel(MockRepository mockHolder, ResponseTextEditor responseEditor, SettingsSaver settingSaver) {
+		this.logger = BurpExtender.getLogger();
 		this.mockHolder = mockHolder;
 		this.settingSaver = settingSaver;
 		prepareGui(responseEditor);

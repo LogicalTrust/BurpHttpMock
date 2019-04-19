@@ -1,5 +1,6 @@
 package net.logicaltrust.persistent;
 
+import burp.BurpExtender;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -19,11 +20,11 @@ import java.util.List;
 
 public class MockJsonSerializer {
 
-    private SimpleLogger logger;
-    private Gson gson;
+    private final SimpleLogger logger;
+    private final Gson gson;
 
-    public MockJsonSerializer(SimpleLogger logger) {
-        this.logger = logger;
+    public MockJsonSerializer() {
+        this.logger = BurpExtender.getLogger();
         this.gson = new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
                 .registerTypeHierarchyAdapter(byte[].class, new ByteArrayToBase64TypeAdapter())

@@ -31,7 +31,7 @@ public enum MockProtocolEnum {
 		return ANY;
 	}
 	
-	private String protocol;
+	private final String protocol;
 	
 	MockProtocolEnum(String protocol) {
 		this.protocol = protocol;

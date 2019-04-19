@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.model.MockEntry;
@@ -34,12 +35,12 @@ public class SettingsSaver {
 	private Integer thresholdCache;
 	private Boolean recalculateCache;
 	
-	private IBurpExtenderCallbacks callbacks;
-	private SimpleLogger logger;
+	private final IBurpExtenderCallbacks callbacks;
+	private final SimpleLogger logger;
 	
-	public SettingsSaver(IBurpExtenderCallbacks callbacks, SimpleLogger logger) {
-		this.callbacks = callbacks;
-		this.logger = logger;
+	public SettingsSaver() {
+		this.callbacks = BurpExtender.getCallbacks();
+		this.logger = BurpExtender.getLogger();
 		if (isDebugOn()) {
 			logger.enableDebug();
 		} else {
@@ -85,8 +86,7 @@ public class SettingsSaver {
 		}
 		List<MockEntry> entries = Arrays.stream(strIds.split(DELIM_REGEX)).map(id -> {
 			String entryStr = callbacks.loadExtensionSetting("ENTRY_"+ id);
-			MockEntry entry = entryFromString(entryStr, id);
-			return entry;
+			return entryFromString(entryStr, id);
 		}).collect(Collectors.toList());
 		logger.debug(entries.isEmpty() ? "No entries loaded" : "Loaded " + entries.size() + " entries");
 		return entries;
@@ -201,13 +201,12 @@ public class SettingsSaver {
 	
 	private String entryToString(MockEntry entry) {
 		MockRule rule = entry.getRule();
-		String result = entry.isEnabled() + DELIM +
+		return entry.isEnabled() + DELIM +
 				encode(rule.getProtocol().name()) + DELIM +
 				encode(rule.getHost()) + DELIM +
 				encode(rule.getPort() + "") + DELIM +
 				encode(rule.getPath()) + DELIM +
 				encode(entry.getEntryInput());
-		return result;
 	}
 	
 	private byte[] decode(String encoded) {

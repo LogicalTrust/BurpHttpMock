@@ -11,8 +11,8 @@ import net.logicaltrust.persistent.MockRepository;
 public class MockTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
-	private SimpleLogger logger;
-	private MockRepository mockHolder;
+	private final SimpleLogger logger;
+	private final MockRepository mockHolder;
 
 	public MockTableModel(MockRepository mockHolder, SimpleLogger logger) {
 		super(mockHolder.getEntries().stream().map(MockEntry::toObject).toArray(Object[][]::new),

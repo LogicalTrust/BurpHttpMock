@@ -16,15 +16,14 @@ public enum MockRuleColumnsEnum {
 	
 	PATH("File");
 	
-	private String displayName;
+	private final String displayName;
 	
 	MockRuleColumnsEnum(String displayName) {
 		this.displayName = displayName;
 	}
 	
 	public static Object[] getDisplayNames() {
-		Object[] array = Arrays.stream(MockRuleColumnsEnum.values()).map(v -> v.displayName).toArray();
-		return array;
+        return Arrays.stream(MockRuleColumnsEnum.values()).map(v -> v.displayName).toArray();
 	}
 	
 	public static MockRuleColumnsEnum getByIndex(int index) {

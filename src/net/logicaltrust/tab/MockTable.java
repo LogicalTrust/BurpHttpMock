@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,19 +35,19 @@ import net.logicaltrust.persistent.MockRepository;
 public class MockTable extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private MockTableModel model;
+	private final MockTableModel model;
 	int previousRow = -1;
-	private SimpleLogger logger;
-	private ResponseTextEditor responseTextEditor;
-	private JTable table;
-	private MockRepository mockHolder;
-	private MockJsonSerializer serializer;
+	private final SimpleLogger logger;
+	private final ResponseTextEditor responseTextEditor;
+	private final JTable table;
+	private final MockRepository mockHolder;
+	private final MockJsonSerializer serializer;
 
 	public MockTable(String title, String tooltip, MockRepository mockHolder, 
 			Consumer<Collection<String>> updateValues, SimpleLogger logger, ResponseTextEditor responseTextEditor) {
 		this.mockHolder = mockHolder;
 		this.logger = logger;
-		this.serializer = new MockJsonSerializer(logger);
+		this.serializer = new MockJsonSerializer();
 		this.responseTextEditor = responseTextEditor;
 		this.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), title, TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		this.setToolTipText(tooltip);

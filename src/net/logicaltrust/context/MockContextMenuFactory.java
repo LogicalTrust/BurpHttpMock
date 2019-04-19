@@ -19,15 +19,15 @@ public class MockContextMenuFactory implements IContextMenuFactory {
 
 
 	private final IBurpExtenderCallbacks callbacks;
-	private SimpleLogger logger;
+	private final SimpleLogger logger;
 	private IContextMenuInvocation invocation;
-	private IExtensionHelpers helpers;
-	private MockAdder mockAdder;
-	private SettingsSaver settings;
+	private final IExtensionHelpers helpers;
+	private final MockAdder mockAdder;
+	private final SettingsSaver settings;
 
-	public MockContextMenuFactory(SimpleLogger logger, IBurpExtenderCallbacks callbacks, MockAdder mockAdder, SettingsSaver settings) {
-		this.logger = logger;
-		this.callbacks = callbacks;
+	public MockContextMenuFactory(MockAdder mockAdder, SettingsSaver settings) {
+		this.logger = BurpExtender.getLogger();
+		this.callbacks = BurpExtender.getCallbacks();
 		this.helpers = callbacks.getHelpers();
 		this.mockAdder = mockAdder;
 		this.settings = settings;
@@ -102,12 +102,11 @@ public class MockContextMenuFactory implements IContextMenuFactory {
 
 	private URL getAnalyzedURL(IHttpRequestResponse msg) {
 		IRequestInfo analyzedReq = helpers.analyzeRequest(msg.getHttpService(), msg.getRequest());
-		URL analyzedURL = analyzedReq.getUrl();
-		return analyzedURL;
+		return analyzedReq.getUrl();
 	}
 
 	private void addMock(boolean fullURL, IHttpRequestResponse msg, URL analyzedURL) {
-		MockRule mockRule = null;
+		MockRule mockRule;
 		if (fullURL) {
 			mockRule = MockRule.fromURL(analyzedURL);
 		} else {

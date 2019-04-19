@@ -1,6 +1,5 @@
 package net.logicaltrust.model;
 
-import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IHttpService;
 import com.google.gson.annotations.Expose;
@@ -49,20 +48,20 @@ public class MockEntry {
 
 	//returns true if the function has handled the request
 	// (and therefore the default behavior of redirecting the request should not be used)
-	public boolean handleRequest(IHttpRequestResponse request, IExtensionHelpers helpers)
+	public boolean handleRequest(IHttpRequestResponse request)
 	{
 		MockEntryTypeEnum type = getEntryType();
 		byte[] entryInput = getEntryInput();
 		if (type != MockEntryTypeEnum.DirectEntry) entryInput = Arrays.copyOfRange(entryInput, 1, entryInput.length);
-		return getEntryType().handleRequest(entryInput, request, helpers);
+		return getEntryType().handleRequest(entryInput, request);
 	}
 
-	public byte[] handleResponse(byte[] request, IHttpService service, IExtensionHelpers helpers)
+	public byte[] handleResponse(byte[] request, IHttpService service)
 	{
 	    MockEntryTypeEnum type = getEntryType();
 	    byte[] entryInput = getEntryInput();
 	    if (type != MockEntryTypeEnum.DirectEntry) entryInput = Arrays.copyOfRange(entryInput, 1, entryInput.length);
-	    return type.generateResponse(entryInput, request, service, helpers);
+	    return type.generateResponse(entryInput, request, service);
 	}
 
 	public MockRule getRule() {

@@ -4,19 +4,20 @@ import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
 
+import burp.BurpExtender;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.model.MockEntry;
 
 public class MockRepository {
 
-	private Map<String, MockEntry> entriesById = new HashMap<>();
-	private LinkedList<MockEntry> entries = new LinkedList<>();
-	private long counter = 0L;
-	private SettingsSaver settingSaver;
-	private SimpleLogger logger;
+	private final Map<String, MockEntry> entriesById = new HashMap<>();
+	private final LinkedList<MockEntry> entries = new LinkedList<>();
+	private long counter;
+	private final SettingsSaver settingSaver;
+	private final SimpleLogger logger;
 	
-	public MockRepository(SimpleLogger logger, SettingsSaver settingSaver) {
-		this.logger = logger;
+	public MockRepository(SettingsSaver settingSaver) {
+		this.logger = BurpExtender.getLogger();
 		this.settingSaver = settingSaver;
 		List<MockEntry> loadedEntries = settingSaver.loadEntries();
 		int i = 0;

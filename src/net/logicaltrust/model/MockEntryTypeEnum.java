@@ -1,8 +1,5 @@
 package net.logicaltrust.model;
-import burp.IExtensionHelpers;
-import burp.IHttpRequestResponse;
-import burp.IHttpService;
-import burp.IRequestInfo;
+import burp.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,13 +15,14 @@ import java.util.stream.Stream;
 public enum MockEntryTypeEnum {
     DirectEntry { //traditional one, just returns whatever was entered by the user in the text box
         @Override
-        public byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers) {
+        public byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IHttpService incomingHttpService) {
             return ruleInput;
         }
     },
     FileInclusion {
         @Override
-        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers) {
+        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService) {
+            IExtensionHelpers helpers = BurpExtender.getCallbacks().getHelpers();
             try {
                 return Files.readAllBytes(Paths.get(new String(entryInput)));
             } catch (IOException e) {
@@ -35,7 +33,8 @@ public enum MockEntryTypeEnum {
     },
     CgiScript {
         @Override
-        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers) {
+        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService) {
+            IExtensionHelpers helpers = BurpExtender.getCallbacks().getHelpers();
             Map<String, String> environment = new HashMap<>();
             IRequestInfo requestInfo = helpers.analyzeRequest(incomingHttpService, incomingRequest);
             Map<String, String> headers = requestInfo.getHeaders().stream()
@@ -68,18 +67,19 @@ public enum MockEntryTypeEnum {
             {
                 body = Arrays.copyOfRange(incomingRequest, requestInfo.getBodyOffset(), incomingRequest.length);
             }
-            return MockEntryTypeEnum.runProcess(entryInput, body, environment, helpers);
+            return MockEntryTypeEnum.runProcess(entryInput, body, environment);
         }
     },
     UrlRedirect { //redirect to an arbitrary URL
         @Override
-        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers) {
+        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService) {
             //This should never get here - The request should go out to the real URL and not to the local listener
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean handleRequest(byte[] entryInput, IHttpRequestResponse request, IExtensionHelpers helpers) {
+        public boolean handleRequest(byte[] entryInput, IHttpRequestResponse request) {
+            IExtensionHelpers helpers = BurpExtender.getCallbacks().getHelpers();
             URL url;
             int port;
             try {
@@ -113,13 +113,13 @@ public enum MockEntryTypeEnum {
     },
     Pipe { //pipe full request to a process and return the stdout of that process
         @Override
-        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers) {
-            return MockEntryTypeEnum.runProcess(entryInput, incomingRequest, null, helpers);
+        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService) {
+            return MockEntryTypeEnum.runProcess(entryInput, incomingRequest, null);
         }
     };
 
-    public abstract byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers);
-    public boolean handleRequest(byte[] ruleInput, IHttpRequestResponse request, IExtensionHelpers helpers)
+    public abstract byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IHttpService incomingHttpService);
+    public boolean handleRequest(byte[] ruleInput, IHttpRequestResponse request)
     {
         return false;
     }
@@ -127,10 +127,11 @@ public enum MockEntryTypeEnum {
     //splits strings by spaces, except when quoted
     //pattern from https://stackoverflow.com/questions/3366281/tokenizing-a-string-but-ignoring-delimiters-within-quotes
     //"([^"]*)"|(\S+)
-    private static Pattern stringSplitter = Pattern.compile("\"([^\"]*)\"|(\\S+)");
+    private static final Pattern stringSplitter = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
-    private static byte[] runProcess(byte[] commandLine, byte[] input, Map<String, String> environment, IExtensionHelpers helpers)
+    private static byte[] runProcess(byte[] commandLine, byte[] input, Map<String, String> environment)
     {
+        IExtensionHelpers helpers = BurpExtender.getCallbacks().getHelpers();
         try {
             ProcessBuilder pb = new ProcessBuilder();
             List<String> commandWithArgs = new ArrayList<>();

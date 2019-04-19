@@ -11,7 +11,7 @@ public class SimpleLogger {
 	private final PrintWriter originalDebug;
 	private static final PrintWriter EMPTY_WRITER = new PrintWriter(new OutputStream() {
 		@Override
-		public void write(int b) throws IOException { }
+		public void write(int b) { }
 	}, true);
 
 	public SimpleLogger(PrintWriter debug, PrintWriter error) {

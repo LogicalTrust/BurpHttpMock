@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import burp.BurpExtender;
 import burp.IExtensionHelpers;
 import burp.IResponseInfo;
 import burp.ITextEditor;
@@ -23,25 +24,25 @@ import net.logicaltrust.persistent.SettingsSaver;
 
 public class ResponseTextEditor {
 
-	private ITextEditor textEditor;
-	private JPanel mainPanel;
-	private JButton saveTextButton;
-	private JButton discardTextButton;
-	private JCheckBox recalcBox;
+	private final ITextEditor textEditor;
+	private final JPanel mainPanel;
+	private final JButton saveTextButton;
+	private final JButton discardTextButton;
+	private final JCheckBox recalcBox;
 	
 	private MockEntry currentEntry;
-	private SimpleLogger logger;
-	private MockRepository mockHolder;
-	private IExtensionHelpers helpers;
-	private SettingsSaver settingSaver;
+	private final SimpleLogger logger;
+	private final MockRepository mockHolder;
+	private final IExtensionHelpers helpers;
+	private final SettingsSaver settingSaver;
 
 	private static final Pattern CONTENT_LENGTH_PATTERN = Pattern.compile("^Content-Length: .*$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
-	public ResponseTextEditor(SimpleLogger logger, ITextEditor textEditor, MockRepository mockHolder, IExtensionHelpers helpers, SettingsSaver settingSaver) {
-		this.logger = logger;
+	public ResponseTextEditor(ITextEditor textEditor, MockRepository mockHolder, SettingsSaver settingSaver) {
+		this.logger = BurpExtender.getLogger();
 		this.textEditor = textEditor;
 		this.mockHolder = mockHolder;
-		this.helpers = helpers;
+		this.helpers = BurpExtender.getCallbacks().getHelpers();
 		this.settingSaver = settingSaver;
 		this.textEditor.setEditable(false);
 		
