@@ -93,7 +93,8 @@ public enum MockEntryTypeEnum {
                 Matcher m = stringSplitter.matcher(helpers.bytesToString(entryInput));
                 while (m.find()) commandWithArgs.add(m.group(1));
                 pb.command(commandWithArgs);
-                pb.directory(Paths.get(commandWithArgs.get(0)).getParent().toFile());
+                Path parent = Paths.get(commandWithArgs.get(0)).getParent();
+                if (parent != null) pb.directory(parent.toFile());
                 pb.redirectInput(ProcessBuilder.Redirect.PIPE);
                 pb.redirectOutput(ProcessBuilder.Redirect.PIPE);
                 Process p = pb.start();
