@@ -1,9 +1,9 @@
 package net.logicaltrust.model;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
+import burp.IHttpService;
 import burp.IRequestInfo;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -18,13 +18,13 @@ import java.util.stream.Stream;
 public enum MockEntryTypeEnum {
     DirectEntry { //traditional one, just returns whatever was entered by the user in the text box
         @Override
-        public byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IExtensionHelpers helpers) {
+        public byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers) {
             return ruleInput;
         }
     },
     FileInclusion {
         @Override
-        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IExtensionHelpers helpers) {
+        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers) {
             try {
                 return Files.readAllBytes(Paths.get(new String(entryInput)));
             } catch (IOException e) {
@@ -35,13 +35,13 @@ public enum MockEntryTypeEnum {
     },
     CgiScript {
         @Override
-        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IExtensionHelpers helpers) {
+        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers) {
             Map<String, String> environment = new HashMap<>();
-            IRequestInfo requestInfo = helpers.analyzeRequest(incomingRequest);
+            IRequestInfo requestInfo = helpers.analyzeRequest(incomingHttpService, incomingRequest);
             Map<String, String> headers = requestInfo.getHeaders().stream()
                     .map(String::trim)
                     .map(s -> s.contains(": ") ? s : s + ": ")
-                    .collect(Collectors.toMap(s -> s.split(": ")[0].toLowerCase(),
+                    .collect(Collectors.toMap(s -> s.split(": ")[0].toUpperCase().replaceAll("-", "_"),
                             s -> s.split(": ", 2)[1]));
             URL url = requestInfo.getUrl();
             environment.put("SERVER_SOFTWARE", "Burpsuite HTTP Mock Extension");
@@ -58,11 +58,10 @@ public enum MockEntryTypeEnum {
             environment.put("REMOTE_PORT", "80");
             if (url.getQuery() != null) environment.put("QUERY_STRING", url.getQuery());
             environment.put("REQUEST_URI", url.getFile());
-            if (headers.containsKey("authorization")) environment.put("AUTH_TYPE", headers.get("authorization"));
-            if (headers.containsKey("content-type")) environment.put("CONTENT_TYPE", headers.get("content-type"));
-            if (headers.containsKey("content-length")) environment.put("CONTENT_LENGTH", headers.get("content-type"));
-            headers.forEach((key, value) -> environment.put(
-                    "HTTP_" + key.toUpperCase().replaceAll("-", "_"), value));
+            if (headers.containsKey("AUTHORIZATION")) environment.put("AUTH_TYPE", headers.get("AUTHORIZATION"));
+            if (headers.containsKey("CONTENT_TYPE")) environment.put("CONTENT_TYPE", headers.get("CONTENT_TYPE"));
+            if (headers.containsKey("CONTENT_LENGTH")) environment.put("CONTENT_LENGTH", headers.get("CONTENT_LENGTH"));
+            headers.forEach((key, value) -> environment.put("HTTP_" + key, value));
             byte[] body = null;
             if (requestInfo.getBodyOffset() > 0 && requestInfo.getBodyOffset() < incomingRequest.length)
             {
@@ -73,7 +72,7 @@ public enum MockEntryTypeEnum {
     },
     UrlRedirect { //redirect to an arbitrary URL
         @Override
-        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IExtensionHelpers helpers) {
+        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers) {
             //This should never get here - The request should go out to the real URL and not to the local listener
             throw new UnsupportedOperationException();
         }
@@ -113,12 +112,12 @@ public enum MockEntryTypeEnum {
     },
     Pipe { //pipe full request to a process and return the stdout of that process
         @Override
-        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IExtensionHelpers helpers) {
+        public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers) {
             return MockEntryTypeEnum.runProcess(entryInput, incomingRequest, null, helpers);
         }
     };
 
-    public abstract byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IExtensionHelpers helpers);
+    public abstract byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IHttpService incomingHttpService, IExtensionHelpers helpers);
     public boolean handleRequest(byte[] ruleInput, IHttpRequestResponse request, IExtensionHelpers helpers)
     {
         return false;

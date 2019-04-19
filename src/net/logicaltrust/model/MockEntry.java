@@ -2,6 +2,7 @@ package net.logicaltrust.model;
 
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
+import burp.IHttpService;
 import com.google.gson.annotations.Expose;
 
 import java.nio.charset.StandardCharsets;
@@ -56,12 +57,12 @@ public class MockEntry {
 		return getEntryType().handleRequest(entryInput, request, helpers);
 	}
 
-	public byte[] handleResponse(byte[] request, IExtensionHelpers helpers)
+	public byte[] handleResponse(byte[] request, IHttpService service, IExtensionHelpers helpers)
 	{
 	    MockEntryTypeEnum type = getEntryType();
 	    byte[] entryInput = getEntryInput();
 	    if (type != MockEntryTypeEnum.DirectEntry) entryInput = Arrays.copyOfRange(entryInput, 1, entryInput.length);
-	    return type.generateResponse(entryInput, request, helpers);
+	    return type.generateResponse(entryInput, request, service, helpers);
 	}
 
 	public MockRule getRule() {
