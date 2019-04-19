@@ -9,9 +9,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -38,7 +36,39 @@ public enum MockEntryTypeEnum {
     CgiScript {
         @Override
         public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IExtensionHelpers helpers) {
-            throw new UnsupportedOperationException();
+            Map<String, String> environment = new HashMap<>();
+            IRequestInfo requestInfo = helpers.analyzeRequest(incomingRequest);
+            Map<String, String> headers = requestInfo.getHeaders().stream()
+                    .map(String::trim)
+                    .map(s -> s.contains(": ") ? s : s + ": ")
+                    .collect(Collectors.toMap(s -> s.split(": ")[0].toLowerCase(),
+                            s -> s.split(": ", 2)[1]));
+            URL url = requestInfo.getUrl();
+            environment.put("SERVER_SOFTWARE", "Burpsuite HTTP Mock Extension");
+            environment.put("SERVER_NAME", url.getHost());
+            environment.put("GATEWAY_INTERFACE", "CGI/1.1");
+            String[] startLine = requestInfo.getHeaders().get(0).trim().split(" ");
+            environment.put("SERVER_PROTOCOL", startLine[startLine.length - 1]);
+            //if it can't figure it out, whatever just assume 80
+            int port = url.getPort() > 0 ? url.getPort() : url.getDefaultPort() > 0 ? url.getDefaultPort() : 80;
+            environment.put("SERVER_PORT", "" + port);
+            environment.put("REQUEST_METHOD", requestInfo.getMethod());
+            //just for standards compliance, doesn't really matter
+            environment.put("REMOTE_ADDR", "127.0.0.1");
+            environment.put("REMOTE_PORT", "80");
+            if (url.getQuery() != null) environment.put("QUERY_STRING", url.getQuery());
+            environment.put("REQUEST_URI", url.getFile());
+            if (headers.containsKey("authorization")) environment.put("AUTH_TYPE", headers.get("authorization"));
+            if (headers.containsKey("content-type")) environment.put("CONTENT_TYPE", headers.get("content-type"));
+            if (headers.containsKey("content-length")) environment.put("CONTENT_LENGTH", headers.get("content-type"));
+            headers.forEach((key, value) -> environment.put(
+                    "HTTP_" + key.toUpperCase().replaceAll("-", "_"), value));
+            byte[] body = null;
+            if (requestInfo.getBodyOffset() > 0 && requestInfo.getBodyOffset() < incomingRequest.length)
+            {
+                body = Arrays.copyOfRange(incomingRequest, requestInfo.getBodyOffset(), incomingRequest.length);
+            }
+            return MockEntryTypeEnum.runProcess(entryInput, body, environment, helpers);
         }
     },
     UrlRedirect { //redirect to an arbitrary URL
@@ -82,33 +112,9 @@ public enum MockEntryTypeEnum {
         }
     },
     Pipe { //pipe full request to a process and return the stdout of that process
-        //splits strings by spaces, except when quoted
-        //pattern and code adapted from https://stackoverflow.com/a/7804472
-        Pattern stringSplitter = Pattern.compile("([^\"]\\S*|\".+?\")\\s*");
         @Override
         public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IExtensionHelpers helpers) {
-            try {
-                ProcessBuilder pb = new ProcessBuilder();
-                List<String> commandWithArgs = new ArrayList<>();
-                Matcher m = stringSplitter.matcher(helpers.bytesToString(entryInput));
-                while (m.find()) commandWithArgs.add(m.group(1));
-                pb.command(commandWithArgs);
-                Path parent = Paths.get(commandWithArgs.get(0)).getParent();
-                if (parent != null) pb.directory(parent.toFile());
-                pb.redirectInput(ProcessBuilder.Redirect.PIPE);
-                pb.redirectOutput(ProcessBuilder.Redirect.PIPE);
-                Process p = pb.start();
-                p.getOutputStream().write(incomingRequest);
-                p.getOutputStream().close();
-
-                ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                while (p.getInputStream().read(buffer) != -1) stdout.write(buffer);
-
-                return stdout.toByteArray();
-            } catch (IOException e) {
-                return helpers.stringToBytes(e.toString());
-            }
+            return MockEntryTypeEnum.runProcess(entryInput, incomingRequest, null, helpers);
         }
     };
 
@@ -116,5 +122,37 @@ public enum MockEntryTypeEnum {
     public boolean handleRequest(byte[] ruleInput, IHttpRequestResponse request, IExtensionHelpers helpers)
     {
         return false;
+    }
+
+    //splits strings by spaces, except when quoted
+    //pattern and code adapted from https://stackoverflow.com/a/7804472
+    private static Pattern stringSplitter = Pattern.compile("([^\"]\\S*|\".+?\")\\s*");
+
+    private static byte[] runProcess(byte[] commandLine, byte[] input, Map<String, String> environment, IExtensionHelpers helpers)
+    {
+        try {
+            ProcessBuilder pb = new ProcessBuilder();
+            List<String> commandWithArgs = new ArrayList<>();
+            Matcher m = stringSplitter.matcher(helpers.bytesToString(commandLine));
+            while (m.find()) commandWithArgs.add(m.group(1));
+            pb.command(commandWithArgs);
+            Path parent = Paths.get(commandWithArgs.get(0)).getParent();
+            if (parent != null) pb.directory(parent.toFile());
+            pb.redirectInput(ProcessBuilder.Redirect.PIPE);
+            pb.redirectOutput(ProcessBuilder.Redirect.PIPE);
+            if (environment != null) pb.environment().putAll(environment);
+
+            Process p = pb.start();
+            p.getOutputStream().write(input);
+            p.getOutputStream().close();
+
+            ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            while (p.getInputStream().read(buffer) != -1) stdout.write(buffer);
+
+            return stdout.toByteArray();
+        } catch (IOException e) {
+            return helpers.stringToBytes(e.toString());
+        }
     }
 }
