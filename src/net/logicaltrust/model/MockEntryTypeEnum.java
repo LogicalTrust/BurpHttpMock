@@ -39,6 +39,7 @@ public enum MockEntryTypeEnum {
             Map<String, String> environment = new HashMap<>();
             IRequestInfo requestInfo = helpers.analyzeRequest(incomingHttpService, incomingRequest);
             Map<String, String> headers = requestInfo.getHeaders().stream()
+                    .skip(1) //skip the top line
                     .map(String::trim)
                     .map(s -> s.contains(": ") ? s : s + ": ")
                     .collect(Collectors.toMap(s -> s.split(": ")[0].toUpperCase().replaceAll("-", "_"),
