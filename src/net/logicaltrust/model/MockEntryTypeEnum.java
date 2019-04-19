@@ -124,8 +124,9 @@ public enum MockEntryTypeEnum {
     }
 
     //splits strings by spaces, except when quoted
-    //pattern and code adapted from https://stackoverflow.com/a/7804472
-    private static Pattern stringSplitter = Pattern.compile("([^\"]\\S*|\".+?\")\\s*");
+    //pattern from https://stackoverflow.com/questions/14735171/regex-to-tokenize-string-in-java-with-space-and-double-quotes
+    //\b(?:(?<=")[^"]*(?=")|\w+)\b
+    private static Pattern stringSplitter = Pattern.compile("\\b(?:(?<=\")[^\"]*(?=\")|\\w+)\\b");
 
     private static byte[] runProcess(byte[] commandLine, byte[] input, Map<String, String> environment, IExtensionHelpers helpers)
     {
@@ -133,7 +134,7 @@ public enum MockEntryTypeEnum {
             ProcessBuilder pb = new ProcessBuilder();
             List<String> commandWithArgs = new ArrayList<>();
             Matcher m = stringSplitter.matcher(helpers.bytesToString(commandLine));
-            while (m.find()) commandWithArgs.add(m.group(1));
+            while (m.find()) commandWithArgs.add(m.group(0));
             pb.command(commandWithArgs);
             Path parent = Paths.get(commandWithArgs.get(0)).getParent();
             if (parent != null) pb.directory(parent.toFile());
@@ -142,7 +143,7 @@ public enum MockEntryTypeEnum {
             if (environment != null) pb.environment().putAll(environment);
 
             Process p = pb.start();
-            p.getOutputStream().write(input);
+            if (input != null) p.getOutputStream().write(input);
             p.getOutputStream().close();
 
             ByteArrayOutputStream stdout = new ByteArrayOutputStream();
