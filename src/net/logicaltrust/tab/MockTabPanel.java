@@ -21,7 +21,7 @@ import javax.swing.event.ChangeListener;
 import burp.BurpExtender;
 import burp.ITab;
 import net.logicaltrust.SimpleLogger;
-import net.logicaltrust.editor.ResponseTextEditor;
+import net.logicaltrust.editor.MockRuleEditor;
 import net.logicaltrust.model.MockEntry;
 import net.logicaltrust.persistent.MockAdder;
 import net.logicaltrust.persistent.MockRepository;
@@ -38,7 +38,7 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
 	JTabbedPane tabbedPane;
 	ChangeListener changeListener;
 
-	public MockTabPanel(MockRepository mockHolder, ResponseTextEditor responseEditor, SettingsSaver settingSaver) {
+	public MockTabPanel(MockRepository mockHolder, MockRuleEditor responseEditor, SettingsSaver settingSaver) {
 		this.logger = BurpExtender.getLogger();
 		this.mockHolder = mockHolder;
 		this.settingSaver = settingSaver;
@@ -46,14 +46,14 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
 		addHierarchyListener(this);
 	}
 	
-	private void prepareGui(ResponseTextEditor responseEditor) {
+	private void prepareGui(MockRuleEditor responseEditor) {
 		setLayout(new BorderLayout(0, 0));
 		prepareGitHubFooter();
 		prepareCheckBoxTopPanel();
 		prepareMain(responseEditor);
 	}
 
-	private void prepareMain(ResponseTextEditor responseEditor) {
+	private void prepareMain(MockRuleEditor responseEditor) {
 		mockTable = new MockTable("Mock rules", "rules", mockHolder, null, logger, responseEditor);
 		JSplitPane mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mockTable, responseEditor.getComponent());
 		add(mainPanel, BorderLayout.CENTER);

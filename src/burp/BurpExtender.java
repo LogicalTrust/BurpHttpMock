@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import net.logicaltrust.HttpListener;
 import net.logicaltrust.context.MockContextMenuFactory;
 import net.logicaltrust.SimpleLogger;
-import net.logicaltrust.editor.ResponseTextEditor;
+import net.logicaltrust.editor.MockRuleEditor;
 import net.logicaltrust.persistent.MockRepository;
 import net.logicaltrust.persistent.SettingsSaver;
 import net.logicaltrust.server.MockLocalServer;
@@ -23,12 +23,12 @@ public class BurpExtender implements IBurpExtender {
 		SettingsSaver settingSaver = new SettingsSaver();
 		MockRepository mockRepository = new MockRepository(settingSaver);
 
-		ResponseTextEditor responseTextEditor = new ResponseTextEditor(
+		MockRuleEditor mockRuleEditor = new MockRuleEditor(
 				callbacks.createTextEditor(),
 				mockRepository,
 				settingSaver);
 
-		MockTabPanel tab = new MockTabPanel(mockRepository, responseTextEditor, settingSaver);
+		MockTabPanel tab = new MockTabPanel(mockRepository, mockRuleEditor, settingSaver);
 		callbacks.addSuiteTab(tab);
 
 		callbacks.registerProxyListener(new HttpListener(mockRepository, settingSaver.loadPort()));

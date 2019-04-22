@@ -25,7 +25,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import net.logicaltrust.SimpleLogger;
-import net.logicaltrust.editor.ResponseTextEditor;
+import net.logicaltrust.editor.MockRuleEditor;
 import net.logicaltrust.model.MockEntry;
 import net.logicaltrust.model.MockProtocolEnum;
 import net.logicaltrust.model.MockRule;
@@ -38,17 +38,17 @@ public class MockTable extends JPanel {
 	private final MockTableModel model;
 	int previousRow = -1;
 	private final SimpleLogger logger;
-	private final ResponseTextEditor responseTextEditor;
+	private final MockRuleEditor mockRuleEditor;
 	private final JTable table;
 	private final MockRepository mockHolder;
 	private final MockJsonSerializer serializer;
 
 	public MockTable(String title, String tooltip, MockRepository mockHolder, 
-			Consumer<Collection<String>> updateValues, SimpleLogger logger, ResponseTextEditor responseTextEditor) {
+			Consumer<Collection<String>> updateValues, SimpleLogger logger, MockRuleEditor mockRuleEditor) {
 		this.mockHolder = mockHolder;
 		this.logger = logger;
 		this.serializer = new MockJsonSerializer();
-		this.responseTextEditor = responseTextEditor;
+		this.mockRuleEditor = mockRuleEditor;
 		this.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), title, TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		this.setToolTipText(tooltip);
 		this.setLayout(new BorderLayout(0, 0));
@@ -174,12 +174,12 @@ public class MockTable extends JPanel {
 	}
 
 	private boolean continueAfterDialog() {
-		if (responseTextEditor.hasUnsavedChanges()) {
+		if (mockRuleEditor.hasUnsavedChanges()) {
 			int result = JOptionPane.showConfirmDialog(this, "Do you want to save before move?", "Changes not saved", JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.YES_OPTION) {
-				responseTextEditor.saveChanges();
+				mockRuleEditor.saveChanges();
 			} else if (result == JOptionPane.NO_OPTION) {
-				responseTextEditor.discardChanges();
+				mockRuleEditor.discardChanges();
 			} else {
 				return false;
 			}
@@ -212,10 +212,10 @@ public class MockTable extends JPanel {
 	}
 
 	private void selectionChanged(int row) {
-		if (responseTextEditor.hasUnsavedChanges()) {
+		if (mockRuleEditor.hasUnsavedChanges()) {
 			int result = JOptionPane.showConfirmDialog(this, "Do you want to save before leave?", "Changes not saved", JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.YES_OPTION) {
-				responseTextEditor.saveChanges();
+				mockRuleEditor.saveChanges();
 			} else if (result == JOptionPane.CANCEL_OPTION) {
 				table.setRowSelectionInterval(previousRow, previousRow);
 				return;
@@ -228,13 +228,13 @@ public class MockTable extends JPanel {
 		previousRow = row;
 		MockEntry entry = mockHolder.getEntryByIndex(row);
 		logger.debug("Selected row: " + row + ", entry: " + entry);
-		responseTextEditor.loadResponse(entry);
+		mockRuleEditor.loadResponse(entry);
 	}
 	
 	private void unloadEntry() {
 		previousRow = -1;
 		logger.debug("Selected row: -1, no entry");
-		responseTextEditor.unloadResponse();
+		mockRuleEditor.unloadResponse();
 	}
 
 	private void prepareProtocolEnumCombo(JTable table) {

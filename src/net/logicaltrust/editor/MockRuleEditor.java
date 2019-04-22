@@ -22,7 +22,7 @@ import net.logicaltrust.model.MockEntry;
 import net.logicaltrust.persistent.MockRepository;
 import net.logicaltrust.persistent.SettingsSaver;
 
-public class ResponseTextEditor {
+public class MockRuleEditor {
 
 	private final ITextEditor textEditor;
 	private final JPanel mainPanel;
@@ -38,7 +38,7 @@ public class ResponseTextEditor {
 
 	private static final Pattern CONTENT_LENGTH_PATTERN = Pattern.compile("^Content-Length: .*$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
-	public ResponseTextEditor(ITextEditor textEditor, MockRepository mockHolder, SettingsSaver settingSaver) {
+	public MockRuleEditor(ITextEditor textEditor, MockRepository mockHolder, SettingsSaver settingSaver) {
 		this.logger = BurpExtender.getLogger();
 		this.textEditor = textEditor;
 		this.mockHolder = mockHolder;
