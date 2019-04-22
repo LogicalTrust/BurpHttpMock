@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import burp.BurpExtender;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.model.MockEntry;
+import net.logicaltrust.model.MockEntryTypeEnum;
 
 public class MockRepository {
 
@@ -85,9 +86,10 @@ public class MockRepository {
 		return !entriesById.isEmpty();
 	}
 	
-	public synchronized void updateResponse(String id, byte[] response) {
+	public synchronized void updateResponse(String id, byte[] response, MockEntryTypeEnum type) {
 		MockEntry entry = entriesById.get(id);
 		entry.setEntryInput(response);
+		entry.setEntryType(type);
 		logger.debug("Updating " + entry + ", " + id);
 		settingSaver.saveEntry(entry);
 	}

@@ -7,9 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
@@ -19,6 +17,7 @@ import burp.IResponseInfo;
 import burp.ITextEditor;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.model.MockEntry;
+import net.logicaltrust.model.MockEntryTypeEnum;
 import net.logicaltrust.persistent.MockRepository;
 import net.logicaltrust.persistent.SettingsSaver;
 
@@ -28,6 +27,8 @@ public class MockRuleEditor {
 	private final JPanel mainPanel;
 	private final JButton saveTextButton;
 	private final JButton discardTextButton;
+	private final JButton browseButton;
+	private final JComboBox<MockEntryTypeEnum> entryTypeComboBox;
 	private final JCheckBox recalcBox;
 	
 	private MockEntry currentEntry;
@@ -50,24 +51,37 @@ public class MockRuleEditor {
 		mainPanel.setBorder(new TitledBorder(new EmptyBorder(0, 0, 0, 0), "Response editor", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		mainPanel.setLayout(new BorderLayout());
 
-		JPanel textButtonPanel = new JPanel();
-		textButtonPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		JPanel saveOptionsPanel = new JPanel();
+		saveOptionsPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
 		
 		saveTextButton = new JButton("Save");
 		discardTextButton = new JButton("Discard");
 		recalcBox = new JCheckBox("Recalculate Content-Length");
 		recalcBox.setSelected(settingSaver.loadRecalculateContentLength());
 		
-		textButtonPanel.add(saveTextButton);
-		textButtonPanel.add(discardTextButton);
-		textButtonPanel.add(recalcBox);
-		
+		saveOptionsPanel.add(saveTextButton);
+		saveOptionsPanel.add(discardTextButton);
+		saveOptionsPanel.add(recalcBox);
+
+		JPanel ruleOptionsPanel = new JPanel();
+		ruleOptionsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		entryTypeComboBox = new JComboBox<>(MockEntryTypeEnum.values());
+		browseButton = new JButton("Insert Path");
+		browseButton.addActionListener(e -> insertPath());
+		ruleOptionsPanel.add(entryTypeComboBox);
+		ruleOptionsPanel.add(browseButton);
+
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setLayout(new BorderLayout());
+		bottomPanel.add(ruleOptionsPanel, BorderLayout.WEST);
+		bottomPanel.add(saveOptionsPanel, BorderLayout.EAST);
+
 		JPanel textEditorPanel = new JPanel();
 		textEditorPanel.setLayout(new BorderLayout());
 		textEditorPanel.setBorder(new EmptyBorder(5, 0, 0, 0));
 		textEditorPanel.add(textEditor.getComponent());
 		mainPanel.add(textEditorPanel);
-		mainPanel.add(textButtonPanel, BorderLayout.SOUTH);
+		mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 		
 		saveTextButton.addActionListener(e -> saveChanges());
 		discardTextButton.addActionListener(e -> discardChanges());
@@ -78,6 +92,7 @@ public class MockRuleEditor {
 		logger.debug("Message discarded");
 		if (textEditor.isTextModified()) {
 			textEditor.setText(currentEntry.getEntryInput());
+			entryTypeComboBox.setSelectedItem(currentEntry.getEntryType());
 		}
 	}
 	
@@ -87,8 +102,21 @@ public class MockRuleEditor {
 			logger.debug("Recalculating content length");
 			text = recalculateContentLength(text);
 		}
-		mockHolder.updateResponse(currentEntry.getId()+"", text);
+		mockHolder.updateResponse(currentEntry.getId()+"", text,
+				(MockEntryTypeEnum) entryTypeComboBox.getSelectedItem());
 		loadResponse(currentEntry);
+	}
+
+	public void insertPath()
+	{
+		JFileChooser chooser = new JFileChooser();
+		chooser.setDialogTitle("Choose a file to insert as a path");
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		if (chooser.showOpenDialog(mainPanel) == JFileChooser.APPROVE_OPTION) {
+			IExtensionHelpers helpers = BurpExtender.getCallbacks().getHelpers();
+			textEditor.setText(helpers.stringToBytes(helpers.bytesToString(textEditor.getText()) +
+					"\"" + chooser.getSelectedFile().getPath() + "\""));
+		}
 	}
 
 	private byte[] recalculateContentLength(byte[] text) {
@@ -102,6 +130,9 @@ public class MockRuleEditor {
 
 	public void loadResponse(MockEntry entry) {
 		this.currentEntry = entry;
+		this.entryTypeComboBox.setEnabled(true);
+		this.entryTypeComboBox.setSelectedItem(entry.getEntryType());
+		this.browseButton.setEnabled(true);
 		if (!settingSaver.loadDisplayLargeResponsesInEditor() && entry.getEntryInput().length > settingSaver.loadThreshold()) {
 			this.textEditor.setEditable(false);
 			this.textEditor.setText("Response is too large.".getBytes(StandardCharsets.UTF_8));
@@ -115,10 +146,14 @@ public class MockRuleEditor {
 		this.currentEntry = null;
 		this.textEditor.setEditable(false);
 		this.textEditor.setText(null);
+		this.browseButton.setEnabled(false);
+		this.entryTypeComboBox.setEnabled(false);
+		this.entryTypeComboBox.setSelectedItem(null);
 	}
 	
 	public boolean hasUnsavedChanges() {
-		return currentEntry != null && textEditor.isTextModified();
+		return currentEntry != null &&
+				(textEditor.isTextModified() || entryTypeComboBox.getSelectedItem() != currentEntry.getEntryType());
 	}
 	
 	public Component getComponent() {

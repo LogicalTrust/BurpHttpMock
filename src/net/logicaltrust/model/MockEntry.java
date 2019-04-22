@@ -23,6 +23,9 @@ public class MockEntry {
 
 	@Expose
 	private byte[] entryInput;
+
+	@Expose
+	private MockEntryTypeEnum entryType = MockEntryTypeEnum.DirectEntry;
 	
 	public MockEntry(boolean enabled, MockRule rule, byte[] entryInput) {
 		this.rule = rule;
@@ -81,26 +84,13 @@ public class MockEntry {
 	}
 
 	public MockEntryTypeEnum getEntryType() {
-		Map<String, MockEntryTypeEnum> prefixMap = new HashMap<>();
-		prefixMap.put("!", MockEntryTypeEnum.CgiScript);
-		prefixMap.put("#", MockEntryTypeEnum.FileInclusion);
-		prefixMap.put("%", MockEntryTypeEnum.UrlRedirect);
-		prefixMap.put("|", MockEntryTypeEnum.Pipe);
-
-
-		entryLoop:
-		for (Map.Entry<String, MockEntryTypeEnum> e: prefixMap.entrySet())
-		{
-			byte[] prefix = e.getKey().getBytes();
-			if (prefix.length >= getEntryInput().length) continue;
-			for (int i = 0; i < prefix.length; i++) {
-				if (prefix[i] != getEntryInput()[i]) continue entryLoop;
-			}
-			return e.getValue();
-		}
-		return MockEntryTypeEnum.DirectEntry;
+		return entryType;
 	}
-	
+
+	public void setEntryType(MockEntryTypeEnum entryType) {
+		this.entryType = entryType;
+	}
+
 	public Object[] toObject() {
 		return new Object[] { enabled, getRule().getProtocol(), getRule().getHost(), getRule().getPort(), getRule().getPath() };
 	}
