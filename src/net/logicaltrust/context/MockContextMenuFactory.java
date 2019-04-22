@@ -51,7 +51,7 @@ public class MockContextMenuFactory implements IContextMenuFactory {
 		return list;
 	}
 
-	public void actionPerformed(AddMockOption addOption) {
+	private void actionPerformed(AddMockOption addOption) {
 		try {
 			IHttpRequestResponse[] selectedMessages = invocation.getSelectedMessages();
 			

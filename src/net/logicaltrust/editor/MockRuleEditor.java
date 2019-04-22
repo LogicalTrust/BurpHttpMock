@@ -25,8 +25,8 @@ public class MockRuleEditor {
 
 	private final ITextEditor textEditor;
 	private final JPanel mainPanel;
-	private final JButton saveTextButton;
-	private final JButton discardTextButton;
+	private final JButton saveEntryButton;
+	private final JButton discardChangesButton;
 	private final JButton browseButton;
 	private final JComboBox<MockEntryTypeEnum> entryTypeComboBox;
 	private final JCheckBox recalcBox;
@@ -54,13 +54,13 @@ public class MockRuleEditor {
 		JPanel saveOptionsPanel = new JPanel();
 		saveOptionsPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
 		
-		saveTextButton = new JButton("Save");
-		discardTextButton = new JButton("Discard");
+		saveEntryButton = new JButton("Save");
+		discardChangesButton = new JButton("Discard");
 		recalcBox = new JCheckBox("Recalculate Content-Length");
 		recalcBox.setSelected(settingSaver.loadRecalculateContentLength());
 		
-		saveOptionsPanel.add(saveTextButton);
-		saveOptionsPanel.add(discardTextButton);
+		saveOptionsPanel.add(saveEntryButton);
+		saveOptionsPanel.add(discardChangesButton);
 		saveOptionsPanel.add(recalcBox);
 
 		JPanel ruleOptionsPanel = new JPanel();
@@ -83,8 +83,8 @@ public class MockRuleEditor {
 		mainPanel.add(textEditorPanel);
 		mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 		
-		saveTextButton.addActionListener(e -> saveChanges());
-		discardTextButton.addActionListener(e -> discardChanges());
+		saveEntryButton.addActionListener(e -> saveChanges());
+		discardChangesButton.addActionListener(e -> discardChanges());
 		recalcBox.addActionListener(e -> settingSaver.saveRecalculateContentLength(recalcBox.isSelected()));
 	}
 
@@ -107,7 +107,7 @@ public class MockRuleEditor {
 		loadResponse(currentEntry);
 	}
 
-	public void insertPath()
+	private void insertPath()
 	{
 		JFileChooser chooser = new JFileChooser();
 		chooser.setDialogTitle("Choose a file to insert as a path");
@@ -140,6 +140,9 @@ public class MockRuleEditor {
 			this.textEditor.setEditable(true);
 			this.textEditor.setText(entry.getEntryInput());
 		}
+		this.saveEntryButton.setEnabled(true);
+		this.discardChangesButton.setEnabled(true);
+		this.recalcBox.setEnabled(true);
 	}
 	
 	public void unloadResponse() {
@@ -149,6 +152,9 @@ public class MockRuleEditor {
 		this.browseButton.setEnabled(false);
 		this.entryTypeComboBox.setEnabled(false);
 		this.entryTypeComboBox.setSelectedItem(null);
+		this.saveEntryButton.setEnabled(false);
+		this.discardChangesButton.setEnabled(false);
+		this.recalcBox.setEnabled(false);
 	}
 	
 	public boolean hasUnsavedChanges() {

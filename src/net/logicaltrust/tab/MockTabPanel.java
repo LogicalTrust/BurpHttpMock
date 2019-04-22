@@ -35,8 +35,8 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
 	private final MockRepository mockHolder;
 	private MockTable mockTable;
 	private final SettingsSaver settingSaver;
-	JTabbedPane tabbedPane;
-	ChangeListener changeListener;
+	private JTabbedPane tabbedPane;
+	private ChangeListener changeListener;
 
 	public MockTabPanel(MockRepository mockHolder, MockRuleEditor responseEditor, SettingsSaver settingSaver) {
 		this.logger = BurpExtender.getLogger();
@@ -181,7 +181,7 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
 		highlightTab();
 	}
 
-	void highlightTab()
+	private void highlightTab()
 	{
 		if(tabbedPane != null)
 		{

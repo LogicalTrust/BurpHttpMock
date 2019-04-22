@@ -64,7 +64,7 @@ public class MockLocalServer implements IExtensionStateListener {
 		return stopped;
 	}
 	
-	public synchronized void setStopped(boolean stopped) {
+	private synchronized void setStopped(boolean stopped) {
 		this.stopped = stopped;
 	}
 

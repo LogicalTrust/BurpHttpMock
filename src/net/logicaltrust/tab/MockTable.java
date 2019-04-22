@@ -32,11 +32,11 @@ import net.logicaltrust.model.MockRule;
 import net.logicaltrust.persistent.MockJsonSerializer;
 import net.logicaltrust.persistent.MockRepository;
 
-public class MockTable extends JPanel {
+class MockTable extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	private final MockTableModel model;
-	int previousRow = -1;
+	private int previousRow = -1;
 	private final SimpleLogger logger;
 	private final MockRuleEditor mockRuleEditor;
 	private final JTable table;

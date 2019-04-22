@@ -8,7 +8,7 @@ import net.logicaltrust.model.MockEntry;
 import net.logicaltrust.model.MockProtocolEnum;
 import net.logicaltrust.persistent.MockRepository;
 
-public class MockTableModel extends DefaultTableModel {
+class MockTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
 	private final SimpleLogger logger;
