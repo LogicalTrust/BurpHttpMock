@@ -6,8 +6,6 @@ import com.google.gson.annotations.Expose;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MockEntry {
 
@@ -53,18 +51,12 @@ public class MockEntry {
 	// (and therefore the default behavior of redirecting the request should not be used)
 	public boolean handleRequest(IHttpRequestResponse request)
 	{
-		MockEntryTypeEnum type = getEntryType();
-		byte[] entryInput = getEntryInput();
-		if (type != MockEntryTypeEnum.DirectEntry) entryInput = Arrays.copyOfRange(entryInput, 1, entryInput.length);
-		return getEntryType().handleRequest(entryInput, request);
+		return getEntryType().handleRequest(getEntryInput(), request);
 	}
 
 	public byte[] handleResponse(byte[] request, IHttpService service)
 	{
-	    MockEntryTypeEnum type = getEntryType();
-	    byte[] entryInput = getEntryInput();
-	    if (type != MockEntryTypeEnum.DirectEntry) entryInput = Arrays.copyOfRange(entryInput, 1, entryInput.length);
-	    return type.generateResponse(entryInput, request, service);
+		return getEntryType().generateResponse(getEntryInput(), request, service);
 	}
 
 	public MockRule getRule() {
