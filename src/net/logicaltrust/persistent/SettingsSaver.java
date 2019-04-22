@@ -1,22 +1,16 @@
 package net.logicaltrust.persistent;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
+import com.google.gson.Gson;
 import net.logicaltrust.SimpleLogger;
 import net.logicaltrust.model.MockEntry;
-import net.logicaltrust.model.MockProtocolEnum;
-import net.logicaltrust.model.MockRule;
 
 public class SettingsSaver {
-	
 	private static final String ID_LIST = "ID_LIST";
 	private static final String RECALCULATE_CONTENT_LENGTH = "RECALCULATE_CONTENT_LENGTH";
 	private static final String DEBUG_OUTPUT = "DEBUG_OUTPUT";
@@ -24,11 +18,9 @@ public class SettingsSaver {
 	private static final String THRESHOLD = "THRESHOLD";
 	private static final String DISPLAY_LARGE_RESPONSES_IN_EDITOR = "DISPLAY_LARGE_RESPONSES_IN_EDITOR";
 	private static final String INFORM_ABOUT_LARGE_RESPONSE = "INFORM_ABOUT_LARGE_RESPONSE";
-	private static final String DELIM = "|";
 	private static final String DELIM_REGEX = "\\|";
 	private static final int DEFAULT_PORT = 7654;
 	private static final int DEFAULT_THRESHOLD = 2 * 1024 * 1024; //2MB
-	private static final int ENTRY_PARAMS = 6;
 
 	private Boolean displayLargeResponsesInEditorCache;
 	private Boolean informAboutLargeResponseCache;
@@ -37,7 +29,8 @@ public class SettingsSaver {
 	
 	private final IBurpExtenderCallbacks callbacks;
 	private final SimpleLogger logger;
-	
+	private final Gson serializer = MockJsonSerializer.getGsonSerializer();
+
 	public SettingsSaver() {
 		this.callbacks = BurpExtender.getCallbacks();
 		this.logger = BurpExtender.getLogger();
@@ -70,10 +63,7 @@ public class SettingsSaver {
 	}
 	
 	public void saveIdList(Collection<MockEntry> entries) {
-		String ids = entries.stream()
-				.map(MockEntry::getId)
-				.map(Object::toString)
-				.collect(Collectors.joining(DELIM, "", ""));
+		String ids = serializer.toJson(entries.stream().map(MockEntry::getId).toArray(Long[]::new));
 		logger.debug("Saving entry list " + ids);
 		callbacks.saveExtensionSetting(ID_LIST, ids);
 	}
@@ -84,12 +74,20 @@ public class SettingsSaver {
 		if (strIds == null || strIds.isEmpty()) {
 			return new ArrayList<>();
 		}
-		List<MockEntry> entries = Arrays.stream(strIds.split(DELIM_REGEX)).map(id -> {
-			String entryStr = callbacks.loadExtensionSetting("ENTRY_"+ id);
-			return entryFromString(entryStr, id);
-		}).collect(Collectors.toList());
-		logger.debug(entries.isEmpty() ? "No entries loaded" : "Loaded " + entries.size() + " entries");
-		return entries;
+		Long[] ids = serializer.fromJson(strIds, Long[].class);
+		try {
+			List<MockEntry> entries = Arrays.stream(ids).map(id -> {
+				String entryStr = callbacks.loadExtensionSetting("ENTRY_" + id);
+				return entryFromString(entryStr, id);
+			}).collect(Collectors.toList());
+			logger.debug(entries.isEmpty() ? "No entries loaded" : "Loaded " + entries.size() + " entries");
+			return entries;
+		}
+		catch (NullPointerException e)
+		{
+		    logger.error(e);
+			return Collections.emptyList();
+		}
 	}
 	
 	public void saveRecalculateContentLength(boolean recalc) {
@@ -181,32 +179,15 @@ public class SettingsSaver {
 		return DEFAULT_PORT;
 	}
 	
-	private MockEntry entryFromString(String str, String id) {
-		String[] split = str.split(DELIM_REGEX);
-		
-		if (split.length != ENTRY_PARAMS) {
-			logger.debugForce("Invalid entry, id: " + id +", value: " + Arrays.toString(split));
-		}
-		
-		byte[] response = decode(split[5]);
-		MockRule rule = new MockRule(MockProtocolEnum.valueOf(decodeToString(split[1])), 
-				decodeToString(split[2]), 
-				decodeToString(split[3]), 
-				decodeToString(split[4]));
-		MockEntry entry = new MockEntry(Boolean.parseBoolean(split[0]), rule, response);
-		entry.setId(Long.parseLong(id));
-		
+	private MockEntry entryFromString(String str, Long id) {
+		MockEntry entry = serializer.fromJson(str, MockEntry.class);
+		entry.setId(id);
+
 		return entry;
 	}
 	
 	private String entryToString(MockEntry entry) {
-		MockRule rule = entry.getRule();
-		return entry.isEnabled() + DELIM +
-				encode(rule.getProtocol().name()) + DELIM +
-				encode(rule.getHost()) + DELIM +
-				encode(rule.getPort() + "") + DELIM +
-				encode(rule.getPath()) + DELIM +
-				encode(entry.getEntryInput());
+	    return serializer.toJson(entry);
 	}
 	
 	private byte[] decode(String encoded) {
