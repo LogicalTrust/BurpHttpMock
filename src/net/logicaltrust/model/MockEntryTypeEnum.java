@@ -18,6 +18,11 @@ public enum MockEntryTypeEnum {
         public byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IHttpService incomingHttpService) {
             return ruleInput;
         }
+
+        @Override
+        public String toString() {
+            return "Basic";
+        }
     },
     FileInclusion {
         @Override
@@ -29,6 +34,11 @@ public enum MockEntryTypeEnum {
                 return helpers.stringToBytes("500 Internal Server Error\n\nUnable to read file: " +
                         helpers.bytesToString(entryInput));
             }
+        }
+
+        @Override
+        public String toString() {
+            return "File Contents";
         }
     },
     CgiScript {
@@ -68,6 +78,11 @@ public enum MockEntryTypeEnum {
                 body = Arrays.copyOfRange(incomingRequest, requestInfo.getBodyOffset(), incomingRequest.length);
             }
             return MockEntryTypeEnum.runProcess(entryInput, body, environment);
+        }
+
+        @Override
+        public String toString() {
+            return "CGI Script";
         }
     },
     UrlRedirect { //redirect to an arbitrary URL
@@ -109,11 +124,21 @@ public enum MockEntryTypeEnum {
                     .collect(Collectors.toList()), body));
             return true;
         }
+
+        @Override
+        public String toString() {
+            return "Redirect to URL";
+        }
     },
     Pipe { //pipe full request to a process and return the stdout of that process
         @Override
         public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService) {
             return MockEntryTypeEnum.runProcess(entryInput, incomingRequest, null);
+        }
+
+        @Override
+        public String toString() {
+            return "Pipe to Process";
         }
     };
 
