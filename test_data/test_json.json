@@ -1,0 +1,13 @@
+[
+  {
+    "enabled": true,
+    "rule": {
+      "host": "^www\\.google\\.com$",
+      "path": "^/$",
+      "port": "^443$",
+      "protocol": "HTTPS"
+    },
+    "entryInput": "SFRUUC8xLjEgMjAwIE9LDQoNClRlc3Q\u003d",
+    "entryType": "DirectEntry"
+  }
+]
