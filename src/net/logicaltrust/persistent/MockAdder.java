@@ -4,6 +4,6 @@ import net.logicaltrust.model.MockEntry;
 
 public interface MockAdder {
 
-	void addMock(MockEntry entry);
-	
+    void addMock(MockEntry entry);
+
 }

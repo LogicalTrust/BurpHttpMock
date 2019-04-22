@@ -1,11 +1,14 @@
 package net.logicaltrust.model;
+
 import burp.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,6 +17,7 @@ import java.util.stream.Stream;
 
 public enum MockEntryTypeEnum {
     DirectEntry { //traditional one, just returns whatever was entered by the user in the text box
+
         @Override
         public byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IHttpService incomingHttpService) {
             return ruleInput;
@@ -73,8 +77,7 @@ public enum MockEntryTypeEnum {
             if (headers.containsKey("CONTENT_LENGTH")) environment.put("CONTENT_LENGTH", headers.get("CONTENT_LENGTH"));
             headers.forEach((key, value) -> environment.put("HTTP_" + key, value));
             byte[] body = null;
-            if (requestInfo.getBodyOffset() > 0 && requestInfo.getBodyOffset() < incomingRequest.length)
-            {
+            if (requestInfo.getBodyOffset() > 0 && requestInfo.getBodyOffset() < incomingRequest.length) {
                 body = Arrays.copyOfRange(incomingRequest, requestInfo.getBodyOffset(), incomingRequest.length);
             }
             return MockEntryTypeEnum.runProcess(entryInput, body, environment);
@@ -86,6 +89,7 @@ public enum MockEntryTypeEnum {
         }
     },
     UrlRedirect { //redirect to an arbitrary URL
+
         @Override
         public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService) {
             //This should never get here - The request should go out to the real URL and not to the local listener
@@ -131,6 +135,7 @@ public enum MockEntryTypeEnum {
         }
     },
     Pipe { //pipe full request to a process and return the stdout of that process
+
         @Override
         public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService) {
             return MockEntryTypeEnum.runProcess(entryInput, incomingRequest, null);
@@ -142,19 +147,12 @@ public enum MockEntryTypeEnum {
         }
     };
 
-    public abstract byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IHttpService incomingHttpService);
-    public boolean handleRequest(byte[] ruleInput, IHttpRequestResponse request)
-    {
-        return false;
-    }
-
     //splits strings by spaces, except when quoted
     //pattern from https://stackoverflow.com/questions/3366281/tokenizing-a-string-but-ignoring-delimiters-within-quotes
     //"([^"]*)"|(\S+)
     private static final Pattern stringSplitter = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
-    private static byte[] runProcess(byte[] commandLine, byte[] input, Map<String, String> environment)
-    {
+    private static byte[] runProcess(byte[] commandLine, byte[] input, Map<String, String> environment) {
         IExtensionHelpers helpers = BurpExtender.getCallbacks().getHelpers();
         try {
             ProcessBuilder pb = new ProcessBuilder();
@@ -181,5 +179,11 @@ public enum MockEntryTypeEnum {
             BurpExtender.getLogger().error(e);
             return new byte[0];
         }
+    }
+
+    public abstract byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IHttpService incomingHttpService);
+
+    public boolean handleRequest(byte[] ruleInput, IHttpRequestResponse request) {
+        return false;
     }
 }

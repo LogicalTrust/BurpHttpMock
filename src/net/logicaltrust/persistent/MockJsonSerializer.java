@@ -23,6 +23,11 @@ public class MockJsonSerializer {
     private final SimpleLogger logger;
     private final Gson gson;
 
+    public MockJsonSerializer() {
+        this.logger = BurpExtender.getLogger();
+        this.gson = getGsonSerializer();
+    }
+
     public static Gson getGsonSerializer() {
         return new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
@@ -30,11 +35,6 @@ public class MockJsonSerializer {
                 .setPrettyPrinting()
                 .registerTypeAdapter(MockRule.class, new MockRuleAdapter())
                 .create();
-    }
-
-    public MockJsonSerializer() {
-        this.logger = BurpExtender.getLogger();
-        this.gson = getGsonSerializer();
     }
 
     public byte[] serialize(List<MockEntry> entries) {
