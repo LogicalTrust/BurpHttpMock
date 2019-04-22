@@ -92,8 +92,7 @@ public enum MockEntryTypeEnum {
                     throw new MalformedURLException();
                 }
             } catch (MalformedURLException e) {
-                //TODO: move the logger around so I can access it here
-                request.setComment("Malformed URL! Results may not be what you want...");
+                BurpExtender.getLogger().error(e);
                 return false;
             }
             request.setHttpService(helpers.buildHttpService(url.getHost(), port, url.getProtocol()));
@@ -154,7 +153,8 @@ public enum MockEntryTypeEnum {
 
             return stdout.toByteArray();
         } catch (IOException e) {
-            return helpers.stringToBytes(e.toString());
+            BurpExtender.getLogger().error(e);
+            return new byte[0];
         }
     }
 }
