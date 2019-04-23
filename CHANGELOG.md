@@ -1,3 +1,6 @@
+## 1.1.1
+Minor changes to prepare for merging upstream
+
 ## 1.1.0
 The changes in this version were created by Shea Polansky from Independent Security Evaluators. Previous versions were created by Michal Dardas from LogicalTrust.net
 
