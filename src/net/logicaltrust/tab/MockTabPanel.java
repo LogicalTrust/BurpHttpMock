@@ -62,9 +62,9 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
 
         JLabel newGithubLabel = createLabelURL("https://github.com/ise-spolansky/BurpHttpMock");
         JLabel oldGithubLabel = createLabelURL("https://github.com/LogicalTrust/BurpHttpMock");
-        githubPanel.add(newGithubLabel);
-        githubPanel.add(new JLabel("based on"));
         githubPanel.add(oldGithubLabel);
+        githubPanel.add(new JLabel("with help from"));
+        githubPanel.add(newGithubLabel);
     }
 
     private void prepareCheckBoxTopPanel() {
