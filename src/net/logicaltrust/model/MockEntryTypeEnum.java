@@ -171,8 +171,9 @@ public enum MockEntryTypeEnum {
             p.getOutputStream().close();
 
             ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+            int length;
             byte[] buffer = new byte[1024];
-            while (p.getInputStream().read(buffer) != -1) stdout.write(buffer);
+            while ((length = p.getInputStream().read(buffer)) != -1) stdout.write(buffer, 0, length);
 
             return stdout.toByteArray();
         } catch (IOException e) {
