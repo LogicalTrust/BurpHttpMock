@@ -1,3 +1,6 @@
+## 1.1.2
+Fixed a bug with file handling and another bug with inter-process communication.
+
 ## 1.1.1
 Minor changes to prepare for merging upstream
 

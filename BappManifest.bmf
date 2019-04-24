@@ -2,11 +2,11 @@ Uuid: 42680f96fc214513bc5211b3f25fd98b
 ExtensionType: 1
 Name: HTTP Mock
 RepoName: http-mock
-ScreenVersion: 1.1.1
-SerialVersion: 5
+ScreenVersion: 1.1.2
+SerialVersion: 6
 MinPlatformVersion: 0
 ProOnly: False
 Author: Michal Dardas
 ShortDescription: Provides mock responses that can be configured, based on real ones.
-EntryPoint: target/BurpHttpMock-1.0.2-jar-with-dependencies.jar
+EntryPoint: target/BurpHttpMock-1.1.2-jar-with-dependencies.jar
 BuildCommand: mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B
