@@ -29,11 +29,17 @@ public enum MockEntryTypeEnum {
         }
     },
     FileInclusion {
+        //matches quoted strings (single or double)
+        //group 2 is the contents of the quoted string
+        private Pattern quoteParser = Pattern.compile("^([\"'])(.+)\\1$");
         @Override
         public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService) {
             IExtensionHelpers helpers = BurpExtender.getCallbacks().getHelpers();
+            String path = helpers.bytesToString(entryInput);
+            Matcher matcher = quoteParser.matcher(path);
+            if (matcher.matches()) path = matcher.group(2);
             try {
-                return Files.readAllBytes(Paths.get(new String(entryInput)));
+                return Files.readAllBytes(Paths.get(path));
             } catch (IOException e) {
                 return helpers.stringToBytes("500 Internal Server Error\n\nUnable to read file: " +
                         helpers.bytesToString(entryInput));
