@@ -6,7 +6,7 @@ ScreenVersion: 1.1.2
 SerialVersion: 6
 MinPlatformVersion: 0
 ProOnly: False
-Author: Michal Dardas
+Author: Michal Dardas, Shea Polansky
 ShortDescription: Provides mock responses that can be configured, based on real ones.
 EntryPoint: target/BurpHttpMock-1.1.2-jar-with-dependencies.jar
 BuildCommand: mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B
