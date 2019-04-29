@@ -123,11 +123,13 @@ public enum MockEntryTypeEnum {
             request.setHttpService(helpers.buildHttpService(url.getHost(), port, url.getProtocol()));
             IRequestInfo requestInfo = helpers.analyzeRequest(request);
             byte[] body = null;
-            if (requestInfo.getBodyOffset() >= request.getRequest().length || requestInfo.getBodyOffset() < 0) {
+            if (requestInfo.getBodyOffset() < request.getRequest().length && requestInfo.getBodyOffset() >= 0) {
                 body = Arrays.copyOfRange(request.getRequest(),
                         requestInfo.getBodyOffset(), request.getRequest().length);
             }
-            Stream<String> newTopLine = Stream.of(requestInfo.getMethod() + " " + url.getFile() + " HTTP/1.1");
+            String file = url.getFile();
+            if (file.equals("")) file = "/"; //handle the edge case for when the user enters domain name with no /
+            Stream<String> newTopLine = Stream.of(requestInfo.getMethod() + " " + file + " HTTP/1.1");
             Stream<String> newHeaders = requestInfo.getHeaders().stream()
                     .map(s -> s.toLowerCase().startsWith("host: ") ? "Host: " + url.getHost() : s).skip(1);
             request.setRequest(helpers.buildHttpMessage(Stream.concat(newTopLine, newHeaders)
