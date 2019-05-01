@@ -1,13 +1,19 @@
 <p>This Burp extension provides mock responses that can be customized, based on the real ones.</p>
 
-<p>Create a mock by selecting an entry from HTTP History or craft it manually. Requests are matched by customizable regex rules and forwarded to the local mock server.</p>
+<p>Create a mock by selecting an entry from HTTP History or craft it manually. Requests are matched by customizable regex rules and forwarded to the local mock server. Mocks can have various behavior, including: </p>
+<ul>
+    <li>directly entering the input,</li>
+    <li>reading replies from a file,</li>
+    <li>redirecting to a different URL,</li>
+    <li>calling another process and returning the output.</li>
+</ul>
 
 <p>Using this extension it is possible to test how web frontend and mobile clients react to different responses, without making any changes to the backend.</p>
 
 <p>It differs from intercepting responses mainly in two ways:</p>
 
 <ul>
-    <li>The original request is not send to the server anymore</li>
+    <li>The original request is not sent to the server anymore</li>
     <li>It provides a more convenient and comprehensive solution to modifying responses</li>
 </ul>
 
