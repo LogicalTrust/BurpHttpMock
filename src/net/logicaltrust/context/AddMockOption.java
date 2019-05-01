@@ -8,7 +8,7 @@ public enum AddMockOption {
 
     SITEMAP(true);
 
-    private boolean fullUrl;
+    private final boolean fullUrl;
 
     AddMockOption(boolean fullUrl) {
         this.fullUrl = fullUrl;

@@ -1,0 +1,12 @@
+Uuid: 42680f96fc214513bc5211b3f25fd98b
+ExtensionType: 1
+Name: HTTP Mock
+RepoName: http-mock
+ScreenVersion: 1.1.3
+SerialVersion: 7
+MinPlatformVersion: 0
+ProOnly: False
+Author: Michal Dardas, Shea Polansky
+ShortDescription: Provides mock responses that can be configured, based on real ones.
+EntryPoint: target/BurpHttpMock-1.1.3-jar-with-dependencies.jar
+BuildCommand: mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B
