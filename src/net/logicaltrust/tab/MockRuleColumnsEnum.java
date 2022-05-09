@@ -14,6 +14,7 @@ public enum MockRuleColumnsEnum {
 
     PORT("Port"),
 
+    METHOD("Method"),
     PATH("File");
 
     private final String displayName;

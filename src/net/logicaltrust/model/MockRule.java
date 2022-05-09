@@ -7,7 +7,10 @@ import java.util.regex.Pattern;
 
 public class MockRule {
 
+    public static final String DEFAULT_METHOD = ".*";
     private static final String[] REGEX_SPECIAL_CHARACTERS = new String[]{"\\.", "\\[", "\\]", "\\{", "\\}", "\\(", "\\)", "\\<", "\\>", "\\*", "\\+", "\\-", "\\=", "\\?", "\\^", "\\|"};
+    @Expose
+    private String method;
     @Expose
     private MockProtocolEnum protocol;
     @Expose
@@ -19,27 +22,31 @@ public class MockRule {
     private Pattern pathRegex;
     private Pattern portRegex;
     private Pattern hostRegex;
+    private Pattern methodRegex;
 
-    public MockRule(MockProtocolEnum protocol, String host, String port, String path) {
+    public MockRule(MockProtocolEnum protocol, String method, String host, String port, String path) {
         this.setHost(host);
         this.setPath(path);
         this.setPort(port);
-        this.protocol = protocol;
+        this.setMethod(method);
+        this.setProtocol(protocol);
     }
 
     public MockRule() {
 
     }
 
-    public static MockRule fromURLwithoutQuery(URL url) {
+    public static MockRule fromURLwithoutQuery(URL url, String method) {
         return new MockRule(MockProtocolEnum.fromURL(url),
+                decorateFull(method),
                 decorateFull(url.getHost()),
                 decorateFull(getPortFromURL(url)),
                 decorateFromStart(url.getPath()));
     }
 
-    public static MockRule fromURL(URL url) {
+    public static MockRule fromURL(URL url, String method) {
         return new MockRule(MockProtocolEnum.fromURL(url),
+                decorateFull(method),
                 decorateFull(url.getHost()),
                 decorateFull(getPortFromURL(url)),
                 decorateFull(url.getFile()));
@@ -67,8 +74,9 @@ public class MockRule {
         return after;
     }
 
-    public boolean matches(URL url) {
+    public boolean matches(URL url, String method) {
         return protocol.matches(url.getProtocol())
+                && methodRegex.matcher(method).matches()
                 && hostRegex.matcher(url.getHost()).matches()
                 && portRegex.matcher(url.getPort() + "").matches()
                 && pathRegex.matcher(url.getFile()).matches();
@@ -108,14 +116,25 @@ public class MockRule {
     public void setProtocol(MockProtocolEnum protocol) {
         this.protocol = protocol;
     }
+    public String getMethod() {
+        return this.method;
+    }
+    public void setMethod(String method) {
+        this.method = method;
+        this.methodRegex = Pattern.compile(method);
+    }
+
+    public void setMethodDecorated(String method) {
+        this.setMethod(decorateFull(method));
+    }
 
     @Override
     public String toString() {
-        return "MockRule [protocol=" + protocol + ", host=" + host + ", port=" + port + ", path=" + path + "]";
+        return "MockRule [protocol=" + protocol + ", host=" + host + ", port=" + port + ", method=" + method + ", path=" + path + "]";
     }
 
     public MockRule duplicate() {
-        return new MockRule(this.protocol, this.host, this.port, this.path);
+        return new MockRule(this.protocol, this.method, this.host, this.port, this.path);
     }
 
 }

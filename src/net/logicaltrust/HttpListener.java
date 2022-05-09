@@ -29,8 +29,9 @@ public class HttpListener implements IProxyListener {
             IHttpRequestResponse messageInfo = message.getMessageInfo();
             IRequestInfo analyzedReq = helpers.analyzeRequest(messageInfo.getHttpService(), messageInfo.getRequest());
             URL url = analyzedReq.getUrl();
+            String method = analyzedReq.getMethod();
             if (isReq) {
-                handleRequest(messageInfo, url, message);
+                handleRequest(messageInfo, url, message, method);
             } else if (isMockedResponse(url)) {
                 handleResponse(messageInfo, url);
             }
@@ -53,11 +54,11 @@ public class HttpListener implements IProxyListener {
         }
     }
 
-    private void handleRequest(IHttpRequestResponse messageInfo, URL url, IInterceptedProxyMessage message) {
-        Optional<MockEntry> match = mockRepository.findMatch(url);
+    private void handleRequest(IHttpRequestResponse messageInfo, URL url, IInterceptedProxyMessage message, String method) {
+        Optional<MockEntry> match = mockRepository.findMatch(url, method);
         if (match.isPresent()) {
             MockEntry matchEntry = match.get();
-            logger.debug("Successful URL match: " + url + " with " + matchEntry);
+            logger.debug("Successful URL match: " + method + " " + url + " with " + matchEntry);
             if (!matchEntry.handleRequest(messageInfo)) {
                 IHttpService service = helpers.buildHttpService("127.0.0.1", port, false);
                 byte[] localReq = helpers.buildHttpMessage(

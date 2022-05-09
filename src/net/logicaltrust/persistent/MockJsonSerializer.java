@@ -74,12 +74,14 @@ public class MockJsonSerializer {
             jsonWriter.name("path").value(mockRule.getPath());
             jsonWriter.name("port").value(mockRule.getPort());
             jsonWriter.name("protocol").value(mockRule.getProtocol().name());
+            jsonWriter.name("method").value(mockRule.getMethod());
             jsonWriter.endObject();
         }
 
         @Override
         public MockRule read(JsonReader jsonReader) throws IOException {
             MockRule rule = new MockRule();
+            rule.setMethodDecorated(MockRule.DEFAULT_METHOD); //default value for backward compatibility
             jsonReader.beginObject();
             while (jsonReader.hasNext()) {
                 switch (jsonReader.nextName()) {
@@ -98,6 +100,9 @@ public class MockJsonSerializer {
                     case "protocol":
                         rule.setProtocol(MockProtocolEnum.valueOf(jsonReader.nextString()));
                         break;
+
+                    case "method":
+                        rule.setMethod(jsonReader.nextString());
                 }
             }
             jsonReader.endObject();

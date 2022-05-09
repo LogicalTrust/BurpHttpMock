@@ -33,10 +33,10 @@ public class MockRepository {
         counter = maxId + 1;
     }
 
-    public synchronized Optional<MockEntry> findMatch(URL url) {
+    public synchronized Optional<MockEntry> findMatch(URL url, String method) {
         return entries.stream()
                 .filter(MockEntry::isEnabled)
-                .filter(e -> e.getRule().matches(url))
+                .filter(e -> e.getRule().matches(url, method))
                 .findAny();
     }
 

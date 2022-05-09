@@ -68,6 +68,8 @@ class MockTableModel extends DefaultTableModel {
             case PROTOCOL:
                 mockHolder.update(row, e -> e.getRule().setProtocol((MockProtocolEnum) value));
                 break;
+            case METHOD:
+                mockHolder.update(row, e -> e.getRule().setMethod((String) value));
             default:
                 break;
         }

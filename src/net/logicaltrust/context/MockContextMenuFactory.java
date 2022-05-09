@@ -72,11 +72,10 @@ public class MockContextMenuFactory implements IContextMenuFactory {
             }
 
             for (IHttpRequestResponse msg : selectedMessages) {
-                URL analyzedURL = getAnalyzedURL(msg);
                 if (addOption == AddMockOption.SITEMAP) {
-                    processSitemap(analyzedURL);
+                    processSitemap(msg);
                 } else {
-                    addMock(addOption.isFullUrl(), msg, analyzedURL);
+                    addMock(addOption.isFullUrl(), msg);
                 }
             }
         } catch (Exception ex) {
@@ -85,8 +84,9 @@ public class MockContextMenuFactory implements IContextMenuFactory {
         }
     }
 
-    private void processSitemap(URL rootURL) {
-
+    private void processSitemap(IHttpRequestResponse rootMsg) {
+        IRequestInfo analyzedReq = helpers.analyzeRequest(rootMsg.getHttpService(), rootMsg.getRequest());
+        URL rootURL = analyzedReq.getUrl();
         String url = rootURL.getProtocol() + "://" + rootURL.getHost() + (rootURL.getPort() != rootURL.getDefaultPort() ? (":" + rootURL.getPort()) : "") + rootURL.getPath();
 
         IHttpRequestResponse[] siteMap = callbacks.getSiteMap(url);
@@ -94,22 +94,21 @@ public class MockContextMenuFactory implements IContextMenuFactory {
             if (msg.getRequest() == null || msg.getResponse() == null) {
                 continue;
             }
-            URL analyzedURL = getAnalyzedURL(msg);
-            addMock(AddMockOption.SITEMAP.isFullUrl(), msg, analyzedURL);
+            addMock(AddMockOption.SITEMAP.isFullUrl(), msg);
         }
     }
 
-    private URL getAnalyzedURL(IHttpRequestResponse msg) {
+    private void addMock(boolean fullURL, IHttpRequestResponse msg) {
         IRequestInfo analyzedReq = helpers.analyzeRequest(msg.getHttpService(), msg.getRequest());
-        return analyzedReq.getUrl();
-    }
+        URL analyzedURL = analyzedReq.getUrl();
+        String method = analyzedReq.getMethod();
 
-    private void addMock(boolean fullURL, IHttpRequestResponse msg, URL analyzedURL) {
+
         MockRule mockRule;
         if (fullURL) {
-            mockRule = MockRule.fromURL(analyzedURL);
+            mockRule = MockRule.fromURL(analyzedURL, method);
         } else {
-            mockRule = MockRule.fromURLwithoutQuery(analyzedURL);
+            mockRule = MockRule.fromURLwithoutQuery(analyzedURL, method);
         }
         MockEntry mockEntry = new MockEntry(true, mockRule, msg.getResponse());
         mockAdder.addMock(mockEntry);

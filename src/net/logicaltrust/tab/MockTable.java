@@ -241,10 +241,15 @@ class MockTable extends JPanel {
         JTextField host = new JTextField();
         JTextField port = new JTextField();
         JTextField file = new JTextField();
-        Object[] msg = new Object[]{"Protocol", proto, "Host", host, "Port", port, "File", file};
+        JTextField method = new JTextField();
+        Object[] msg = new Object[]{"Protocol", proto, "Host", host, "Port", port, "Method", method, "File", file};
         int result = JOptionPane.showConfirmDialog(this, msg, "Add mock", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            MockRule rule = new MockRule((MockProtocolEnum) proto.getSelectedItem(), host.getText(), port.getText(), file.getText());
+            MockRule rule = new MockRule((MockProtocolEnum) proto.getSelectedItem(),
+                    method.getText(),
+                    host.getText(),
+                    port.getText(),
+                    file.getText());
             addRule(rule);
         }
     }
@@ -264,7 +269,7 @@ class MockTable extends JPanel {
             String clipboard = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
             try {
                 URL url = new URL(clipboard);
-                MockRule rule = MockRule.fromURL(url);
+                MockRule rule = MockRule.fromURL(url, MockRule.DEFAULT_METHOD);
                 addRule(rule);
             } catch (MalformedURLException e2) {
                 logger.debug("Cannot parse URL " + clipboard);
@@ -295,7 +300,8 @@ class MockTable extends JPanel {
         table.getColumnModel().getColumn(2).setPreferredWidth(150);
         table.getColumnModel().getColumn(3).setMaxWidth(70);
         table.getColumnModel().getColumn(3).setPreferredWidth(70);
-        table.getColumnModel().getColumn(4).setPreferredWidth(300);
+        table.getColumnModel().getColumn(4).setPreferredWidth(70);
+        table.getColumnModel().getColumn(5).setPreferredWidth(300);
         prepareProtocolEnumCombo(table);
         JScrollPane scroll = new JScrollPane(table);
         scroll.setVisible(true);

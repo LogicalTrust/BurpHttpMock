@@ -82,12 +82,12 @@ public class MockEntry {
     }
 
     public Object[] toObject() {
-        return new Object[]{enabled, getRule().getProtocol(), getRule().getHost(), getRule().getPort(), getRule().getPath()};
+        return new Object[]{enabled, getRule().getProtocol(), getRule().getHost(), getRule().getPort(), getRule().getMethod(), getRule().getPath()};
     }
 
     @Override
     public String toString() {
-        return "MockEntry [id=" + id + ", enabled=" + enabled + ", rule=" + rule + "]";
+        return "MockEntry [id=" + id + "type= " + entryType + ", enabled=" + enabled + ", rule=" + rule + "]";
     }
 
     public MockEntry duplicate() {
