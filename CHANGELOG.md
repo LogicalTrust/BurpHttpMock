@@ -1,3 +1,6 @@
+## 1.1.5
+Fix connection errors.
+
 ## 1.1.4
 Support distinguishing requests by HTTP method.
 
