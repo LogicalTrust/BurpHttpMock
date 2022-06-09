@@ -1,3 +1,6 @@
+## 1.1.6
+Fix reading old configuration files.
+
 ## 1.1.5
 Fix connection errors.
 

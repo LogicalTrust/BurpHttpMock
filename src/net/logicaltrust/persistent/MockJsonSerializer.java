@@ -81,7 +81,7 @@ public class MockJsonSerializer {
         @Override
         public MockRule read(JsonReader jsonReader) throws IOException {
             MockRule rule = new MockRule();
-            rule.setMethodDecorated(MockRule.DEFAULT_METHOD); //default value for backward compatibility
+            rule.setMethod(MockRule.DEFAULT_METHOD); //default value for backward compatibility
             jsonReader.beginObject();
             while (jsonReader.hasNext()) {
                 switch (jsonReader.nextName()) {
