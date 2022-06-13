@@ -38,15 +38,15 @@ public class MockRule {
 
     public static MockRule fromURLwithoutQuery(URL url, String method) {
         return new MockRule(MockProtocolEnum.fromURL(url),
-                method,
+                decorateFull(method),
                 decorateFull(url.getHost()),
                 decorateFull(getPortFromURL(url)),
                 decorateFromStart(url.getPath()));
     }
 
-    public static MockRule fromURL(URL url, String method) {
+    public static MockRule fromURL(URL url, String method, boolean decorateMethod) {
         return new MockRule(MockProtocolEnum.fromURL(url),
-                method,
+                decorateMethod ? decorateFull(method) : method,
                 decorateFull(url.getHost()),
                 decorateFull(getPortFromURL(url)),
                 decorateFull(url.getFile()));

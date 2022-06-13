@@ -106,7 +106,7 @@ public class MockContextMenuFactory implements IContextMenuFactory {
 
         MockRule mockRule;
         if (fullURL) {
-            mockRule = MockRule.fromURL(analyzedURL, method);
+            mockRule = MockRule.fromURL(analyzedURL, method, true);
         } else {
             mockRule = MockRule.fromURLwithoutQuery(analyzedURL, method);
         }
