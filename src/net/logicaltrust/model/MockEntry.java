@@ -1,6 +1,5 @@
 package net.logicaltrust.model;
 
-import burp.IHttpRequestResponse;
 import burp.IHttpService;
 import com.google.gson.annotations.Expose;
 
@@ -45,12 +44,6 @@ public class MockEntry {
 
     public void setEntryInput(byte[] entryInput) {
         this.entryInput = entryInput;
-    }
-
-    //returns true if the function has handled the request
-    // (and therefore the default behavior of redirecting the request should not be used)
-    public boolean handleRequest(IHttpRequestResponse request) {
-        return getEntryType().handleRequest(getEntryInput(), request);
     }
 
     public byte[] handleResponse(byte[] request, IHttpService service) {

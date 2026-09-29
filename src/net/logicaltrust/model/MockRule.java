@@ -9,6 +9,7 @@ public class MockRule {
 
     public static final String DEFAULT_METHOD = ".*";
     private static final String[] REGEX_SPECIAL_CHARACTERS = new String[]{"\\.", "\\[", "\\]", "\\{", "\\}", "\\(", "\\)", "\\<", "\\>", "\\*", "\\+", "\\-", "\\=", "\\?", "\\^", "\\|"};
+    private static final Pattern PORT_LIST = Pattern.compile("\\s*\\d+(?:\\s*,\\s*\\d+)+\\s*");
     @Expose
     private String method;
     @Expose
@@ -97,7 +98,10 @@ public class MockRule {
 
     public void setPort(String port) {
         this.port = port;
-        this.portRegex = Pattern.compile(port);
+        String pattern = PORT_LIST.matcher(port).matches()
+                ? port.trim().replaceAll("\\s*,\\s*", "|")
+                : port;
+        this.portRegex = Pattern.compile(pattern);
     }
 
     public String getPath() {

@@ -4,7 +4,6 @@ import burp.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,7 +12,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public enum MockEntryTypeEnum {
     DirectEntry { //traditional one, just returns whatever was entered by the user in the text box
@@ -98,43 +96,8 @@ public enum MockEntryTypeEnum {
 
         @Override
         public byte[] generateResponse(byte[] entryInput, byte[] incomingRequest, IHttpService incomingHttpService) {
-            //This should never get here - The request should go out to the real URL and not to the local listener
+            // Redirects are handled before response generation.
             throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean handleRequest(byte[] entryInput, IHttpRequestResponse request) {
-            IExtensionHelpers helpers = BurpExtender.getCallbacks().getHelpers();
-            URL url;
-            int port;
-            try {
-                url = new URL(helpers.bytesToString(entryInput));
-                port = url.getPort();
-                if (port < 1) port = url.getDefaultPort();
-                if (port < 1 ||
-                        (!url.getProtocol().equalsIgnoreCase("http") &&
-                                !url.getProtocol().equalsIgnoreCase("https"))) {
-                    throw new MalformedURLException();
-                }
-            } catch (MalformedURLException e) {
-                BurpExtender.getLogger().error(e);
-                return false;
-            }
-            request.setHttpService(helpers.buildHttpService(url.getHost(), port, url.getProtocol()));
-            IRequestInfo requestInfo = helpers.analyzeRequest(request);
-            byte[] body = null;
-            if (requestInfo.getBodyOffset() < request.getRequest().length && requestInfo.getBodyOffset() >= 0) {
-                body = Arrays.copyOfRange(request.getRequest(),
-                        requestInfo.getBodyOffset(), request.getRequest().length);
-            }
-            String file = url.getFile();
-            if (file.equals("")) file = "/"; //handle the edge case for when the user enters domain name with no /
-            Stream<String> newTopLine = Stream.of(requestInfo.getMethod() + " " + file + " HTTP/1.1");
-            Stream<String> newHeaders = requestInfo.getHeaders().stream()
-                    .map(s -> s.toLowerCase().startsWith("host: ") ? "Host: " + url.getHost() : s).skip(1);
-            request.setRequest(helpers.buildHttpMessage(Stream.concat(newTopLine, newHeaders)
-                    .collect(Collectors.toList()), body));
-            return true;
         }
 
         @Override
@@ -191,8 +154,4 @@ public enum MockEntryTypeEnum {
     }
 
     public abstract byte[] generateResponse(byte[] ruleInput, byte[] incomingRequest, IHttpService incomingHttpService);
-
-    public boolean handleRequest(byte[] ruleInput, IHttpRequestResponse request) {
-        return false;
-    }
 }

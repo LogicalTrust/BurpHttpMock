@@ -19,7 +19,6 @@ public class SettingsSaver {
     private static final String DISPLAY_LARGE_RESPONSES_IN_EDITOR = "DISPLAY_LARGE_RESPONSES_IN_EDITOR";
     private static final String INFORM_ABOUT_LARGE_RESPONSE = "INFORM_ABOUT_LARGE_RESPONSE";
     private static final String DELIM_REGEX = "\\|";
-    private static final int DEFAULT_PORT = 7654;
     private static final int DEFAULT_THRESHOLD = 2 * 1024 * 1024; //2MB
     private final IBurpExtenderCallbacks callbacks;
     private final SimpleLogger logger;
@@ -157,22 +156,6 @@ public class SettingsSaver {
 
     public boolean isDebugOn() {
         return Boolean.parseBoolean(callbacks.loadExtensionSetting(DEBUG_OUTPUT));
-    }
-
-    public void savePort(int port) {
-        callbacks.saveExtensionSetting(SERVER_PORT, port + "");
-    }
-
-    public int loadPort() {
-        String port = callbacks.loadExtensionSetting(SERVER_PORT);
-        if (port != null) {
-            try {
-                return Integer.parseInt(port);
-            } catch (NumberFormatException e) {
-                logger.debugForce("Invalid port " + port);
-            }
-        }
-        return DEFAULT_PORT;
     }
 
     private MockEntry entryFromString(String str, Long id) {

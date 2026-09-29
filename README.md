@@ -2,7 +2,9 @@
 
 This Burp extension provides mock responses based on the real ones. 
 
-Create a mock by selecting entry from HTTP History or craft it manually. Requests are matched by customizable regex rules and forwarded to the local mock server. Mocks can have various behavior, including directly entering the input, reading replies from a file, redirecting to a different URL, or calling another process and returning the output.
+Create a mock by selecting an entry from HTTP History or crafting it manually. Requests are matched by customizable regex rules. Burp returns matching mock responses directly, without opening a connection to the original host or a local mock server. Mocks can have various behavior, including directly entering the input, reading replies from a file, redirecting to a different URL, or calling another process and returning the output.
+
+Mocks apply to requests sent through Burp Proxy and Repeater.
 
 Using this extension it is possible to test how web frontend and mobile clients react to different responses, without making any changes to the backend.
 It differs from intercepting responses mainly in two ways: 
@@ -17,7 +19,7 @@ It differs from intercepting responses mainly in two ways:
 - Configure rule fields to match desired requests:
   - Protocol - HTTP, HTTPS or any
   - Host - regex, e.g. `example\.com`
-  - Port - regex, e.g. `80`
+  - Port - regex (e.g. `80`) or comma-separated port numbers (e.g. `80, 443`)
   - Method - regex, e.g. `GET`
   - Path - regex, e.g. `^/test.*`
 - Configure response in the Response Editor
@@ -48,4 +50,4 @@ The media in this section are from an older version, but still demonstrate the c
 
 ## Building
 
-This project targets Java 8 to match Burp's current supported Java version. Building the project requires [Maven](https://maven.apache.org). To build the project, simply run `mvn package`.
+This version requires Burp Suite 2026.4 or newer for Montoya API response spoofing. Building the project requires a JDK (including `javac`) version 17 or newer and [Maven](https://maven.apache.org). To build the project, run `mvn package`.

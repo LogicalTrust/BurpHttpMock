@@ -11,17 +11,14 @@ import net.logicaltrust.persistent.SettingsSaver;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyListener {
+public class MockTabPanel extends JPanel implements ITab, MockAdder {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,15 +26,12 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
     private final MockRepository mockHolder;
     private final SettingsSaver settingSaver;
     private MockTable mockTable;
-    private JTabbedPane tabbedPane;
-    private ChangeListener changeListener;
 
     public MockTabPanel(MockRepository mockHolder, MockRuleEditor responseEditor, SettingsSaver settingSaver) {
         this.logger = BurpExtender.getLogger();
         this.mockHolder = mockHolder;
         this.settingSaver = settingSaver;
         prepareGui(responseEditor);
-        addHierarchyListener(this);
     }
 
     private void prepareGui(MockRuleEditor responseEditor) {
@@ -77,15 +71,12 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
         chckbxDebug.addActionListener(e -> settingSaver.saveDebugOutput(chckbxDebug.isSelected()));
         checkboxPanel.add(chckbxDebug);
 
-        JButton changePort = new JButton("Advanced");
-        changePort.addActionListener(e -> handleChangePortButton());
-        checkboxPanel.add(changePort);
+        JButton advanced = new JButton("Advanced");
+        advanced.addActionListener(e -> handleAdvancedButton());
+        checkboxPanel.add(advanced);
     }
 
-    private void handleChangePortButton() {
-        int initValue = settingSaver.loadPort();
-        JTextField portField = new JTextField();
-        portField.setText(initValue + "");
+    private void handleAdvancedButton() {
         JTextField largeFileThreshold = new JTextField();
         largeFileThreshold.setText(settingSaver.loadThreshold() + "");
         JCheckBox displayLargeResponsesInEditor = new JCheckBox();
@@ -96,7 +87,6 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
         informAboutLargeFiles.setSelected(settingSaver.loadInformLargeResponsesInEditor());
 
         Object[] msg = new Object[]{
-                "Local server port number", portField,
                 "Too large response threshold", largeFileThreshold,
                 displayLargeResponsesInEditor,
                 informAboutLargeFiles
@@ -106,8 +96,6 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
         if (confirm != JOptionPane.OK_OPTION) {
             return;
         }
-
-        savePortField(initValue, portField.getText());
 
         if (largeFileThreshold.getText() != null) {
             try {
@@ -122,24 +110,6 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
 
         settingSaver.saveDisplayLargeResponsesInEditor(displayLargeResponsesInEditor.isSelected());
         settingSaver.saveInformAboutLargeResponse(informAboutLargeFiles.isSelected());
-    }
-
-    private void savePortField(int initValue, String input) {
-        if (input != null) {
-            try {
-                int port = Integer.parseInt(input);
-                if (port > 0 && port < 65536) {
-                    if (port != initValue) {
-                        settingSaver.savePort(port);
-                        JOptionPane.showMessageDialog(this, "The change will take effect after restart", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    }
-                    return;
-                }
-            } catch (NumberFormatException e1) {
-                logger.debug("Cannot parse " + input);
-            }
-            JOptionPane.showMessageDialog(this, "Invalid value. Port must be between 1 and 65535", "Invalid value", JOptionPane.ERROR_MESSAGE);
-        }
     }
 
     private JLabel createLabelURL(String url) {
@@ -172,46 +142,5 @@ public class MockTabPanel extends JPanel implements ITab, MockAdder, HierarchyLi
     @Override
     public void addMock(MockEntry entry) {
         mockTable.addMock(entry);
-        highlightTab();
-    }
-
-    private void highlightTab() {
-        if (tabbedPane != null) {
-            for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-                if (tabbedPane.getComponentAt(i) == this) {
-                    tabbedPane.setBackgroundAt(i, new Color(0xff6633));
-                    Timer timer = new Timer(3000, e -> {
-                        for (int j = 0; j < tabbedPane.getTabCount(); j++) {
-                            if (tabbedPane.getComponentAt(j) == MockTabPanel.this) {
-                                tabbedPane.setBackgroundAt(j, Color.BLACK);
-                                break;
-                            }
-                        }
-                    });
-                    timer.setRepeats(false);
-                    timer.start();
-                    break;
-                }
-            }
-        }
-    }
-
-    @Override
-    public void hierarchyChanged(HierarchyEvent e) {
-        tabbedPane = (JTabbedPane) getParent();
-        changeListener = e1 -> {
-            if (tabbedPane.getSelectedComponent() == MockTabPanel.this) {
-                tabbedPane.setBackgroundAt(tabbedPane.getSelectedIndex(), Color.BLACK);
-            }
-        };
-        tabbedPane.addChangeListener(changeListener);
-        removeHierarchyListener(this);
-    }
-
-    // call from extensionUnloaded
-    void removeChangeListener() {
-        if (changeListener != null) {
-            tabbedPane.removeChangeListener(changeListener);
-        }
     }
 }
